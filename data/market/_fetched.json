@@ -1,6 +1,6 @@
 {
   "defillama_intents_daily.csv": {
-    "fetched_utc": "2026-11-11T13:42:34+00:00",
+    "fetched_utc": "2026-11-11T14:46:38+00:00",
     "source": "https://api.llama.fi/summary/{dexs,fees}/near-intents",
     "rows": 314,
     "defillama_methodology": {
@@ -15,16 +15,21 @@
     }
   },
   "near_price_daily.csv": {
-    "fetched_utc": "2026-11-11T13:42:34+00:00",
+    "fetched_utc": "2026-11-11T14:46:38+00:00",
     "source": "https://coins.llama.fi/chart/coingecko:near",
     "rows": 315
   },
+  "placebo_daily.csv": {
+    "fetched_utc": "2026-11-11T14:46:38+00:00",
+    "source": "https://coins.llama.fi/chart/coingecko:bitcoin + https://api.llama.fi/overview/dexs/solana",
+    "rows": 315
+  },
   "near_chain_snapshot.json": {
-    "fetched_utc": "2026-11-11T13:42:34+00:00",
+    "fetched_utc": "2026-11-11T14:46:38+00:00",
     "source": "https://free.rpc.fastnear.com (block, validators, EXPERIMENTAL_protocol_config)"
   },
   "peers.csv": {
-    "fetched_utc": "2026-11-11T13:42:34+00:00",
+    "fetched_utc": "2026-11-11T14:46:38+00:00",
     "source": "https://api.coingecko.com/api/v3/coins/markets + https://api.llama.fi/summary/fees/<chain>",
     "note": "chain fees/revenue are DefiLlama's L1 gas-fee figures; NEAR Intents revenue is separate"
   }

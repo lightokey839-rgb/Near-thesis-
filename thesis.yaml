@@ -1,0 +1,64 @@
+# thesis.yaml - the claim and its numeric tripwires, checked on every build.
+#
+# For each signal, build.py looks up `metric` in data/derived/metrics.json and marks it:
+#   green  = the bullish condition holds
+#   red    = the bearish condition holds
+#   yellow = neither (the thesis is undecided on this signal)
+# A condition is an operator and a number, or another metric: "< metric:strict_weekly_active_aug".
+# Thresholds were set on 11 Nov 2026 from the ranges seen in this data, before seeing how they
+# would score. Change them here, rebuild, and the scorecard in THESIS.md and the dashboard follows.
+
+claim: "NEAR is a call option on NEAR Intents: the demand is real and some of it is bought back and held, but not yet enough to outweigh issuance or justify the valuation."
+verdict_if_more_red: "bearish - the option is losing value"
+verdict_if_mostly_green: "bullish - the option is paying for itself"
+verdict_otherwise: "working but not yet sufficient"
+
+signals:
+  - id: buyback_vs_issuance
+    question: "Does the buyback flow offset a meaningful share of new NEAR?"
+    metric: wallet_inflow_share_of_issuance
+    bullish_if: ">= 0.25"
+    bearish_if: "< 0.05"
+    why: "Measured in NEAR, so price does not matter. 25% would mean buybacks soak up a quarter of dilution."
+
+  - id: buyback_outflows
+    question: "Is bought-back NEAR still being held (not sold or moved)?"
+    metric: wallet_largest_outflow_share_90d
+    bullish_if: "<= 0.001"
+    bearish_if: "> 0.01"
+    why: "Holding is the only thing that makes buybacks reduce float. Rolling 90-day window; the 12,000 NEAR move on 10 Jul (2.3% of the balance then) is disclosed in THESIS.md."
+
+  - id: intents_momentum
+    question: "Is Intents volume growing?"
+    metric: intents_volume_4w_vs_prior_12w
+    bullish_if: ">= 1.5"
+    bearish_if: "<= 0.6"
+    why: "All-Intents volume (DefiLlama), last 4 weeks vs the 12 weeks before."
+
+  - id: take_rate
+    question: "Is NEAR's cut of Intents volume high enough?"
+    metric: captured_revenue_take_bps
+    bullish_if: ">= 8"
+    bearish_if: "<= 3"
+    why: "Captured revenue / volume. Today's value is about 5 bps."
+
+  - id: revenue_vs_dilution
+    question: "Does captured revenue cover the dollar value of new issuance?"
+    metric: captured_revenue_to_issuance_usd
+    bullish_if: ">= 0.5"
+    bearish_if: "<= 0.1"
+    why: "Revenue in USD / issuance x price, both annualised."
+
+  - id: real_usage
+    question: "Is real on-chain usage back to where it started the year?"
+    metric: strict_weekly_active_latest
+    bullish_if: "> metric:strict_weekly_active_jan"
+    bearish_if: "< metric:strict_weekly_active_aug"
+    why: "Weekly accounts that are both engaged and returning (L4), the most conservative user count."
+
+  - id: valuation
+    question: "Is the valuation within reach of the captured cash flow?"
+    metric: market_cap_to_captured_revenue
+    bullish_if: "< 50"
+    bearish_if: "> 400"
+    why: "Market cap / annualised captured Intents revenue."

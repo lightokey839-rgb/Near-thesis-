@@ -20,7 +20,10 @@ import json
 import math
 import os
 import statistics as st
+import sys
 from datetime import date, datetime, timedelta
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 PARTIAL_OR_GAP_DAYS = {"2026-09-28", "2026-11-10",              # partial first/last day of the download
                        "2026-10-01", "2026-10-20", "2026-11-02"}  # multi-hour gaps in the source API
@@ -357,8 +360,12 @@ def accounts(m):
 
 
 def run(data):
+    import models
     m = Metrics(data)
-    for name, fn in (("swaps", swaps), ("audit", audit), ("market", market), ("wallet", wallet), ("accounts", accounts)):
+    yaml_path = os.path.join(os.path.dirname(os.path.abspath(data)), "thesis.yaml")
+    for name, fn in (("swaps", swaps), ("audit", audit), ("market", market), ("wallet", wallet), ("accounts", accounts),
+                     ("extra", models.extra), ("sensitivity", models.sensitivity), ("leadlag", models.leadlag),
+                     ("scorecard", lambda mm: models.scorecard(mm, yaml_path))):
         m.section(name, fn)
     os.makedirs(os.path.join(data, "derived"), exist_ok=True)
     doc = {"generated_from": "pinned snapshot tables in data/ (see data/MANIFEST.json)",

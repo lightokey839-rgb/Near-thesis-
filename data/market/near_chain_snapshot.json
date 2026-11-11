@@ -1,7 +1,7 @@
 {
-  "block_height": 224073123,
-  "block_time_utc": "2026-11-11T13:42:30+00:00",
-  "total_supply_near": 1311421200.0,
+  "block_height": 224079491,
+  "block_time_utc": "2026-11-11T14:46:34+00:00",
+  "total_supply_near": 1311421153.0,
   "current_validators": 351,
   "current_validator_stake_near": 582329678.0,
   "staked_share_of_supply": 0.444,
@@ -9,5 +9,5 @@
   "protocol_reward_rate": 0.0,
   "protocol_version": 88,
   "epoch_length_blocks": 43200,
-  "fetched_utc": "2026-11-11T13:42:34+00:00"
+  "fetched_utc": "2026-11-11T14:46:38+00:00"
 }

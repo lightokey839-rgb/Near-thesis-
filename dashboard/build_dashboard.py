@@ -17,9 +17,12 @@ import inspect
 import json
 import os
 import re
+import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
+sys.path.insert(0, os.path.join(ROOT, "pipeline"))
+from render import fmt_value  # noqa: E402  (same number style as THESIS.md)
 GAP_DAYS = {"2026-10-01", "2026-10-20", "2026-11-02"}
 PARTIAL = {"2026-09-28", "2026-11-10"}
 COLORS = ["#2f6fde", "#e07b28", "#1a9e8f", "#8a5cd1", "#d64545", "#8a8f98"]
@@ -180,6 +183,49 @@ def s_peers(data):
                "x (log scale)"), ["data/market/peers.csv"]
 
 
+def _metrics(data):
+    with open(os.path.join(data, "derived", "metrics.json"), encoding="utf-8") as f:
+        return json.load(f)["metrics"]
+
+
+def s_leadlag(data):
+    met = _metrics(data)
+    rows = [r for r in met["leadlag_table"]["value"] if r[0] == "weekly"]
+    lags = sorted({r[3] for r in rows})
+    get = lambda pid, i: [next(r[i] for r in rows if r[1] == pid and r[3] == l) for l in lags]
+    crit = round(met["leadlag_weekly_critical_r"]["value"], 3)
+    cfg = {"type": "bar", "data": {"labels": ["%+d wk" % l for l in lags], "datasets": [
+        {"label": "Intents volume -> NEAR price: 95% bootstrap CI",
+         "data": [[lo, hi] for lo, hi in zip(get("intents_to_price", 5), get("intents_to_price", 6))],
+         "backgroundColor": "rgba(47,111,222,0.25)", "borderColor": "rgba(47,111,222,0.6)", "borderWidth": 1},
+        {"type": "line", "label": "Intents volume -> NEAR price: r", "data": get("intents_to_price", 4),
+         "borderColor": COLORS[0], "backgroundColor": COLORS[0], "pointRadius": 4, "showLine": False},
+        {"type": "line", "label": "organic signers -> NEAR price: r", "data": get("organic_to_price", 4),
+         "borderColor": COLORS[1], "backgroundColor": COLORS[1], "pointRadius": 4, "showLine": False},
+        {"type": "line", "label": "PLACEBO Solana DEX volume -> NEAR price: r", "data": get("solana_dex_to_price", 4),
+         "borderColor": COLORS[5], "backgroundColor": COLORS[5], "pointRadius": 4, "pointStyle": "rect", "showLine": False},
+        {"type": "line", "label": "noise threshold (+/- r for p < 0.05)", "data": [crit] * len(lags),
+         "borderColor": COLORS[4], "borderDash": [5, 4], "pointRadius": 0, "borderWidth": 1},
+        {"type": "line", "label": "", "data": [-crit] * len(lags), "borderColor": COLORS[4], "borderDash": [5, 4],
+         "pointRadius": 0, "borderWidth": 1}]},
+        "options": {"scales": {"y": {"min": -1, "max": 1, "title": {"display": True, "text": "correlation r of weekly changes"}},
+                               "x": {"title": {"display": True, "text": "lag (positive = first series moves first)"}}},
+                    "plugins": {"legend": {"labels": {"filter": "nonempty"}}}}}
+    return cfg, ["data/derived/metrics.json (leadlag_table)", "pipeline/models.py :: leadlag"]
+
+
+def s_breakeven(data):
+    met = _metrics(data)
+    be = met["sensitivity_break_even_volume"]["value"]
+    takes = [k for k in be[0] if k != "inflation"]
+    labels = ["%s (%.1f bps)" % (t, be[0][t]["take_bps"]) for t in takes]
+    series = [("issuance %.1f%%" % (100 * r["inflation"]), [round(r[t]["x_today"], 2) for t in takes]) for r in be]
+    cfg = bar(labels, series, "x today's all-Intents volume needed")
+    cfg["data"]["datasets"].append({"type": "line", "label": "today's volume (1x)", "data": [1] * len(takes),
+                                    "borderColor": COLORS[5], "borderDash": [5, 4], "pointRadius": 0, "borderWidth": 1})
+    return cfg, ["data/derived/metrics.json (sensitivity_break_even_volume)", "pipeline/models.py :: sensitivity"]
+
+
 def s_game(data):
     q = [r for r in rd(data, "bq", "q26_game_methods_daily.csv") if r["method"] == "l2_claim"]
     return bar([r["block_date"] for r in q], [("distinct callers of l2_claim", [int(r["callers"]) for r in q])], "accounts"), \
@@ -228,6 +274,12 @@ CHARTS = [
      None, "q26_game_methods_daily", "Seven sample days, to keep query cost low."),
     ("oct27", "Usage", s_oct27, "FACT", "27 Oct event: the receiving address",
      None, "q21_oct27_target_balance", "{oct27_senders|int} accounts ({oct27_senders_never_active_2026_share|pct0} never active in 2026 before) sent it {oct27_near_total|int} NEAR on 27 Oct; it sent {oct27_target_outflow_oct29|int} NEAR out on 29 Oct."),
+    ("breakeven", "Model", s_breakeven, "INFERENCE", "How much Intents volume would make buybacks equal issuance?",
+     "At today's buyback take-rate ({wallet_take_bps|d1} bps), Intents volume would need to be {break_even_volume_x_today_at_current_take|d1}x today's to offset 2.5% issuance, or {break_even_volume_x_today_hsp029_at_current_take|d1}x at HSP-029's 1.6%.",
+     None, "Holds supply and NEAR price at today's values and assumes bought-back NEAR stays held. A sensitivity, not a forecast."),
+    ("leadlag", "Model", s_leadlag, "INFERENCE", "Does Intents volume lead NEAR's price? (weekly, 2026)",
+     "No: at every lag, Intents volume's correlation with NEAR's price stays inside the noise band, like the placebo's. Across all pairs, {leadlag_weekly_nonzero_lag_significant} of {leadlag_weekly_nonzero_lag_tests} lead/lag tests cleared it, about what chance gives ({leadlag_weekly_expected_false_positives|d1}). Organic signers (orange) move with price mainly in the same week.",
+     None, "{leadlag_weeks} weekly changes; effects smaller than r = {leadlag_weekly_min_detectable_r|r2} would usually be missed. Daily and ex-incentive versions are in THESIS.md section 7."),
     ("price", "Valuation", s_price, "FACT", "NEAR price vs organic usage, 2026",
      "NEAR's price changed {near_price_change_ytd|pctsigned} since 1 Jan while organic signers changed {organic_change_jan_to_aug|pctsigned} from January to August; they do not move together in this sample.",
      None, "Descriptive only. No lead-lag or causal claim is made here."),
@@ -256,12 +308,21 @@ def fill(text, met):
             if not v:
                 return "none"
             if all(isinstance(x, list) and len(x) == 2 for x in v):          # [[label, number], ...]
-                return "; ".join("%s: %s" % (x[0], "{:,.0f}".format(x[1]) if isinstance(x[1], (int, float)) else x[1]) for x in v)
+                return "; ".join("%s: %s" % (x[0], num(x[1])) for x in v)
             if len(v) == 2 and isinstance(v[0], str) and isinstance(v[1], (int, float)):  # [label, number]
-                return "%s: %s" % (v[0], "{:,.0f}".format(v[1]))
-            return ", ".join("{:,.0f}".format(x) if isinstance(x, (int, float)) else str(x) for x in v)
-        return FORMATS[fmt](v) if fmt else str(v)
+                return "%s: %s" % (v[0], num(v[1]))
+            return ", ".join(num(x) for x in v)
+        return FORMATS[fmt](v) if fmt else num(v)
     return re.sub(r"\{([a-z][a-z0-9_]*)(?:\|([a-z0-9]+))?\}", sub, text or "")
+
+
+def num(x):
+    """Default number style: thousands separators for big numbers, 2 decimals for small fractional ones."""
+    if isinstance(x, bool) or not isinstance(x, (int, float)):
+        return str(x)
+    if isinstance(x, int) or abs(x) >= 100:
+        return "{:,.0f}".format(x)
+    return "%.2f" % (x + 0.0)  # + 0.0 turns -0.0 into 0.0
 
 
 def tile(met, key, fmt, label):
@@ -285,7 +346,19 @@ def build(data, out):
         tile(met, "organic_change_jan_to_aug", pct, "Organic signers, Jan to Aug 2026"),
         tile(met, "strict_weekly_active_latest", lambda v: "%.0f/wk" % v, "Strict weekly active accounts (L4), last 2 weeks"),
         tile(met, "market_cap_to_captured_revenue", lambda v: "%.0fx" % v, "Market cap / captured Intents revenue"),
+        tile(met, "scorecard_verdict", str, "Scorecard verdict (thesis.yaml)"),
     ])
+    sc = met["scorecard"]["value"]
+    srows = "".join(
+        '<tr><td><code>%s</code><br><span class="q">%s</span></td><td>%s</td><td>%s</td><td>%s</td><td><span class="st %s">%s</span></td></tr>' % (
+            html.escape(r["id"]), html.escape(r["question"]),
+            html.escape(fmt_value(r.get("value"), met.get(r["metric"], {}).get("unit", ""))),
+            html.escape(r["bullish_if"]), html.escape(r["bearish_if"]), r["status"].replace(" ", "-"), r["status"].upper())
+        for r in sc)
+    with open(os.path.join(ROOT, "thesis.yaml"), encoding="utf-8") as f:
+        yaml_text = f.read()
+    g, y, rd_ = met["scorecard_counts"]["value"]
+    scorecard = SCORECARD % (html.escape(met["scorecard_verdict"]["value"]), g, y, rd_, srows, html.escape(yaml_text))
     sections, data_js = {}, {}
     for cid, section, fn, kind, title, sentence, sqlname, note in CHARTS:
         cfg, sources = fn(data)
@@ -310,7 +383,7 @@ def build(data, out):
                  (" &middot; " + html.escape(note)) if note else "", html.escape(query))
         sections.setdefault(section, []).append(card)
     body = "".join('<h2>%s</h2><div class="grid">%s</div>' % (html.escape(s), "".join(c)) for s, c in sections.items())
-    page = PAGE.replace("{{TILES}}", tiles).replace("{{BODY}}", body).replace(
+    page = PAGE.replace("{{TILES}}", tiles).replace("{{BODY}}", scorecard + body).replace(
         "{{DATA}}", json.dumps(data_js).replace("</", "<\\/")).replace(
         "{{STAMP}}", html.escape("%s; NEAR price %s at %s" % (
             met.get("swaps_last_utc", {}).get("value", "?"), met.get("near_price_usd", {}).get("value", "?"),
@@ -319,6 +392,13 @@ def build(data, out):
     with open(out, "w", encoding="utf-8") as f:
         f.write(page)
     print("dashboard: %d charts -> %s" % (len(CHARTS), out))
+
+
+SCORECARD = """<h2>Scorecard</h2><section class="card"><h3>Verdict: %s</h3>
+<p class="sentence">%d green, %d yellow, %d red. Each signal is a measured or derived metric with a bullish and a bearish threshold set in <code>thesis.yaml</code>; it is re-scored on every build.</p>
+<div class="tablewrap"><table><thead><tr><th>Signal</th><th>Today</th><th>Bullish if</th><th>Bearish if</th><th>Status</th></tr></thead><tbody>%s</tbody></table></div>
+<p class="meta"><span class="kind inference">INFERENCE</span> Source: <code>thesis.yaml</code>, <code>data/derived/metrics.json</code> (scorecard)</p>
+<details><summary>Rules behind this scorecard (thesis.yaml)</summary><pre><code>%s</code></pre></details></section>"""
 
 
 PAGE = r"""<!doctype html>
@@ -340,6 +420,9 @@ h3{font-size:16px;margin:0 0 4px}.lead{color:var(--muted);margin:0 0 18px}
 details summary{cursor:pointer;font-size:13px;color:var(--muted)}pre{background:var(--code);padding:10px;border-radius:6px;overflow:auto;max-height:340px;font-size:12px}
 code{font-family:ui-monospace,Consolas,monospace;font-size:12px}a{color:inherit}
 footer{color:var(--muted);font-size:12px;margin-top:40px}
+.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.q{color:var(--muted);font-size:12px}.st{font-weight:700;font-size:11px;padding:2px 7px;border-radius:4px;color:#fff}
+.st.green{background:#1a7f5a}.st.yellow{background:#a87900}.st.red{background:#c23b3b}.st.not-computed{background:#6b7079}
 </style></head><body><main>
 <h1>NEAR Intents: is the demand real, and does NEAR capture it?</h1>
 <p class="lead">Every number comes from pinned tables in this repo (<code>data/</code>) and is rebuilt by <code>python build.py</code>. Each chart shows its query. FACT = measured; INFERENCE = derived by arithmetic or modelling. Data as of {{STAMP}}.</p>
@@ -358,6 +441,8 @@ if (window.Chart) {
   for (const [id, cfg] of Object.entries(CHARTS)) {
     cfg.options = Object.assign({interaction: {mode: 'index', intersect: false}, plugins: {legend: {position: 'bottom'}}}, cfg.options || {});
     if (id === 'peers') cfg.options.scales.y.type = 'logarithmic';
+    const lg = cfg.options.plugins && cfg.options.plugins.legend;
+    if (lg && lg.labels && lg.labels.filter === 'nonempty') lg.labels.filter = (item) => item.text !== '';
     const el = document.getElementById('cv-' + id);
     if (el) new Chart(el, cfg);
   }

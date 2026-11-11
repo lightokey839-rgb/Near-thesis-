@@ -31,8 +31,11 @@ class Mock(BaseHTTPRequestHandler):
             self._send({"totalDataChart": [[D1, v], [D2, v]], "methodology": {"Revenue": "test"}})
         elif "/summary/fees/" in p:
             self._send({"total30d": 1000 if "dailyFees" in p else 500})
-        elif "/chart/coingecko:near" in p:
-            self._send({"coins": {"coingecko:near": {"prices": [{"timestamp": D1, "price": 3.5}, {"timestamp": D2, "price": 3.7}]}}})
+        elif "/chart/coingecko:" in p:
+            coin = p.split("coingecko:")[1].split("?")[0]
+            self._send({"coins": {"coingecko:" + coin: {"prices": [{"timestamp": D1, "price": 3.5}, {"timestamp": D2, "price": 3.7}]}}})
+        elif "/overview/dexs/solana" in p:
+            self._send({"totalDataChart": [[D1, 1000], [D2, 2000]]})
         elif "/coins/markets" in p:
             self._send([{"id": gid, "current_price": 1.0, "market_cap": 10, "fully_diluted_valuation": 12,
                          "circulating_supply": 5, "last_updated": "t"} for _, gid, _ in fm.PEERS])
@@ -80,6 +83,9 @@ class FetchMarketTest(unittest.TestCase):
         self.assertEqual(len(peers), len(fm.PEERS))
         self.assertEqual(peers[0]["chain_fees_30d_usd"], "1000")
         self.assertTrue(os.path.exists(os.path.join(out, "_fetched.json")))
+        with open(os.path.join(out, "placebo_daily.csv")) as f:
+            plc = list(csv.DictReader(f))
+        self.assertEqual(plc[1], {"day": "2026-11-06", "btc_usd": "3.7", "solana_dex_volume_usd": "2000"})
 
 
 if __name__ == "__main__":

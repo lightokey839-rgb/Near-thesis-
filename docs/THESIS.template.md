@@ -59,29 +59,60 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
 
 **INFERENCE:** the gross staking-yield ceiling is **{staking_yield_ceiling|pct1}** now and **{staking_yield_ceiling_hsp029|pct1}** at 1.6%. HSP-029 passed on 2 Nov 2026 and is not in force yet: a Security Council veto window, then a 90-day grace period and a validator upgrade.
 
-## 5. What would change my mind
+## 5. What would change my mind (scorecard, checked on every build)
 
-These thresholds are provisional, set on 11 Nov 2026 from the ranges in this data. `thesis.yaml` makes them machine-checkable.
+Each signal below has a numeric bullish and bearish condition in [`thesis.yaml`](thesis.yaml), set on 11 Nov 2026 from the ranges in this data. `python build.py` looks up today's value and marks it green (bullish condition holds), red (bearish condition holds) or yellow (neither).
 
-| Signal | Bullish if | Bearish if | Today |
-|---|---|---|---|
-| Buyback inflow / issuance (NEAR terms) | ≥ 25% for 8 straight weeks | < 5% for 8 straight weeks | {wallet_inflow_share_of_issuance|pct1} |
-| Wallet outflows (sold or moved) | none | any single outflow > 1% of the balance not explained publicly | {wallet_outflow_days_over_10_near} |
-| 1Click volume, 4-week average | > 1.5 × today's level | < 0.6 × today's level | {oneclick_usd_per_day|musd}/day |
-| Captured revenue take-rate | ≥ 8 bps | ≤ 3 bps | {captured_revenue_take_bps|d1} bps |
-| Strict weekly active accounts (L4) | > January's level | < August's low | {strict_weekly_active_latest|int}/wk |
-| Market cap / captured revenue | < 50x | > 400x | {market_cap_to_captured_revenue|x0} |
+<!-- SCORECARD -->
 
-## 6. What we could not measure
+Disclosure for `buyback_outflows`: it uses a rolling 90-day window. The wallet's last outflow was 12,000 NEAR on 10 Jul 2026, about 2.3% of its balance then. That is outside the window, but it is not explained publicly (multisig request, 9-10 Jul).
+
+## 6. HSP-029 sensitivity: what it takes for buybacks to outweigh issuance
+
+**INFERENCE.** These are a sensitivity table, not a forecast.
+- **Held constant:** supply, stake and NEAR price stay at today's values, and bought-back NEAR stays held.
+- **Activation:** HSP-029 is assumed to lower the inflation ceiling from 2.5% to 1.6% over 24 months once it activates. That is no earlier than mid-February 2027: after the 16 Nov veto window, a 90-day grace period and a validator upgrade. It is shown here as three levels, not a timeline.
+
+<!-- SENSITIVITY -->
+
+**What this says:**
+- At today's pace, buybacks soak up about **{wallet_inflow_share_of_issuance|pct0}** of new NEAR.
+- To fully offset issuance, the buyback-wallet inflow would have to be **{break_even_volume_x_today_at_current_take|d1}x** today's at 2.5% issuance, or **{break_even_volume_x_today_hsp029_at_current_take|d1}x** at 1.6%.
+- The same multiple applies to Intents volume if the wallet's take-rate stays at {wallet_take_bps|d1} bps.
+- HSP-029 roughly halves the distance; a higher take-rate closes the rest.
+
+This is why the thesis is an option: it pays off only if **volume x take-rate** grows several-fold while issuance falls.
+
+## 7. Lead-lag: does Intents activity move NEAR's price or usage?
+
+**Method (INFERENCE):**
+- **Series:** weekly log changes of all-Intents volume (DefiLlama), NEAR price, organic NEAR signers (BigQuery q10), and two controls: BTC price (the market factor) and Solana DEX volume (a placebo). The sample is {leadlag_weeks} complete weeks (first and last week starting: {leadlag_weekly_first_last}).
+- **Tests:** for each lag from -4 to +4 weeks we compute Pearson r with a 95% confidence interval from a moving-block bootstrap. Blocks of 4 weeks keep the autocorrelation, and a fixed seed makes reruns identical.
+- **Robustness:** the test is repeated without the September-October incentive weeks, and on daily data (lags of ±7 days).
+
+<!-- LEADLAG -->
+
+**Reading, stated plainly:**
+- **Low power.** With {leadlag_weeks} weeks, only |r| above about **{leadlag_weekly_critical_r|r2}** is distinguishable from noise, and real effects smaller than about **{leadlag_weekly_min_detectable_r|r2}** would usually be missed.
+- **No lead-lag found.** Of {leadlag_weekly_nonzero_lag_tests} weekly lead/lag tests, **{leadlag_weekly_nonzero_lag_significant}** had a confidence interval excluding 0. Chance alone produces about {leadlag_weekly_expected_false_positives|d1}. So there is **no evidence that Intents volume leads NEAR's price or on-chain usage**, and none for the reverse.
+- **Same-week moves.**
+  - NEAR price moves with BTC in the same week (r, CI: {leadlag_same_week_btc_to_price}; beta {leadlag_btc_beta|r2}).
+  - It also moves with organic NEAR signers (r, CI: {leadlag_same_week_organic_to_price}). This data cannot say which drives which, or whether both follow the wider market.
+- **Intents volume and price.**
+  - Same-week r, CI: {leadlag_same_week_intents_to_price}; with BTC removed: {leadlag_same_week_intents_to_price_ex_btc}.
+  - The placebo, Solana DEX volume, gives {leadlag_same_week_solana_dex_to_price}.
+
+## 8. What we could not measure
 
 - **AI agents on NEAR:** not measurable. There is no published label set, and rising repeat-swapper share cannot be attributed to agents.
 - **Intents users on the NEAR chain:** not measurable with BigQuery, because `intents.near` signs settlements.
 - **Who runs the 27 Oct wallet, and who sent the 9 Sep treasury transfer:** not found.
 - **Cause of the HOT game's summer decline and its 3-4 Nov jump:** not found.
-- **Lead-lag between Intents volume, NEAR usage and price:** not yet run. Six weeks of swap data gives too little statistical power; this will be stated with the test results.
+- **A causal link between Intents activity and NEAR's price:** not testable here. Section 7 finds no lead-lag, but with low power. It uses DefiLlama's all-Intents series (from January 2026), because our own 1Click download covers only six weeks.
 - **The documented 20 bps minimum for 1Click's fee share vs observed 1-5 bps buyback fees:** unresolved.
+- **Why the buyback wallet's 12,000 NEAR left on 10 Jul:** not found.
 
-## 7. Data caveats
+## 9. Data caveats
 
 - The swap file has gaps in the source API itself: {source_gap_hours|d1} hours, {source_gap_share_of_window|pct1} of the window, on 1 Oct, 20 Oct and 2 Nov. These days are excluded from averages.
 - "User" = refund address.

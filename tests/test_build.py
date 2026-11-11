@@ -49,6 +49,18 @@ class PinnedDataTest(unittest.TestCase):
         self.assertAlmostEqual(m["issuance_near_per_year"], m["total_supply_near"] * m["max_inflation_rate"], places=0)
         self.assertLess(m["source_gap_share_of_window"], 0.02)
 
+    def test_worded_claims_still_hold(self):
+        """Sentences that state a conclusion in words (not a number) are checked here; if a refresh breaks one, reword it."""
+        rows = [r for r in self.m["leadlag_table"] if r[0] == "weekly" and r[1] == "intents_to_price"]
+        # dashboard 'leadlag' chart + THESIS section 7: "Intents volume does not lead or lag NEAR's price"
+        self.assertFalse(any(r[9] for r in rows))
+        self.assertTrue(all(abs(r[4]) < self.m["leadlag_weekly_critical_r"] for r in rows))
+        # THESIS section 2: "bought-back NEAR is held" - no outflow in the last 90 days, never staked
+        self.assertEqual(self.m["wallet_largest_outflow_share_90d"], 0.0)
+        self.assertEqual(self.m["wallet_max_staked_near"], 0)
+        # THESIS section 3: "organic usage fell" from January to August
+        self.assertLess(self.m["organic_change_jan_to_aug"], 0)
+
 
 class BuildTest(unittest.TestCase):
     def test_check_passes_on_pinned_tables(self):

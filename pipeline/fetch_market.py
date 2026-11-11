@@ -7,6 +7,7 @@ Writes small, dated snapshot files to data/market/:
   near_price_daily.csv          NEAR/USD daily price (DefiLlama coins API, CoinGecko id "near")
   near_chain_snapshot.json      total supply, validator stake, inflation settings (NEAR JSON-RPC)
   peers.csv                     price, market cap, FDV (CoinGecko) + 30-day chain fees/revenue (DefiLlama)
+  placebo_daily.csv             BTC/USD and Solana DEX volume per day - control series for the lead-lag tests
   _fetched.json                 when each source was read and from which URL
 
 Sources and their terms:
@@ -73,12 +74,21 @@ def fetch_intents(llama, since):
     return rows, meta
 
 
-def fetch_price(coins, since):
+def fetch_price(coins, since, coin="near"):
     start = int(datetime.strptime(since, "%Y-%m-%d").replace(tzinfo=timezone.utc).timestamp())
     span = int((time.time() - start) // 86400) + 1
-    d = get_json("%s/chart/coingecko:near?start=%d&span=%d&period=1d" % (coins, start, span))
-    pts = d["coins"]["coingecko:near"]["prices"]
-    return [[day(p["timestamp"]), round(p["price"], 6)] for p in pts]
+    d = get_json("%s/chart/coingecko:%s?start=%d&span=%d&period=1d" % (coins, coin, start, span))
+    pts = d["coins"]["coingecko:" + coin]["prices"]
+    # daily points sit a few seconds either side of 00:00 UTC; round to the nearest midnight so each lands on its own day
+    return [[day(round(p["timestamp"] / 86400) * 86400), round(p["price"], 6)] for p in pts]
+
+
+def fetch_placebo(llama, coins, since):
+    """Control series: BTC price (the market factor) and Solana DEX volume (crypto activity unrelated to NEAR)."""
+    btc = dict(fetch_price(coins, since, "bitcoin"))
+    sol = chart(get_json(llama + "/overview/dexs/solana?excludeTotalDataChartBreakdown=true&dataType=dailyVolume"))
+    days = sorted(d for d in set(btc) | set(sol) if d >= since)
+    return [[d, btc.get(d, ""), sol.get(d, "")] for d in days]
 
 
 def rpc_call(rpc, method, params):
@@ -148,6 +158,12 @@ def run(out, since, llama=LLAMA, coins=COINS, gecko=GECKO, rpc=RPC):
     write_csv(os.path.join(out, "near_price_daily.csv"), ["day", "near_usd"], prices)
     log["near_price_daily.csv"] = {"fetched_utc": now, "source": coins + "/chart/coingecko:near", "rows": len(prices)}
     print("NEAR price: %d days, last %s = $%s" % (len(prices), prices[-1][0], prices[-1][1]))
+
+    plc = fetch_placebo(llama, coins, since)
+    write_csv(os.path.join(out, "placebo_daily.csv"), ["day", "btc_usd", "solana_dex_volume_usd"], plc)
+    log["placebo_daily.csv"] = {"fetched_utc": now, "source": coins + "/chart/coingecko:bitcoin + " + llama + "/overview/dexs/solana",
+                                "rows": len(plc)}
+    print("Placebo series: %d days" % len(plc))
 
     snap = fetch_chain(rpc)
     snap["fetched_utc"] = now

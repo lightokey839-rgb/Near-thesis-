@@ -22,7 +22,7 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
   - 99.6% of its inbound receipts come from `intents.near`.
   - One inflow was not fee flow: a **502,793 NEAR** treasury transfer on 9 Sep (a Trezu DAO proposal).
 - **INFERENCE - size of the flow.** In October the wallet took in **9,850 NEAR/day**, about **11% of annual issuance today** and **17%** at HSP-029's 1.6% end state.
-  - In dollars at $3.74: **$13.4M/yr**.
+  - In dollars at $3.73: **$13.4M/yr**.
   - DefiLlama's broader "captured revenue" (more wallets) is **$22.6M/yr**, ≈ 5.0 bps of Intents volume.
   - Our 1Click-only buyback-fee estimate is $5.4M/yr.
 - **FACT - the 4-5 Nov refund spike was not lost demand.** 42,330 refunds, 98% of them `INTENT_SUBMIT_FAILED` and 98% from Aurora referral codes. Aurora's successful swaps stayed normal (960, 1,068 on 4 and 5 Nov). The normal refund rate is 2.2%.
@@ -35,54 +35,130 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
 - **FACT - headline activity is inflated by account factories and one game.**
   - **Account factories:** 3,402,382 accounts in February and 560,092 kaiching accounts in October each made about one transaction to themselves. The "3 Nov surge" was 4,857 such accounts; organic unnamed signers were flat (2,440, 2,552, 2,274).
   - **One game:** HOT game signers were 168,492/day in January and 65,653/day in the latest month. Mining-claim callers fell steadily over the sample days (2026-07-07: 125,508; 2026-08-01: 113,875; 2026-08-20: 96,112; 2026-09-01: 73,543; 2026-09-10: 66,889; 2026-09-15: 39,810; 2026-10-01: 59,697).
-  - **27 Oct:** 12,028 accounts sending 4,072 NEAR (median 0.174165 NEAR) to one address were 94% dormant all year. That address moved 78,677 NEAR out two days later. **INFERENCE:** a custodial dust sweep, not users.
+  - **27 Oct:** 12,028 accounts sending 4,072 NEAR (median 0.17 NEAR) to one address were 94% dormant all year. That address moved 78,677 NEAR out two days later. **INFERENCE:** a custodial dust sweep, not users.
 - **FACT - most Intents users are not NEAR-chain users.** Settlement is signed by `intents.near` itself, so on-chain signer counts cannot see Intents users. Intents volume is concentrated:
   - **by app:** the top 5 referral codes carry 80% of 1Click USD, and swapkit alone 40%;
   - **by size:** swaps of $10k+ are 3.4% of swaps but 76% of USD;
   - **by user:** the top 1,000 addresses carry 46%.
 - **FACT - automation is rising.** The share of 1Click swaps from addresses making 10+ swaps that day went from 7.5% (first week) to 16.1% (last week). We cannot tell agents from bots.
 - **INFERENCE - value capture is small next to dilution and valuation.**
-  - **Dilution:** issuance is ≈ 32.8M NEAR/yr ≈ $122.6M/yr at today's price. Captured revenue covers ≈ 18% of that.
-  - **Valuation:** market cap $4.91B ≈ 217x annualised captured revenue.
+  - **Dilution:** issuance is ≈ 32.8M NEAR/yr ≈ $122.3M/yr at today's price. Captured revenue covers ≈ 18% of that.
+  - **Valuation:** market cap $4.90B ≈ 217x annualised captured revenue.
   - **Holding is not burning:** held NEAR can be sold later.
 - **FACT - price has not tracked usage.** NEAR is +137% since 1 Jan 2026 (from $1.51) while organic usage fell. Whatever drives the price, this data does not show it is on-chain usage.
 
 ## 4. Staking and issuance (context for the option)
 
-**FACT** (RPC, 2026-11-11T13:42:30+00:00):
+**FACT** (RPC, 2026-11-11T14:46:34+00:00):
 
 | Measure | Value |
 |---|---|
-| Total supply | 1,311,421,200 NEAR |
+| Total supply | 1,311,421,153 NEAR |
 | Current validator stake | 582,329,678 NEAR (44.4% of supply) |
 | Max inflation | 2.5% |
 | Protocol treasury cut | 0% |
 
 **INFERENCE:** the gross staking-yield ceiling is **5.6%** now and **3.6%** at 1.6%. HSP-029 passed on 2 Nov 2026 and is not in force yet: a Security Council veto window, then a 90-day grace period and a validator upgrade.
 
-## 5. What would change my mind
+## 5. What would change my mind (scorecard, checked on every build)
 
-These thresholds are provisional, set on 11 Nov 2026 from the ranges in this data. `thesis.yaml` makes them machine-checkable.
+Each signal below has a numeric bullish and bearish condition in [`thesis.yaml`](thesis.yaml), set on 11 Nov 2026 from the ranges in this data. `python build.py` looks up today's value and marks it green (bullish condition holds), red (bearish condition holds) or yellow (neither).
 
-| Signal | Bullish if | Bearish if | Today |
+| Signal | Question | Today | Bullish if | Bearish if | Status |
+|---|---|---|---|---|---|
+| `buyback_vs_issuance` | Does the buyback flow offset a meaningful share of new NEAR? | 11.0% | >= 0.25 | < 0.05 | **YELLOW** |
+| `buyback_outflows` | Is bought-back NEAR still being held (not sold or moved)? | 0.0% | <= 0.001 | > 0.01 | **GREEN** |
+| `intents_momentum` | Is Intents volume growing? | 1.04 | >= 1.5 | <= 0.6 | **YELLOW** |
+| `take_rate` | Is NEAR's cut of Intents volume high enough? | 5.0 bps | >= 8 | <= 3 | **YELLOW** |
+| `revenue_vs_dilution` | Does captured revenue cover the dollar value of new issuance? | 0.18 | >= 0.5 | <= 0.1 | **YELLOW** |
+| `real_usage` | Is real on-chain usage back to where it started the year? | 6,862 | > metric:strict_weekly_active_jan (11,706) | < metric:strict_weekly_active_aug (4,801) | **YELLOW** |
+| `valuation` | Is the valuation within reach of the captured cash flow? | 217x | < 50 | > 400 | **YELLOW** |
+
+**1 green, 6 yellow, 0 red -> verdict: working but not yet sufficient.** Thresholds and rules live in `thesis.yaml`; each signal's metric, source and method are in `data/derived/metrics.json`.
+
+Disclosure for `buyback_outflows`: it uses a rolling 90-day window. The wallet's last outflow was 12,000 NEAR on 10 Jul 2026, about 2.3% of its balance then. That is outside the window, but it is not explained publicly (multisig request, 9-10 Jul).
+
+## 6. HSP-029 sensitivity: what it takes for buybacks to outweigh issuance
+
+**INFERENCE.** These are a sensitivity table, not a forecast.
+- **Held constant:** supply, stake and NEAR price stay at today's values, and bought-back NEAR stays held.
+- **Activation:** HSP-029 is assumed to lower the inflation ceiling from 2.5% to 1.6% over 24 months once it activates. That is no earlier than mid-February 2027: after the 16 Nov veto window, a 90-day grace period and a validator upgrade. It is shown here as three levels, not a timeline.
+
+*Net new NEAR supply per year if bought-back NEAR stays held, by inflation rate (rows) and buyback pace (columns, multiples of today's buyback-wallet inflow).*
+
+| Inflation | New NEAR / yr | Staking yield ceiling | buyback 0x | buyback 0.5x | buyback 1x | buyback 2x | buyback 4x | Buyback multiple to offset |
+|---|---|---|---|---|---|---|---|---|
+| 2.5% | 32.8M | 5.6% | 2.50% | 2.36% | 2.23% | 1.95% | 1.40% | 9.1x |
+| 2.0% | 26.2M | 4.5% | 2.00% | 1.86% | 1.73% | 1.45% | 0.90% | 7.3x |
+| 1.6% | 21.0M | 3.6% | 1.60% | 1.46% | 1.33% | 1.05% | 0.50% | 5.8x |
+
+*NEAR Intents volume per day at which buybacks would equal issuance (at today's NEAR price), and how many times today's all-Intents volume that is.*
+
+| Inflation | buyback wallet today (3.0 bps) | all captured revenue today (5.0 bps) | hypothetical 10 bps (10.0 bps) | hypothetical 20 bps (20.0 bps) |
+|---|---|---|---|---|
+| 2.5% | $1129M/day (9.1x) | $670M/day (5.4x) | $335M/day (2.7x) | $168M/day (1.4x) |
+| 2.0% | $903M/day (7.3x) | $536M/day (4.3x) | $268M/day (2.2x) | $134M/day (1.1x) |
+| 1.6% | $723M/day (5.8x) | $429M/day (3.5x) | $214M/day (1.7x) | $107M/day (0.9x) |
+
+**What this says:**
+- At today's pace, buybacks soak up about **11%** of new NEAR.
+- To fully offset issuance, the buyback-wallet inflow would have to be **9.1x** today's at 2.5% issuance, or **5.8x** at 1.6%.
+- The same multiple applies to Intents volume if the wallet's take-rate stays at 3.0 bps.
+- HSP-029 roughly halves the distance; a higher take-rate closes the rest.
+
+This is why the thesis is an option: it pays off only if **volume x take-rate** grows several-fold while issuance falls.
+
+## 7. Lead-lag: does Intents activity move NEAR's price or usage?
+
+**Method (INFERENCE):**
+- **Series:** weekly log changes of all-Intents volume (DefiLlama), NEAR price, organic NEAR signers (BigQuery q10), and two controls: BTC price (the market factor) and Solana DEX volume (a placebo). The sample is 44 complete weeks (first and last week starting: 2026-01-05, 2026-11-02).
+- **Tests:** for each lag from -4 to +4 weeks we compute Pearson r with a 95% confidence interval from a moving-block bootstrap. Blocks of 4 weeks keep the autocorrelation, and a fixed seed makes reruns identical.
+- **Robustness:** the test is repeated without the September-October incentive weeks, and on daily data (lags of ±7 days).
+
+| Pair (x -> y) | Data | Same period r [95% CI] | Strongest lead/lag: lag, r [95% CI] |
 |---|---|---|---|
-| Buyback inflow / issuance (NEAR terms) | ≥ 25% for 8 straight weeks | < 5% for 8 straight weeks | 11.0% |
-| Wallet outflows (sold or moved) | none | any single outflow > 1% of the balance not explained publicly | 2026-07-10 |
-| 1Click volume, 4-week average | > 1.5 × today's level | < 0.6 × today's level | $36.9M/day |
-| Captured revenue take-rate | ≥ 8 bps | ≤ 3 bps | 5.0 bps |
-| Strict weekly active accounts (L4) | > January's level | < August's low | 6,862/wk |
-| Market cap / captured revenue | < 50x | > 400x | 217x |
+| Intents volume -> NEAR price | weekly, all weeks | 0.16 [-0.08, 0.42] | -3 wk, -0.21 [-0.53, 0.01] |
+| Intents volume -> organic NEAR signers | weekly, all weeks | 0.19 [-0.07, 0.39] | +4 wk, 0.27 [-0.02, 0.57] |
+| Organic NEAR signers -> NEAR price | weekly, all weeks | 0.52 [0.14, 0.69] * | +1 wk, 0.47 [0.04, 0.71] * |
+| Intents volume -> NEAR price with BTC's move removed | weekly, all weeks | 0.20 [-0.08, 0.51] | -3 wk, -0.27 [-0.55, 0.02] |
+| PLACEBO: Solana DEX volume -> NEAR price | weekly, all weeks | -0.00 [-0.17, 0.20] | -1 wk, 0.18 [-0.19, 0.53] |
+| MARKET: BTC price -> NEAR price | weekly, all weeks | 0.56 [0.27, 0.80] * | -4 wk, -0.25 [-0.47, -0.06] * |
+| Intents volume -> NEAR price | weekly, without Sep 14-Oct 19 | 0.15 [-0.13, 0.48] | +4 wk, -0.23 [-0.52, 0.02] |
+| Intents volume -> organic NEAR signers | weekly, without Sep 14-Oct 19 | 0.20 [-0.13, 0.46] | -4 wk, 0.28 [-0.06, 0.59] |
+| Organic NEAR signers -> NEAR price | weekly, without Sep 14-Oct 19 | 0.35 [0.04, 0.61] * | +4 wk, 0.36 [0.03, 0.55] * |
+| Intents volume -> NEAR price with BTC's move removed | weekly, without Sep 14-Oct 19 | 0.20 [-0.13, 0.58] | -3 wk, -0.17 [-0.50, 0.23] |
+| PLACEBO: Solana DEX volume -> NEAR price | weekly, without Sep 14-Oct 19 | 0.01 [-0.20, 0.24] | -1 wk, 0.32 [-0.08, 0.61] |
+| MARKET: BTC price -> NEAR price | weekly, without Sep 14-Oct 19 | 0.54 [0.19, 0.85] * | -4 wk, -0.34 [-0.52, -0.12] * |
+| Intents volume -> NEAR price | daily | -0.07 [-0.15, 0.01] | -1 d, 0.09 [-0.07, 0.23] |
+| Intents volume -> organic NEAR signers | daily | 0.25 [0.14, 0.34] * | -5 d, -0.15 [-0.25, -0.03] * |
+| Organic NEAR signers -> NEAR price | daily | 0.07 [-0.06, 0.20] | +1 d, 0.15 [-0.03, 0.34] |
+| Intents volume -> NEAR price with BTC's move removed | daily | -0.07 [-0.15, 0.02] | -1 d, 0.11 [-0.05, 0.23] |
+| PLACEBO: Solana DEX volume -> NEAR price | daily | 0.08 [-0.01, 0.18] | -1 d, 0.17 [0.05, 0.28] * |
+| MARKET: BTC price -> NEAR price | daily | 0.52 [0.39, 0.66] * | -7 d, 0.11 [-0.04, 0.21] |
 
-## 6. What we could not measure
+`*` = the bootstrap 95% CI excludes 0. Positive lag = x moves first. Full table (every lag): `leadlag_table` in `data/derived/metrics.json`.
+
+**Reading, stated plainly:**
+- **Low power.** With 44 weeks, only |r| above about **0.30** is distinguishable from noise, and real effects smaller than about **0.42** would usually be missed.
+- **No lead-lag found.** Of 48 weekly lead/lag tests, **2** had a confidence interval excluding 0. Chance alone produces about 2.4. So there is **no evidence that Intents volume leads NEAR's price or on-chain usage**, and none for the reverse.
+- **Same-week moves.**
+  - NEAR price moves with BTC in the same week (r, CI: 0.56, CI excludes 0; beta 1.36).
+  - It also moves with organic NEAR signers (r, CI: 0.52, CI excludes 0). This data cannot say which drives which, or whether both follow the wider market.
+- **Intents volume and price.**
+  - Same-week r, CI: 0.16, CI includes 0; with BTC removed: 0.20, CI includes 0.
+  - The placebo, Solana DEX volume, gives 0.00, CI includes 0.
+
+## 8. What we could not measure
 
 - **AI agents on NEAR:** not measurable. There is no published label set, and rising repeat-swapper share cannot be attributed to agents.
 - **Intents users on the NEAR chain:** not measurable with BigQuery, because `intents.near` signs settlements.
 - **Who runs the 27 Oct wallet, and who sent the 9 Sep treasury transfer:** not found.
 - **Cause of the HOT game's summer decline and its 3-4 Nov jump:** not found.
-- **Lead-lag between Intents volume, NEAR usage and price:** not yet run. Six weeks of swap data gives too little statistical power; this will be stated with the test results.
+- **A causal link between Intents activity and NEAR's price:** not testable here. Section 7 finds no lead-lag, but with low power. It uses DefiLlama's all-Intents series (from January 2026), because our own 1Click download covers only six weeks.
 - **The documented 20 bps minimum for 1Click's fee share vs observed 1-5 bps buyback fees:** unresolved.
+- **Why the buyback wallet's 12,000 NEAR left on 10 Jul:** not found.
 
-## 7. Data caveats
+## 9. Data caveats
 
 - The swap file has gaps in the source API itself: 12.3 hours, 1.2% of the window, on 1 Oct, 20 Oct and 2 Nov. These days are excluded from averages.
 - "User" = refund address.

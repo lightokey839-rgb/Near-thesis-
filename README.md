@@ -3,7 +3,8 @@
 An evidence-first investment thesis on NEAR: **is NEAR Intents demand real, and how much of it does the NEAR token capture?** It is built from 818,000 NEAR Intents (1Click) swaps, the NEAR BigQuery public dataset, the NEAR RPC, DefiLlama and CoinGecko. One command rebuilds every number, the thesis text and the dashboard from pinned data tables.
 
 - **Thesis:** [THESIS.md](THESIS.md) covers the claim, evidence for, evidence against, and what would change my mind.
-- **Dashboard:** `dashboard/index.html` has 15 charts. Each shows its query and one plain sentence.
+- **Dashboard:** `dashboard/index.html` has a scorecard and 17 charts. Each chart shows its query and one plain sentence.
+- **Scorecard rules:** [thesis.yaml](thesis.yaml) holds the claim and its numeric tripwires. Each build marks every signal green, yellow or red.
 - **Red-team log:** [docs/RED_TEAM_2026-11-11.md](docs/RED_TEAM_2026-11-11.md) records what we checked, what survived and what we corrected.
 
 NEAR Hackathon, track **Investment Thesis** (`thesis`). Not investment advice; no price targets.
@@ -19,13 +20,13 @@ python build.py --test
 ```
 
 **You should see:**
-1. `all 50 pinned tables match data/MANIFEST.json`. The input tables are exactly the ones we analysed (SHA-256).
-2. `metrics: 98 computed, 0 sections not computed`, which writes `data/derived/metrics.json`.
+1. `all 51 pinned tables match data/MANIFEST.json`. The input tables are exactly the ones we analysed (SHA-256).
+2. `metrics: 130 computed, 0 sections not computed`, which writes `data/derived/metrics.json`. This includes the HSP-029 sensitivity tables, the lead-lag statistics and the `thesis.yaml` scorecard.
 3. `THESIS.md written (every number filled from metrics.json)`
-4. `dashboard: 15 charts -> dashboard/index.html`
-5. The unit tests, ending in `OK`.
+4. `dashboard: 17 charts -> dashboard/index.html`
+5. The tests (25), ending in `OK`. They include checks that sentences stating a conclusion in words still match the data.
 
-Then open `dashboard/index.html` in a browser (it loads Chart.js 4.4.1 from cdnjs). You should see 8 headline tiles and 15 charts. Under each chart, **"Query behind this chart"** shows the exact SQL file or Python function that produced it.
+Then open `dashboard/index.html` in a browser (it loads Chart.js 4.4.1 from cdnjs). You should see 9 headline tiles, the scorecard (verdict, signals and their status) and 17 charts. Under each chart, **"Query behind this chart"** shows the exact SQL file or Python function that produced it.
 
 **Why the numbers can't be invented:**
 - **Generated, not typed:** THESIS.md is generated from `docs/THESIS.template.md`. Every number in it is a placeholder like `{wallet_inflow_share_of_issuance|pct0}`, filled from `metrics.json`. A placeholder naming a metric that doesn't exist stops the build.
@@ -37,6 +38,7 @@ Then open `dashboard/index.html` in a browser (it loads Chart.js 4.4.1 from cdnj
 ```
 build.py                    one command: verify -> (refresh) -> metrics -> THESIS.md -> dashboard
 THESIS.md                   generated thesis (edit docs/THESIS.template.md instead)
+thesis.yaml                 the claim and its numeric tripwires (bullish/bearish thresholds per signal)
 dashboard/                  build_dashboard.py -> index.html
 pipeline/
   download_swaps.py         1Click swap history from the NEAR Intents Explorer API (needs a JWT)
@@ -47,6 +49,8 @@ pipeline/
   buyback_wallet.py         weekly balance of buybacks.multisignature.near from the NEAR archival RPC -> data/onchain/
   fetch_market.py           price, supply, stake, inflation, peers, DefiLlama Intents data -> data/market/
   metrics.py                pinned tables -> data/derived/metrics.json
+  models.py                 HSP-029 sensitivity, lead-lag (block bootstrap, placebos, power), thesis.yaml scorecard
+  render.py                 Markdown tables for THESIS.md
 sql/                        every BigQuery query (each starts with a title and the sentence shown on the dashboard)
 data/                       pinned snapshot tables (small CSV/JSON) + MANIFEST.json; the 1.1 GB raw swap file is NOT committed
 docs/                       thesis template, red-team log
@@ -71,13 +75,14 @@ After a refresh, `build.py` re-pins the tables (rewrites `data/MANIFEST.json`), 
 - **NEAR JSON-RPC** (fastnear, near.org archival): supply, validators, protocol config and wallet balances, read 2026-11-11.
 - **DefiLlama** (`api.llama.fi`, `coins.llama.fi`): Intents volume, fees, revenue and NEAR price. Its Intents volume comes from a NEAR-maintained Dune table, so it is only partly independent of our source.
 - **CoinGecko** (`api.coingecko.com`): peer market caps.
+- **Controls for lead-lag:** BTC price (DefiLlama coins) and Solana DEX volume (DefiLlama), in `data/market/placebo_daily.csv`.
 
 ## Known limitations
 
 - **Gaps in the source:** the Explorer API itself has no swaps for about 12 hours (1 Oct, 20 Oct, 2 Nov). We disclose this and exclude those days from averages.
 - **Users are approximated:** "user" = the swap's refund address. On-chain signer counts cannot see NEAR Intents users, because `intents.near` signs settlements.
 - **No agent detection:** there is no published label set for agents on NEAR.
-- **Lead-lag isn't run yet:** analysis between volume, usage and price needs a longer history than six weeks of swaps.
+- **Lead-lag has low power:** it uses 44 weeks of DefiLlama all-Intents data, not our 6-week 1Click download. Only correlations above about 0.30 are detectable, so "no lead-lag found" is not proof that none exists.
 
 ## Hackathon disclosure
 
