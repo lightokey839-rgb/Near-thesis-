@@ -1,0 +1,31 @@
+{
+  "defillama_intents_daily.csv": {
+    "fetched_utc": "2026-11-11T13:42:34+00:00",
+    "source": "https://api.llama.fi/summary/{dexs,fees}/near-intents",
+    "rows": 314,
+    "defillama_methodology": {
+      "methodology": {
+        "Fees": "Gross fees charged on NEAR Intents swaps - the protocol fee plus the affiliate (distribution) fee each frontend collects, summed across all integrators.",
+        "Revenue": "NEAR's net captured revenue, measured as NEAR/wNEAR swept into its revenue wallets (reconciles with revenue.near.org and the on-chain buyback). Split by destination wallet into front-end affiliate revenue and Other. Transfers between those wallets are excluded.",
+        "ProtocolRevenue": "Captured revenue held by the treasury before the 2026-02-23 buyback program.",
+        "HoldersRevenue": "Since 2026-02-23, NEAR's captured Intents revenue is used to buy back $NEAR on the open market (not burned), returning value to holders.",
+        "SupplySideRevenue": "Gross fees minus NEAR's captured revenue - the affiliate fees kept by solvers and third-party distribution channels (e.g. SwapKit)."
+      },
+      "volume_methodology_url": "https://github.com/DefiLlama/dimension-adapters/blob/master/dexs/near-intents"
+    }
+  },
+  "near_price_daily.csv": {
+    "fetched_utc": "2026-11-11T13:42:34+00:00",
+    "source": "https://coins.llama.fi/chart/coingecko:near",
+    "rows": 315
+  },
+  "near_chain_snapshot.json": {
+    "fetched_utc": "2026-11-11T13:42:34+00:00",
+    "source": "https://free.rpc.fastnear.com (block, validators, EXPERIMENTAL_protocol_config)"
+  },
+  "peers.csv": {
+    "fetched_utc": "2026-11-11T13:42:34+00:00",
+    "source": "https://api.coingecko.com/api/v3/coins/markets + https://api.llama.fi/summary/fees/<chain>",
+    "note": "chain fees/revenue are DefiLlama's L1 gas-fee figures; NEAR Intents revenue is separate"
+  }
+}

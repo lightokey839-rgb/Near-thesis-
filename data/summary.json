@@ -1,0 +1,519 @@
+{
+  "input_file": "data\\intents_swaps.jsonl",
+  "lines_read": 818000,
+  "unreadable_lines": 0,
+  "duplicates_dropped": 0,
+  "unique_swaps": 818000,
+  "first_swap_utc": "2026-09-28T06:45:43+00:00",
+  "last_swap_utc": "2026-11-10T12:48:46+00:00",
+  "status_counts": {
+    "SUCCESS": 755175,
+    "PROCESSING": 80,
+    "REFUNDED": 59687,
+    "FAILED": 3058
+  },
+  "depositType_counts": {
+    "ORIGIN_CHAIN": 667048,
+    "INTENTS": 150952
+  },
+  "recipientType_counts": {
+    "DESTINATION_CHAIN": 765962,
+    "INTENTS": 52038
+  },
+  "refundType_counts": {
+    "ORIGIN_CHAIN": 661475,
+    "INTENTS": 156525
+  },
+  "fields_seen": {
+    "originAsset": 818000,
+    "destinationAsset": 818000,
+    "depositAddress": 818000,
+    "depositMemo": 818000,
+    "depositAddressAndMemo": 818000,
+    "recipient": 818000,
+    "status": 818000,
+    "createdAt": 818000,
+    "createdAtTimestamp": 818000,
+    "intentHashes": 818000,
+    "referral": 818000,
+    "amountInFormatted": 818000,
+    "amountOutFormatted": 818000,
+    "appFees": 818000,
+    "nearTxHashes": 818000,
+    "originChainTxHashes": 818000,
+    "destinationChainTxHashes": 818000,
+    "amountIn": 818000,
+    "amountInUsd": 818000,
+    "amountOut": 818000,
+    "amountOutUsd": 818000,
+    "refundTo": 818000,
+    "senders": 818000,
+    "refundReason": 818000,
+    "refundFee": 818000,
+    "refundFeeFormatted": 818000,
+    "depositType": 818000,
+    "recipientType": 818000,
+    "refundType": 818000
+  },
+  "success_users_proxy_total": 388012,
+  "success_usd_in_total": 1617100871.25,
+  "top_10_users_share_of_usd": 0.0775,
+  "top_100_users_share_of_usd": 0.2197,
+  "top_1000_users_share_of_usd": 0.4637,
+  "app_fee_values_by_recipient_top8": {
+    "buybacks.multisignature.near": [
+      [
+        1,
+        109461
+      ],
+      [
+        20,
+        100692
+      ],
+      [
+        5,
+        34174
+      ],
+      [
+        88,
+        5228
+      ],
+      [
+        75,
+        4434
+      ],
+      [
+        25,
+        4265
+      ],
+      [
+        50,
+        2720
+      ],
+      [
+        10,
+        1220
+      ]
+    ],
+    "trustswapkit.near": [
+      [
+        70,
+        175774
+      ],
+      [
+        80,
+        12969
+      ],
+      [
+        0,
+        401
+      ],
+      [
+        63,
+        51
+      ],
+      [
+        1,
+        44
+      ],
+      [
+        56,
+        18
+      ],
+      [
+        72,
+        10
+      ]
+    ],
+    "swapkit.near": [
+      [
+        7,
+        25732
+      ],
+      [
+        10,
+        22239
+      ],
+      [
+        15,
+        7646
+      ],
+      [
+        5,
+        5616
+      ],
+      [
+        1,
+        5329
+      ],
+      [
+        8,
+        1423
+      ],
+      [
+        9,
+        59
+      ],
+      [
+        20,
+        19
+      ]
+    ],
+    "ledgerswapkit.near": [
+      [
+        140,
+        21799
+      ],
+      [
+        75,
+        13029
+      ],
+      [
+        145,
+        12958
+      ],
+      [
+        138,
+        2923
+      ],
+      [
+        80,
+        2785
+      ],
+      [
+        73,
+        971
+      ]
+    ],
+    "lifi_int.near": [
+      [
+        5,
+        33388
+      ],
+      [
+        1,
+        15292
+      ],
+      [
+        10,
+        4
+      ]
+    ],
+    "rangoni.near": [
+      [
+        2,
+        24122
+      ],
+      [
+        0,
+        22781
+      ],
+      [
+        1,
+        988
+      ]
+    ],
+    "widget_collect.sputnik-dao.near": [
+      [
+        8,
+        25602
+      ],
+      [
+        58,
+        9658
+      ],
+      [
+        40,
+        2422
+      ],
+      [
+        10,
+        1506
+      ],
+      [
+        4,
+        1258
+      ],
+      [
+        12,
+        967
+      ],
+      [
+        2,
+        488
+      ],
+      [
+        20,
+        123
+      ]
+    ],
+    "tangemswapkit.near": [
+      [
+        125,
+        16386
+      ],
+      [
+        144,
+        8714
+      ],
+      [
+        0,
+        8000
+      ],
+      [
+        220,
+        523
+      ]
+    ],
+    "rewardsgenerator.near": [
+      [
+        12,
+        25593
+      ],
+      [
+        10,
+        256
+      ]
+    ],
+    "hvlnear.near": [
+      [
+        30,
+        13047
+      ],
+      [
+        50,
+        5851
+      ],
+      [
+        20,
+        566
+      ]
+    ],
+    "intents.tg": [
+      [
+        25,
+        11813
+      ],
+      [
+        13,
+        6029
+      ],
+      [
+        20,
+        1141
+      ],
+      [
+        1,
+        311
+      ]
+    ],
+    "zodlswaps.near": [
+      [
+        67,
+        13480
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        50,
+        1
+      ]
+    ],
+    "0xa6BfeA38fDddefE2E2987b486957714256d3C970": [
+      [
+        88,
+        9172
+      ]
+    ],
+    "thorswap.near": [
+      [
+        50,
+        3016
+      ],
+      [
+        0,
+        2367
+      ],
+      [
+        1,
+        573
+      ],
+      [
+        20,
+        72
+      ],
+      [
+        30,
+        64
+      ],
+      [
+        18,
+        3
+      ],
+      [
+        17,
+        2
+      ],
+      [
+        25,
+        2
+      ]
+    ],
+    "1fad79eb2223d76e33b93dbc43f3d565b315566642bae76ffeaa4486f146f77a": [
+      [
+        75,
+        4376
+      ],
+      [
+        55,
+        748
+      ],
+      [
+        60,
+        284
+      ],
+      [
+        95,
+        180
+      ],
+      [
+        70,
+        147
+      ],
+      [
+        64,
+        71
+      ],
+      [
+        113,
+        28
+      ],
+      [
+        52,
+        26
+      ]
+    ],
+    "near_mobile.near": [
+      [
+        88,
+        4011
+      ],
+      [
+        66,
+        1467
+      ],
+      [
+        44,
+        48
+      ],
+      [
+        33,
+        12
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        21,
+        4
+      ],
+      [
+        17,
+        2
+      ]
+    ],
+    "0xB324De4ADd083B74856082Ed2EA0B8b6F3864827": [
+      [
+        30,
+        4743
+      ],
+      [
+        10,
+        410
+      ],
+      [
+        5,
+        2
+      ]
+    ],
+    "0xb8b70b82e7cb934f0719ada65c995a897f9b6214": [
+      [
+        88,
+        5117
+      ],
+      [
+        175,
+        1
+      ]
+    ],
+    "meteor-cold.near": [
+      [
+        20,
+        4874
+      ]
+    ],
+    "crosschaindexfee.near": [
+      [
+        1,
+        2868
+      ],
+      [
+        2,
+        661
+      ]
+    ],
+    "transit-swapkit.near": [
+      [
+        30,
+        3492
+      ]
+    ],
+    "0x0d9dab1a248f63b0a48965ba8435e4de7497a3dc": [
+      [
+        25,
+        2259
+      ],
+      [
+        50,
+        749
+      ]
+    ],
+    "f6e2a398796c74b6f555dd3786c02e2792ea53d6ad4ee3a59fd95576682b27a2": [
+      [
+        67,
+        2968
+      ]
+    ],
+    "G9K5yZEXMcHn492NFFpPDfQEXGVGpgwpEPYAXyagcGTJ": [
+      [
+        60,
+        1428
+      ],
+      [
+        6,
+        1252
+      ]
+    ],
+    "onekeyoky.near": [
+      [
+        75,
+        2325
+      ]
+    ]
+  },
+  "notes": [
+    "Day = UTC. Volume/user figures use SUCCESS swaps only.",
+    "user = refundTo (fallback first sender): a proxy for a person, not a person.",
+    "appFees fee unit is not stated in the API docs; est_fee_usd_if_bps assumes basis points.",
+    "Retention cohorts start at first appearance in this file; early cohorts include older users.",
+    "chain_guess columns are a heuristic from asset ids."
+  ],
+  "seconds": 133.1
+}

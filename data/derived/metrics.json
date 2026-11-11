@@ -1,0 +1,1039 @@
+{
+  "generated_from": "pinned snapshot tables in data/ (see data/MANIFEST.json)",
+  "metrics": {
+    "swaps_first_utc": {
+      "value": "2026-09-28T06:45:43+00:00",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "earliest createdAt in the download"
+    },
+    "swaps_last_utc": {
+      "value": "2026-11-10T12:48:46+00:00",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "latest createdAt in the download"
+    },
+    "swaps_total": {
+      "value": 818000,
+      "unit": "swaps",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "unique depositAddress+memo rows, all statuses"
+    },
+    "swaps_duplicates": {
+      "value": 0,
+      "unit": "rows",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "rows dropped as duplicates"
+    },
+    "swaps_success": {
+      "value": 755175,
+      "unit": "swaps",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "status = SUCCESS"
+    },
+    "swaps_refunded": {
+      "value": 59687,
+      "unit": "swaps",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "status = REFUNDED"
+    },
+    "success_usd_total": {
+      "value": 1617100871.25,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "sum of amountInUsd, SUCCESS swaps"
+    },
+    "user_proxies_total": {
+      "value": 388012,
+      "unit": "addresses",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "distinct refundTo (fallback first sender) on SUCCESS swaps - a proxy, not people"
+    },
+    "top1000_users_usd_share": {
+      "value": 0.4637,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary.json"
+      ],
+      "method": "USD share of the 1,000 largest user proxies"
+    },
+    "clean_full_days": {
+      "value": 39,
+      "unit": "days",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "days excluding the partial first/last day and the 3 days with source-API gaps"
+    },
+    "oneclick_usd_per_day": {
+      "value": 36908089.153846,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "mean daily SUCCESS amountInUsd over clean full days"
+    },
+    "oneclick_users_per_day_median": {
+      "value": 12379,
+      "unit": "addresses/day",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "median daily distinct user proxies, clean full days"
+    },
+    "heavy_user_share_first_week": {
+      "value": 0.074543,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "share of SUCCESS swaps from addresses with 10+ swaps that day, first 7 clean days"
+    },
+    "heavy_user_share_last_week": {
+      "value": 0.161414,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "same, last 7 clean days"
+    },
+    "swaps_10k_plus_share_of_swaps": {
+      "value": 0.033801,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/size_buckets_daily.csv"
+      ],
+      "method": "swaps >= $10k / all SUCCESS swaps"
+    },
+    "swaps_10k_plus_share_of_usd": {
+      "value": 0.762941,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/size_buckets_daily.csv"
+      ],
+      "method": "USD of swaps >= $10k / all USD"
+    },
+    "swaps_under_100_share_of_swaps": {
+      "value": 0.590409,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/size_buckets_daily.csv"
+      ],
+      "method": "swaps < $100 / all"
+    },
+    "swaps_under_100_share_of_usd": {
+      "value": 0.006206,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/size_buckets_daily.csv"
+      ],
+      "method": "USD of swaps < $100 / all USD"
+    },
+    "top_referral": {
+      "value": "swapkit",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/referrals_weekly.csv"
+      ],
+      "method": "referral code with the most SUCCESS USD"
+    },
+    "top_referral_usd_share": {
+      "value": 0.396796,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/referrals_weekly.csv"
+      ],
+      "method": "its share of SUCCESS USD"
+    },
+    "top5_referrals_usd_share": {
+      "value": 0.804684,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/referrals_weekly.csv"
+      ],
+      "method": "top 5 referral codes' share"
+    },
+    "referral_ranking_top10": {
+      "value": [
+        [
+          "swapkit",
+          0.3968
+        ],
+        [
+          "(none)",
+          0.1916
+        ],
+        [
+          "lifi",
+          0.093
+        ],
+        [
+          "zodl",
+          0.0663
+        ],
+        [
+          "rango",
+          0.057
+        ],
+        [
+          "stableflow",
+          0.0172
+        ],
+        [
+          "trustwallet",
+          0.0167
+        ],
+        [
+          "new.intents-referral.near",
+          0.0154
+        ],
+        [
+          "vizor",
+          0.0141
+        ],
+        [
+          "near-intents.intents-referral.near",
+          0.0124
+        ]
+      ],
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/referrals_weekly.csv"
+      ],
+      "method": "top 10 codes by USD share"
+    },
+    "usd_share_priced_within_2pct": {
+      "value": 0.98859,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/price_ratio_bins.csv"
+      ],
+      "method": "share of SUCCESS USD in swaps whose USD out / USD in is within +-2%"
+    },
+    "same_asset_usd_share": {
+      "value": 0.035091,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/audit.json"
+      ],
+      "method": "SUCCESS USD in swaps where origin asset = destination asset (transfers, not trades)"
+    },
+    "buyback_fee_swap_share": {
+      "value": 0.3567,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/audit.json"
+      ],
+      "method": "share of SUCCESS swaps with buybacks.multisignature.near in appFees"
+    },
+    "fee_unit_slope": {
+      "value": 1.039033,
+      "unit": "bps per fee unit",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/fee_unit_test_stable_pairs.csv"
+      ],
+      "method": "least-squares slope of median user haircut (bps) on summed appFees.fee, stablecoin pairs, fee groups with 200+ swaps; 1.0 = basis points"
+    },
+    "fee_unit_groups": {
+      "value": 22,
+      "unit": "groups",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/fee_unit_test_stable_pairs.csv"
+      ],
+      "method": "fee groups used"
+    },
+    "refund_rate_normal_median": {
+      "value": 0.02245,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/refunds_by_day_reason.csv"
+      ],
+      "method": "median daily refund rate excluding 4-5 Nov"
+    },
+    "refund_spike_refunded": {
+      "value": 42330,
+      "unit": "swaps",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/refunds_by_day_reason.csv"
+      ],
+      "method": "refunds on 4-5 Nov"
+    },
+    "refund_spike_intent_submit_failed_share": {
+      "value": 0.979376,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/refunds_by_day_reason.csv"
+      ],
+      "method": "share of 4-5 Nov refunds with refundReason INTENT_SUBMIT_FAILED"
+    },
+    "refund_spike_aurora_share": {
+      "value": 0.979683,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/aurora_referrals_by_day.csv"
+      ],
+      "method": "share of 4-5 Nov refunds from referral codes starting 'aurora'"
+    },
+    "aurora_success_on_spike_days": {
+      "value": [
+        960,
+        1068
+      ],
+      "unit": "swaps/day",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/aurora_referrals_by_day.csv"
+      ],
+      "method": "Aurora SUCCESS swaps on 4 and 5 Nov (normal is ~1,000/day)"
+    },
+    "source_gap_hours": {
+      "value": 12.319722,
+      "unit": "hours",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/gap_check.csv"
+      ],
+      "method": "hours with zero swaps in the Explorer API itself (re-checked with the API)"
+    },
+    "source_gap_share_of_window": {
+      "value": 0.011868,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/gap_check.csv",
+        "data/audit/audit.json"
+      ],
+      "method": "gap hours / hours in the download window"
+    },
+    "oneclick_buyback_fee_usd_per_year": {
+      "value": 5449271.711538,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "mean daily (fee/10,000 x amountInUsd) to buybacks.multisignature.near on clean days x 365; 1Click only"
+    },
+    "snapshot_block_time_utc": {
+      "value": "2026-11-11T13:42:30+00:00",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "time of the RPC snapshot"
+    },
+    "total_supply_near": {
+      "value": 1311421200.0,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "block header total_supply"
+    },
+    "validator_stake_near": {
+      "value": 582329678.0,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "sum of current validators' stake"
+    },
+    "staked_share": {
+      "value": 0.444045,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "validator stake / total supply"
+    },
+    "max_inflation_rate": {
+      "value": 0.025,
+      "unit": "per year",
+      "kind": "FACT",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "protocol config max_inflation_rate"
+    },
+    "protocol_reward_rate": {
+      "value": 0.0,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "protocol config protocol_reward_rate (treasury cut)"
+    },
+    "issuance_near_per_year": {
+      "value": 32785530.0,
+      "unit": "NEAR/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "total supply x max inflation rate (ceiling; assumes full uptime)"
+    },
+    "issuance_near_per_year_hsp029": {
+      "value": 20982739.2,
+      "unit": "NEAR/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "total supply x 1.6% (HSP-029 end state, not yet in force)"
+    },
+    "staking_yield_ceiling": {
+      "value": 0.056301,
+      "unit": "per year",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "issuance to validators / validator stake, before commission"
+    },
+    "staking_yield_ceiling_hsp029": {
+      "value": 0.036032,
+      "unit": "per year",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "same at 1.6%"
+    },
+    "near_price_usd": {
+      "value": 3.74,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/peers.csv"
+      ],
+      "method": "CoinGecko current price at fetch time"
+    },
+    "near_market_cap_usd": {
+      "value": 4908404336.0,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/peers.csv"
+      ],
+      "method": "CoinGecko market cap at fetch time"
+    },
+    "issuance_usd_per_year": {
+      "value": 122617882.2,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/peers.csv",
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "issuance NEAR/yr x current price"
+    },
+    "peer_table": {
+      "value": [
+        [
+          "NEAR",
+          4908404336.0,
+          4908404329.0,
+          136746.0,
+          95723.0
+        ],
+        [
+          "Solana",
+          49758644373.0,
+          53625822245.0,
+          17222754.0,
+          1808654.0
+        ],
+        [
+          "Sui",
+          3436896265.0,
+          8303600164.0,
+          86898.0,
+          724.28
+        ],
+        [
+          "Aptos",
+          506925392.0,
+          694453298.0,
+          125866.0,
+          125866.0
+        ],
+        [
+          "TON",
+          3576994192.0,
+          6617426399.0,
+          66358.0,
+          33181.0
+        ]
+      ],
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/peers.csv"
+      ],
+      "method": "chain, market cap, FDV, DefiLlama chain fees 30d, chain revenue 30d"
+    },
+    "near_price_2026_01_01": {
+      "value": 1.512259,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/near_price_daily.csv"
+      ],
+      "method": "first daily price in 2026"
+    },
+    "near_price_change_ytd": {
+      "value": 1.370054,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/market/near_price_daily.csv"
+      ],
+      "method": "last daily price / 1 Jan 2026 price - 1"
+    },
+    "defillama_window": {
+      "value": "2026-10-10 to 2026-11-08",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "30 complete days used"
+    },
+    "intents_volume_usd_per_day": {
+      "value": 123823455.7,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "DefiLlama all-Intents volume, 30-day mean"
+    },
+    "near_captured_revenue_usd_per_year": {
+      "value": 22608282.5,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "DefiLlama 'Revenue' (NEAR swept into revenue wallets), 30-day mean x 365"
+    },
+    "intents_gross_fees_usd_per_year": {
+      "value": 70336582.833333,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "DefiLlama gross fees, 30-day mean x 365"
+    },
+    "captured_revenue_take_bps": {
+      "value": 5.002324,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "captured revenue / volume, same 30 days"
+    },
+    "captured_revenue_to_issuance_usd": {
+      "value": 0.18438,
+      "unit": "ratio",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_chain_snapshot.json",
+        "data/market/peers.csv"
+      ],
+      "method": "annualised captured revenue / issuance in USD"
+    },
+    "market_cap_to_captured_revenue": {
+      "value": 217.106467,
+      "unit": "x",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/peers.csv"
+      ],
+      "method": "market cap / annualised captured revenue"
+    },
+    "oneclick_share_of_intents_volume_median": {
+      "value": 0.290262,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv",
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "median daily 1Click USD / DefiLlama all-Intents USD"
+    },
+    "oneclick_vs_intents_daily_corr": {
+      "value": 0.90934,
+      "unit": "r",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv",
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "Pearson correlation of daily levels, clean days"
+    },
+    "wallet_balance_near": {
+      "value": 2240388.9446,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/buyback_wallet_daily.csv"
+      ],
+      "method": "native balance at the last weekly sample"
+    },
+    "wallet_balance_day": {
+      "value": "2026-11-11",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/buyback_wallet_daily.csv"
+      ],
+      "method": "date of that sample"
+    },
+    "wallet_weeks_rising": {
+      "value": 29,
+      "unit": "weeks",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/buyback_wallet_daily.csv"
+      ],
+      "method": "weekly samples higher than the week before, since inflows began"
+    },
+    "wallet_weeks_total": {
+      "value": 29,
+      "unit": "weeks",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/buyback_wallet_daily.csv"
+      ],
+      "method": "weekly intervals since inflows began"
+    },
+    "wallet_outflow_near_since_jul": {
+      "value": 12000.075359,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv",
+        "sql/q30_buyback_balance_daily.sql"
+      ],
+      "method": "sum of balance decreases, 1 Jul - 9 Nov"
+    },
+    "wallet_outflow_days_over_10_near": {
+      "value": [
+        "2026-07-10"
+      ],
+      "unit": "days",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv",
+        "sql/q30_buyback_balance_daily.sql"
+      ],
+      "method": "days with more than 10 NEAR leaving"
+    },
+    "wallet_max_staked_near": {
+      "value": 0,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv",
+        "sql/q30_buyback_balance_daily.sql"
+      ],
+      "method": "largest staked balance seen"
+    },
+    "wallet_inflow_near_per_day": {
+      "value": 9850.376192,
+      "unit": "NEAR/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv",
+        "sql/q30_buyback_balance_daily.sql"
+      ],
+      "method": "mean daily inflow 6 Oct - 8 Nov (5 full weeks, no one-off transfers)"
+    },
+    "wallet_sep09_treasury_transfer_near": {
+      "value": 502793.0,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q33_buyback_sep09_moves.csv"
+      ],
+      "method": "9 Sep inflow from a Trezu DAO 'Transfer' proposal (tx CMfn15uT...)"
+    },
+    "wallet_inflows_from_intents_share": {
+      "value": 0.99598,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q32_buyback_counterparties.csv"
+      ],
+      "method": "share of inbound receipts (1 Sep - 9 Nov) sent by intents.near"
+    },
+    "wallet_inflow_share_of_issuance": {
+      "value": 0.109664,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv",
+        "sql/q30_buyback_balance_daily.sql",
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "steady inflow x 365 / issuance NEAR/yr (no price needed)"
+    },
+    "wallet_inflow_share_of_issuance_hsp029": {
+      "value": 0.17135,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv",
+        "sql/q30_buyback_balance_daily.sql"
+      ],
+      "method": "same against 1.6% issuance"
+    },
+    "wallet_inflow_usd_per_year": {
+      "value": 13446748.539099,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv",
+        "sql/q30_buyback_balance_daily.sql",
+        "data/market/peers.csv"
+      ],
+      "method": "steady inflow x 365 x current price"
+    },
+    "organic_signers_per_day_jan": {
+      "value": 14274.451613,
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "mean daily organic signers in 2026-01 (sent >=1 tx to something other than game.hot.tg or itself; not *.users.kaiching)"
+    },
+    "game_signers_per_day_jan": {
+      "value": 168491.580645,
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "mean daily game.hot.tg signers in 2026-01"
+    },
+    "organic_signers_per_day_aug": {
+      "value": 4783.903226,
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "mean daily organic signers in 2026-08 (sent >=1 tx to something other than game.hot.tg or itself; not *.users.kaiching)"
+    },
+    "game_signers_per_day_aug": {
+      "value": 77769.483871,
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "mean daily game.hot.tg signers in 2026-08"
+    },
+    "organic_signers_per_day_latest": {
+      "value": 6038.888889,
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "mean daily organic signers in 2026-11 (sent >=1 tx to something other than game.hot.tg or itself; not *.users.kaiching)"
+    },
+    "game_signers_per_day_latest": {
+      "value": 65653.222222,
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "mean daily game.hot.tg signers in 2026-11"
+    },
+    "organic_change_jan_to_aug": {
+      "value": -0.664863,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "Aug mean / Jan mean - 1"
+    },
+    "nov03_organic_hex": {
+      "value": [
+        2440,
+        2552,
+        2274
+      ],
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "organic implicit-hex signers on 2, 3, 4 Nov"
+    },
+    "nov03_game_signers": {
+      "value": [
+        42385,
+        62577,
+        74796
+      ],
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "game.hot.tg signers on 2, 3, 4 Nov"
+    },
+    "strict_weekly_active_jan": {
+      "value": 11706.5,
+      "unit": "accounts/week",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q11_real_active_weekly.csv",
+        "sql/q11_real_active_weekly.sql"
+      ],
+      "method": "mean L4 (engaged and returning) over January's full weeks"
+    },
+    "strict_weekly_active_aug": {
+      "value": 4801,
+      "unit": "accounts/week",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q11_real_active_weekly.csv",
+        "sql/q11_real_active_weekly.sql"
+      ],
+      "method": "mean L4 over August's full weeks"
+    },
+    "strict_weekly_active_latest": {
+      "value": 6862.5,
+      "unit": "accounts/week",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q11_real_active_weekly.csv",
+        "sql/q11_real_active_weekly.sql"
+      ],
+      "method": "mean L4 over the last 2 full weeks"
+    },
+    "strict_weekly_active_peak": {
+      "value": [
+        "2026-09-28",
+        14724
+      ],
+      "unit": "accounts/week",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q11_real_active_weekly.csv",
+        "sql/q11_real_active_weekly.sql"
+      ],
+      "method": "highest L4 week"
+    },
+    "retention_next_week_median": {
+      "value": 0.03811,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q12_retention_cohorts.csv"
+      ],
+      "method": "median share of a weekly cohort active again the next week, Feb-Aug cohorts"
+    },
+    "retention_weeks_1_4_median": {
+      "value": 0.076989,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q12_retention_cohorts.csv"
+      ],
+      "method": "same, active at least once in weeks 1-4"
+    },
+    "burst_feb_implicit_self_only": {
+      "value": 3402382,
+      "unit": "accounts",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q29_self_only_bursts.csv"
+      ],
+      "method": "Feb 2026 implicit accounts that only sent txs to themselves"
+    },
+    "burst_oct_kaiching_self_only": {
+      "value": 560092,
+      "unit": "accounts",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q29_self_only_bursts.csv"
+      ],
+      "method": "2-8 Oct *.users.kaiching self-only accounts"
+    },
+    "burst_nov03_implicit_self_only": {
+      "value": 4857,
+      "unit": "accounts",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q29_self_only_bursts.csv"
+      ],
+      "method": "3 Nov implicit self-only accounts"
+    },
+    "oct27_senders": {
+      "value": 12028,
+      "unit": "accounts",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q20_oct27_senders.csv"
+      ],
+      "method": "accounts sending to 282acb...47ef on 27 Oct"
+    },
+    "oct27_near_total": {
+      "value": 4071.885445,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q20_oct27_senders.csv"
+      ],
+      "method": "NEAR attached in total"
+    },
+    "oct27_near_median": {
+      "value": 0.174165,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q20_oct27_senders.csv"
+      ],
+      "method": "median NEAR per transfer"
+    },
+    "oct27_senders_never_active_2026_share": {
+      "value": 0.940888,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q27_oct27_senders_history.csv"
+      ],
+      "method": "share of senders with no signed tx in 2026 before 27 Oct"
+    },
+    "oct27_target_outflow_oct29": {
+      "value": 78677.007607,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q21_oct27_target_balance.csv"
+      ],
+      "method": "NEAR leaving the address on 29 Oct"
+    },
+    "game_claim_callers": {
+      "value": [
+        [
+          "2026-07-07",
+          125508
+        ],
+        [
+          "2026-08-01",
+          113875
+        ],
+        [
+          "2026-08-20",
+          96112
+        ],
+        [
+          "2026-09-01",
+          73543
+        ],
+        [
+          "2026-09-10",
+          66889
+        ],
+        [
+          "2026-09-15",
+          39810
+        ],
+        [
+          "2026-10-01",
+          59697
+        ]
+      ],
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q26_game_methods_daily.csv"
+      ],
+      "method": "distinct callers of game.hot.tg l2_claim on sample days"
+    },
+    "game_claim_share_of_calls": {
+      "value": 0.869424,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q26_game_methods_daily.csv"
+      ],
+      "method": "l2_claim share of game calls on 7 Jul"
+    }
+  },
+  "not_computed": []
+}

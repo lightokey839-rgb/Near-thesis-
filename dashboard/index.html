@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NEAR Intents Thesis</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--ink:#1b1d21;--muted:#5d636e;--line:#e3e3df;--fact:#1a7f5a;--inf:#a35b00;--code:#f1f1ee}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#141518;--card:#1d1f23;--ink:#e9eaec;--muted:#a2a7b0;--line:#30333a;--fact:#5fd1a2;--inf:#f0a64a;--code:#26292e}}
+:root[data-theme="dark"]{--bg:#141518;--card:#1d1f23;--ink:#e9eaec;--muted:#a2a7b0;--line:#30333a;--fact:#5fd1a2;--inf:#f0a64a;--code:#26292e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:36px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px}
+h3{font-size:16px;margin:0 0 4px}.lead{color:var(--muted);margin:0 0 18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.tile .v{font-size:22px;font-weight:650}.tile .l{color:var(--ink);font-size:13px}.tile .k{color:var(--muted);font-size:11px;margin-top:4px;word-break:break-all}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
+.sentence{margin:0 0 10px}.chart{position:relative;height:280px}.meta{color:var(--muted);font-size:12px;margin:10px 0 6px;word-break:break-word}
+.kind{font-weight:700;font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid currentColor;margin-right:6px}.kind.fact{color:var(--fact)}.kind.inference{color:var(--inf)}
+details summary{cursor:pointer;font-size:13px;color:var(--muted)}pre{background:var(--code);padding:10px;border-radius:6px;overflow:auto;max-height:340px;font-size:12px}
+code{font-family:ui-monospace,Consolas,monospace;font-size:12px}a{color:inherit}
+footer{color:var(--muted);font-size:12px;margin-top:40px}
+</style></head><body><main>
+<h1>NEAR Intents: is the demand real, and does NEAR capture it?</h1>
+<p class="lead">Every number comes from pinned tables in this repo (<code>data/</code>) and is rebuilt by <code>python build.py</code>. Each chart shows its query. FACT = measured; INFERENCE = derived by arithmetic or modelling. Data as of 2026-11-10T12:48:46+00:00; NEAR price 3.74 at 2026-11-11T13:42:30+00:00.</p>
+<div class="tiles"><div class="tile"><div class="v">$36.9M/day</div><div class="l">1Click swap volume (SUCCESS, clean days)</div><div class="k">FACT &middot; <code>oneclick_usd_per_day</code></div></div><div class="tile"><div class="v">$123.8M/day</div><div class="l">All NEAR Intents volume (DefiLlama, 30 days)</div><div class="k">FACT &middot; <code>intents_volume_usd_per_day</code></div></div><div class="tile"><div class="v">$22.6M/yr</div><div class="l">NEAR&#x27;s captured Intents revenue (DefiLlama, annualised)</div><div class="k">INFERENCE &middot; <code>near_captured_revenue_usd_per_year</code></div></div><div class="tile"><div class="v">11.0%</div><div class="l">Buyback inflow as a share of new NEAR issued</div><div class="k">INFERENCE &middot; <code>wallet_inflow_share_of_issuance</code></div></div><div class="tile"><div class="v">6039/day</div><div class="l">Organic NEAR signers, latest month</div><div class="k">FACT &middot; <code>organic_signers_per_day_latest</code></div></div><div class="tile"><div class="v">-66.5%</div><div class="l">Organic signers, Jan to Aug 2026</div><div class="k">FACT &middot; <code>organic_change_jan_to_aug</code></div></div><div class="tile"><div class="v">6862/wk</div><div class="l">Strict weekly active accounts (L4), last 2 weeks</div><div class="k">FACT &middot; <code>strict_weekly_active_latest</code></div></div><div class="tile"><div class="v">217x</div><div class="l">Market cap / captured Intents revenue</div><div class="k">INFERENCE &middot; <code>market_cap_to_captured_revenue</code></div></div></div>
+<h2>Demand</h2><div class="grid">
+<section class="card" id="volume">
+  <h3>Daily swap volume: 1Click vs all NEAR Intents</h3>
+  <p class="sentence">1Click swaps are a steady ~29% slice of all NEAR Intents volume and move with it day to day (correlation 0.91).</p>
+  <div class="chart"><canvas id="cv-volume"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>data/summary/daily.csv</code>, <code>data/market/defillama_intents_daily.csv</code> &middot; Days 1 Oct, 20 Oct and 2 Nov contain multi-hour gaps in the source API (12 hours, 1.2% of the window).</p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_volume  (reads the files listed above)
+def s_volume(data):
+    ours = {r[&quot;day&quot;]: float(r[&quot;usd_in_success&quot;]) for r in rd(data, &quot;summary&quot;, &quot;daily.csv&quot;) if r[&quot;day&quot;] not in PARTIAL}
+    ll = {r[&quot;day&quot;]: float(r[&quot;intents_volume_usd&quot;] or 0) for r in rd(data, &quot;market&quot;, &quot;defillama_intents_daily.csv&quot;)}
+    days = sorted(ours)
+    return line(days, [(&quot;1Click swaps (our download, SUCCESS)&quot;, [round(ours[d] / 1e6, 2) for d in days]),
+                       (&quot;All NEAR Intents (DefiLlama)&quot;, [round(ll.get(d, 0) / 1e6, 2) or None for d in days])], &quot;USD millions per day&quot;), \
+        [&quot;data/summary/daily.csv&quot;, &quot;data/market/defillama_intents_daily.csv&quot;]
+</code></pre></details>
+</section>
+<section class="card" id="sizes">
+  <h3>Who carries the volume: swap size</h3>
+  <p class="sentence">59% of swaps are under $100, but swaps of $10k or more (3.4% of swaps) carry 76% of the dollars.</p>
+  <div class="chart"><canvas id="cv-sizes"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>data/summary/size_buckets_daily.csv</code></p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_sizes  (reads the files listed above)
+def s_sizes(data):
+    order = [&quot;lt_1&quot;, &quot;1_10&quot;, &quot;10_100&quot;, &quot;100_1k&quot;, &quot;1k_10k&quot;, &quot;gte_10k&quot;]
+    cnt, usd = dict.fromkeys(order, 0), dict.fromkeys(order, 0.0)
+    for r in rd(data, &quot;summary&quot;, &quot;size_buckets_daily.csv&quot;):
+        cnt[r[&quot;swap_size_usd_bucket&quot;]] += int(r[&quot;swaps_success&quot;])
+        usd[r[&quot;swap_size_usd_bucket&quot;]] += float(r[&quot;usd_in_success&quot;])
+    tc, tu = sum(cnt.values()), sum(usd.values())
+    labels = [&quot;&lt; $1&quot;, &quot;$1-10&quot;, &quot;$10-100&quot;, &quot;$100-1k&quot;, &quot;$1k-10k&quot;, &quot;&gt;= $10k&quot;]
+    return bar(labels, [(&quot;% of swaps&quot;, [round(100 * cnt[k] / tc, 2) for k in order]),
+                        (&quot;% of USD volume&quot;, [round(100 * usd[k] / tu, 2) for k in order])], &quot;%&quot;), \
+        [&quot;data/summary/size_buckets_daily.csv&quot;]
+</code></pre></details>
+</section>
+<section class="card" id="referrals">
+  <h3>Which apps send the volume</h3>
+  <p class="sentence">A handful of aggregators and wallets bring most of the 1Click volume: the top 5 referral codes carry 80%, swapkit alone 40%.</p>
+  <div class="chart"><canvas id="cv-referrals"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>data/summary/referrals_weekly.csv</code> &middot; &#x27;(none)&#x27; = swaps with no referral code.</p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_referrals  (reads the files listed above)
+def s_referrals(data):
+    tot = {}
+    for r in rd(data, &quot;summary&quot;, &quot;referrals_weekly.csv&quot;):
+        tot[r[&quot;referral&quot;]] = tot.get(r[&quot;referral&quot;], 0) + float(r[&quot;usd_in_success&quot;])
+    s = sum(tot.values())
+    top = sorted(tot.items(), key=lambda kv: -kv[1])[:10]
+    return bar([k for k, _ in top], [(&quot;% of 1Click USD volume&quot;, [round(100 * v / s, 2) for _, v in top])], &quot;%&quot;, horizontal=True), \
+        [&quot;data/summary/referrals_weekly.csv&quot;]
+</code></pre></details>
+</section>
+<section class="card" id="refunds">
+  <h3>Refund rate per day</h3>
+  <p class="sentence">Refunds are normally about 2.2% of swaps; 98% of the 4-5 Nov spike is one failure type, and 98% comes from Aurora referral codes, on top of their normal successful traffic.</p>
+  <div class="chart"><canvas id="cv-refunds"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>data/audit/refunds_by_day_reason.csv</code></p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_refunds  (reads the files listed above)
+def s_refunds(data):
+    rows = rd(data, &quot;audit&quot;, &quot;refunds_by_day_reason.csv&quot;)
+    rows = [r for r in rows if r[&quot;day&quot;] not in PARTIAL]
+    isf = [round(100 * int(r.get(&quot;reason_INTENT_SUBMIT_FAILED&quot;, 0)) / int(r[&quot;swaps_all_status&quot;]), 2) for r in rows]
+    other = [round(100 * float(r[&quot;refund_rate&quot;]) - a, 2) for r, a in zip(rows, isf)]
+    return bar([r[&quot;day&quot;] for r in rows], [(&quot;INTENT_SUBMIT_FAILED&quot;, isf), (&quot;all other refund reasons&quot;, other)],
+               &quot;% of all swaps that day&quot;, stacked=True), [&quot;data/audit/refunds_by_day_reason.csv&quot;]
+</code></pre></details>
+</section></div><h2>Value capture</h2><div class="grid">
+<section class="card" id="feeunit">
+  <h3>Is appFees.fee in basis points? (yes)</h3>
+  <p class="sentence">On stablecoin-to-stablecoin swaps, what users actually lost tracks the fee field one-for-one (slope 1.04), so the fee is in basis points, as the docs say.</p>
+  <div class="chart"><canvas id="cv-feeunit"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>data/audit/fee_unit_test_stable_pairs.csv</code></p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_feeunit  (reads the files listed above)
+def s_feeunit(data):
+    pts = [(float(r[&quot;sum_of_appFees_fee&quot;]), float(r[&quot;haircut_bps_median&quot;])) for r in rd(data, &quot;audit&quot;, &quot;fee_unit_test_stable_pairs.csv&quot;)
+           if int(r[&quot;swaps&quot;]) &gt;= 200]
+    mx = max(p[0] for p in pts)
+    cfg = {&quot;type&quot;: &quot;scatter&quot;, &quot;data&quot;: {&quot;datasets&quot;: [
+        {&quot;label&quot;: &quot;fee groups (200+ stablecoin swaps each)&quot;, &quot;data&quot;: [{&quot;x&quot;: x, &quot;y&quot;: y} for x, y in pts], &quot;backgroundColor&quot;: COLORS[0]},
+        {&quot;label&quot;: &quot;if fee = basis points (y = x)&quot;, &quot;data&quot;: [{&quot;x&quot;: 0, &quot;y&quot;: 0}, {&quot;x&quot;: mx, &quot;y&quot;: mx}], &quot;type&quot;: &quot;line&quot;,
+         &quot;borderColor&quot;: COLORS[5], &quot;borderDash&quot;: [6, 4], &quot;pointRadius&quot;: 0}]},
+        &quot;options&quot;: {&quot;scales&quot;: {&quot;x&quot;: {&quot;title&quot;: {&quot;display&quot;: True, &quot;text&quot;: &quot;sum of appFees.fee on the swap&quot;}},
+                               &quot;y&quot;: {&quot;title&quot;: {&quot;display&quot;: True, &quot;text&quot;: &quot;median haircut users took (bps)&quot;}}}}}
+    return cfg, [&quot;data/audit/fee_unit_test_stable_pairs.csv&quot;]
+</code></pre></details>
+</section>
+<section class="card" id="wallet">
+  <h3>Buyback wallet balance, weekly</h3>
+  <p class="sentence">The NEAR buyback wallet grew in 29 of 29 weeks since inflows began; the step in mid-September is a one-off treasury transfer of 502,793 NEAR.</p>
+  <div class="chart"><canvas id="cv-wallet"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>data/onchain/buyback_wallet_daily.csv</code> &middot; Read from the public NEAR archival RPC by pipeline/buyback_wallet.py.</p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_wallet  (reads the files listed above)
+def s_wallet(data):
+    w = [r for r in rd(data, &quot;onchain&quot;, &quot;buyback_wallet_daily.csv&quot;) if r[&quot;native_near&quot;]]
+    return line([r[&quot;day&quot;] for r in w], [(&quot;buybacks.multisignature.near balance&quot;, [round(float(r[&quot;native_near&quot;]) / 1e6, 4) for r in w])],
+                &quot;million NEAR&quot;), [&quot;data/onchain/buyback_wallet_daily.csv&quot;]
+</code></pre></details>
+</section>
+<section class="card" id="inflow">
+  <h3>Buyback wallet: NEAR in and out per day</h3>
+  <p class="sentence">If bought-back NEAR were burned or sold, the balance would fall; a balance that only rises means the NEAR is being held.</p>
+  <div class="chart"><canvas id="cv-inflow"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>sql/q30_buyback_balance_daily.sql</code>, <code>data/bq/q30_buyback_balance_daily.csv</code> &middot; Days with more than 10 NEAR leaving since 1 Jul: 2026-07-10 (total out 12,000 NEAR).</p>
+  <details><summary>Query behind this chart</summary><pre><code>-- sql/q30_buyback_balance_daily.sql  (run with: python pipeline/bq_run.py q30)
+-- title: Buyback wallet (buybacks.multisignature.near) - daily NEAR balance, inflows and outflows 1 Jul to 9 Nov 2026
+-- sentence: If bought-back NEAR were burned or sold, the balance would fall; a balance that only rises means the NEAR is being held.
+WITH ch AS (
+  SELECT block_date, block_height, index_in_block, update_reason,
+         affected_account_nonstaked_balance / 1e24 AS bal, affected_account_staked_balance / 1e24 AS staked
+  FROM `bigquery-public-data.crypto_near_mainnet_us.account_changes`
+  WHERE block_date BETWEEN &#x27;2026-07-01&#x27; AND &#x27;2026-11-09&#x27;
+    AND affected_account_id = &#x27;buybacks.multisignature.near&#x27;
+),
+d AS (
+  SELECT *, bal - LAG(bal) OVER (ORDER BY block_height, index_in_block) AS delta FROM ch
+)
+SELECT
+  block_date,
+  COUNT(*) AS changes,
+  ARRAY_AGG(bal ORDER BY block_height DESC, index_in_block DESC LIMIT 1)[OFFSET(0)] AS end_of_day_near,
+  MAX(staked) AS max_staked_near,
+  SUM(IF(delta &gt; 0, delta, 0)) AS inflow_near,
+  SUM(IF(delta &lt; 0, -delta, 0)) AS outflow_near,
+  COUNTIF(delta &lt; -1) AS outflows_over_1_near,
+  MIN(delta) AS largest_single_outflow_near
+FROM d
+GROUP BY block_date
+ORDER BY block_date
+</code></pre></details>
+</section>
+<section class="card" id="capture">
+  <h3>Buybacks vs new NEAR issued</h3>
+  <p class="sentence">At October&#x27;s pace the buyback wallet takes in about 11% of the NEAR issued each year today, and would take in about 17% at HSP-029&#x27;s lower 1.6% rate.</p>
+  <div class="chart"><canvas id="cv-capture"></canvas></div>
+  <p class="meta"><span class="kind inference">INFERENCE</span> Source: <code>data/derived/metrics.json</code> &middot; Issuance = total supply x inflation ceiling (assumes full validator uptime). Held NEAR could be sold later; this is not a burn.</p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_capture  (reads the files listed above)
+def s_capture(data):
+    met = json.load(open(os.path.join(data, &quot;derived&quot;, &quot;metrics.json&quot;), encoding=&quot;utf-8&quot;))[&quot;metrics&quot;]
+    v = lambda k: round(met[k][&quot;value&quot;] / 1e6, 2)
+    return bar([&quot;New NEAR issued per year (2.5%, today)&quot;, &quot;New NEAR issued per year (1.6%, HSP-029 end state)&quot;,
+                &quot;NEAR flowing into the buyback wallet per year (Oct pace)&quot;],
+               [(&quot;million NEAR per year&quot;, [v(&quot;issuance_near_per_year&quot;), v(&quot;issuance_near_per_year_hsp029&quot;),
+                                           round(met[&quot;wallet_inflow_near_per_day&quot;][&quot;value&quot;] * 365 / 1e6, 2)])], &quot;million NEAR / year&quot;), \
+        [&quot;data/derived/metrics.json&quot;]
+</code></pre></details>
+</section></div><h2>Usage</h2><div class="grid">
+<section class="card" id="signers">
+  <h3>Daily signing accounts by type (log scale)</h3>
+  <p class="sentence">Most daily NEAR signers are HOT game accounts; the &quot;organic&quot; line counts accounts that sent at least one transaction to something other than the game or themselves, excluding the kaiching self-transaction factory.</p>
+  <div class="chart"><canvas id="cv-signers"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>sql/q10_daily_signers_by_segment.sql</code>, <code>data/bq/q10_daily_signers_by_segment.csv</code> &middot; Spikes in the self-transaction line are account factories (3,402,382 accounts in Feb, 560,092 kaiching accounts in Oct).</p>
+  <details><summary>Query behind this chart</summary><pre><code>-- sql/q10_daily_signers_by_segment.sql  (run with: python pipeline/bq_run.py q10)
+-- title: Daily signing accounts by segment, Jan-Nov 2026
+-- sentence: Most daily NEAR signers are HOT game accounts; the &quot;organic&quot; line counts accounts that sent at least one transaction to something other than the game or themselves, excluding the kaiching self-transaction factory.
+SELECT
+  block_date,
+  COUNT(*) AS all_signers,
+  COUNTIF(game_txs &gt; 0) AS game_signers,
+  COUNTIF(game_txs = txs) AS game_only_signers,
+  COUNTIF(ENDS_WITH(signer, &#x27;.users.kaiching&#x27;)) AS kaiching_factory_signers,
+  COUNTIF(other_receivers = 0 AND game_txs &lt; txs) AS self_only_signers,
+  COUNTIF(other_receivers &gt; 0 AND NOT ENDS_WITH(signer, &#x27;.users.kaiching&#x27;)) AS organic_signers,
+  COUNTIF(other_receivers &gt; 0 AND NOT ENDS_WITH(signer, &#x27;.users.kaiching&#x27;)
+          AND REGEXP_CONTAINS(signer, r&#x27;^[0-9a-f]{64}$&#x27;)) AS organic_hex_implicit,
+  COUNTIF(other_receivers &gt; 0 AND NOT ENDS_WITH(signer, &#x27;.users.kaiching&#x27;)
+          AND REGEXP_CONTAINS(signer, r&#x27;^0x[0-9a-f]{40}$&#x27;)) AS organic_eth_implicit,
+  COUNTIF(other_receivers &gt; 0 AND NOT ENDS_WITH(signer, &#x27;.users.kaiching&#x27;) AND ENDS_WITH(signer, &#x27;.tg&#x27;)) AS organic_tg,
+  COUNTIF(other_receivers &gt; 0 AND NOT ENDS_WITH(signer, &#x27;.users.kaiching&#x27;) AND ENDS_WITH(signer, &#x27;.near&#x27;)) AS organic_dot_near,
+  SUM(txs) AS txs_all,
+  SUM(game_txs) AS txs_game
+FROM `{{project}}.{{dataset}}.signer_day`
+GROUP BY block_date
+ORDER BY block_date
+</code></pre></details>
+</section>
+<section class="card" id="weekly">
+  <h3>Weekly real active accounts, four strictness levels</h3>
+  <p class="sentence">Each step down removes more accounts that look automated or one-off; the bottom line (engaged and returning) is our most conservative count of real users.</p>
+  <div class="chart"><canvas id="cv-weekly"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>sql/q11_real_active_weekly.sql</code>, <code>data/bq/q11_real_active_weekly.csv</code> &middot; L4 (engaged and returning) is the most conservative count of real users.</p>
+  <details><summary>Query behind this chart</summary><pre><code>-- sql/q11_real_active_weekly.sql  (run with: python pipeline/bq_run.py q11)
+-- title: Weekly &quot;real active accounts&quot; under four stricter definitions
+-- sentence: Each step down removes more accounts that look automated or one-off; the bottom line (engaged and returning) is our most conservative count of real users.
+-- L1 organic: sent &gt;=1 tx to something other than game.hot.tg or itself, not a *.users.kaiching account.
+-- L2 engaged: L1 and (organic on &gt;=2 days that week, or &gt;=2 distinct counterparties on one day).
+-- L3 returning: L1 and also L1 in one of the previous 4 weeks.
+-- L4: both L2 and L3.
+-- Approximation: counterparties are counted per day, not de-duplicated across the week.
+WITH w AS (
+  SELECT
+    DATE_TRUNC(block_date, WEEK(MONDAY)) AS week,
+    signer,
+    COUNT(*) AS active_days,
+    COUNTIF(other_receivers &gt; 0) AS organic_days,
+    MAX(other_receivers) AS max_daily_counterparties,
+    LOGICAL_AND(game_txs = txs) AS game_only,
+    LOGICAL_OR(ENDS_WITH(signer, &#x27;.users.kaiching&#x27;)) AS kaiching
+  FROM `{{project}}.{{dataset}}.signer_day`
+  GROUP BY week, signer
+),
+l1 AS (
+  SELECT *, LAG(week) OVER (PARTITION BY signer ORDER BY week) AS prev_l1_week
+  FROM w
+  WHERE organic_days &gt; 0 AND NOT kaiching
+),
+a AS (
+  SELECT week, COUNT(*) AS all_signers, COUNTIF(game_only) AS game_only_signers,
+         COUNTIF(NOT game_only) AS non_game_signers
+  FROM w GROUP BY week
+),
+b AS (
+  SELECT week,
+    COUNT(*) AS l1_organic,
+    COUNTIF(organic_days &gt;= 2 OR max_daily_counterparties &gt;= 2) AS l2_engaged,
+    COUNTIF(prev_l1_week &gt;= DATE_SUB(week, INTERVAL 28 DAY)) AS l3_returning,
+    COUNTIF((organic_days &gt;= 2 OR max_daily_counterparties &gt;= 2)
+            AND prev_l1_week &gt;= DATE_SUB(week, INTERVAL 28 DAY)) AS l4_engaged_and_returning,
+    COUNTIF(REGEXP_CONTAINS(signer, r&#x27;^[0-9a-f]{64}$&#x27;)) AS l1_hex_implicit
+  FROM l1 GROUP BY week
+)
+SELECT a.*, b.* EXCEPT (week)
+FROM a LEFT JOIN b USING (week)
+ORDER BY week
+</code></pre></details>
+</section>
+<section class="card" id="retention">
+  <h3>Do new organic accounts come back?</h3>
+  <p class="sentence">Of the accounts first seen doing something other than the HOT game in a given week, this shows how many came back in later weeks.</p>
+  <div class="chart"><canvas id="cv-retention"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>sql/q12_retention_cohorts.sql</code>, <code>data/bq/q12_retention_cohorts.csv</code> &middot; Cohorts with fewer than 4 weeks of follow-up are left out.</p>
+  <details><summary>Query behind this chart</summary><pre><code>-- sql/q12_retention_cohorts.sql  (run with: python pipeline/bq_run.py q12)
+-- title: Weekly retention of organic accounts by first-seen week
+-- sentence: Of the accounts first seen doing something other than the HOT game in a given week, this shows how many came back in later weeks.
+-- Caveat: &quot;first seen&quot; means first seen since 1 Jan 2026, so January cohorts include older users.
+WITH l1 AS (
+  SELECT DISTINCT DATE_TRUNC(block_date, WEEK(MONDAY)) AS week, signer
+  FROM `{{project}}.{{dataset}}.signer_day`
+  WHERE other_receivers &gt; 0 AND NOT ENDS_WITH(signer, &#x27;.users.kaiching&#x27;)
+),
+first_week AS (SELECT signer, MIN(week) AS cohort FROM l1 GROUP BY signer),
+j AS (
+  SELECT f.cohort, f.signer, DATE_DIFF(l.week, f.cohort, WEEK) AS k
+  FROM first_week f JOIN l1 l USING (signer)
+)
+SELECT
+  cohort,
+  COUNT(DISTINCT signer) AS accounts,
+  COUNT(DISTINCT IF(k = 1, signer, NULL)) AS active_week_1,
+  COUNT(DISTINCT IF(k BETWEEN 1 AND 4, signer, NULL)) AS active_weeks_1_to_4,
+  COUNT(DISTINCT IF(k BETWEEN 5 AND 8, signer, NULL)) AS active_weeks_5_to_8,
+  DATE_DIFF(DATE &#x27;2026-11-09&#x27;, cohort, WEEK) AS weeks_observable
+FROM j
+GROUP BY cohort
+ORDER BY cohort
+</code></pre></details>
+</section>
+<section class="card" id="game">
+  <h3>HOT game: mining-claim callers on sample days</h3>
+  <p class="sentence">Shows which game action fell as daily game signers dropped from about 101k (7 Jul) to about 40k (15 Sep).</p>
+  <div class="chart"><canvas id="cv-game"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>sql/q26_game_methods_daily.sql</code>, <code>data/bq/q26_game_methods_daily.csv</code> &middot; Seven sample days, to keep query cost low.</p>
+  <details><summary>Query behind this chart</summary><pre><code>-- sql/q26_game_methods_daily.sql  (run with: python pipeline/bq_run.py q26)
+-- title: HOT game (game.hot.tg) calls by method on seven sample days, 7 Jul to 1 Oct
+-- sentence: Shows which game action fell as daily game signers dropped from about 101k (7 Jul) to about 40k (15 Sep).
+-- Seven sample days instead of every day keeps the heavy args column cheap to read.
+SELECT
+  block_date,
+  JSON_VALUE(args, &#x27;$.method_name&#x27;) AS method,
+  COUNT(*) AS calls,
+  COUNT(DISTINCT receipt_predecessor_account_id) AS callers
+FROM `bigquery-public-data.crypto_near_mainnet_us.receipt_actions`
+WHERE block_date IN (&#x27;2026-07-07&#x27;, &#x27;2026-08-01&#x27;, &#x27;2026-08-20&#x27;, &#x27;2026-09-01&#x27;, &#x27;2026-09-10&#x27;, &#x27;2026-09-15&#x27;, &#x27;2026-10-01&#x27;)
+  AND receipt_receiver_account_id = &#x27;game.hot.tg&#x27;
+  AND action_kind = &#x27;FUNCTION_CALL&#x27;
+GROUP BY 1, 2
+HAVING calls &gt;= 100
+ORDER BY 1, calls DESC
+</code></pre></details>
+</section>
+<section class="card" id="oct27">
+  <h3>27 Oct event: the receiving address</h3>
+  <p class="sentence">Shows how much NEAR the address collected on 27 Oct and whether it was moved out afterwards.</p>
+  <div class="chart"><canvas id="cv-oct27"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>sql/q21_oct27_target_balance.sql</code>, <code>data/bq/q21_oct27_target_balance.csv</code> &middot; 12,028 accounts (94% never active in 2026 before) sent it 4,072 NEAR on 27 Oct; it sent 78,677 NEAR out on 29 Oct.</p>
+  <details><summary>Query behind this chart</summary><pre><code>-- sql/q21_oct27_target_balance.sql  (run with: python pipeline/bq_run.py q21)
+-- title: 27 Oct event - daily balance of the unnamed address, 20 Oct to 9 Nov
+-- sentence: Shows how much NEAR the address collected on 27 Oct and whether it was moved out afterwards.
+-- Uses account_changes (balance after every change) instead of the heavy args column.
+WITH ch AS (
+  SELECT block_date, block_height, index_in_block, update_reason,
+         affected_account_nonstaked_balance / 1e24 AS bal, affected_account_staked_balance / 1e24 AS staked
+  FROM `bigquery-public-data.crypto_near_mainnet_us.account_changes`
+  WHERE block_date BETWEEN &#x27;2026-10-20&#x27; AND &#x27;2026-11-09&#x27;
+    AND affected_account_id = &#x27;282acb8e0fea9c3b2a87f01ba8a3eaff8447d1958adf4bdd1a81d6a7720547ef&#x27;
+),
+d AS (
+  SELECT *, bal - LAG(bal) OVER (ORDER BY block_height, index_in_block) AS delta FROM ch
+)
+SELECT
+  block_date,
+  COUNT(*) AS changes,
+  ARRAY_AGG(bal ORDER BY block_height DESC, index_in_block DESC LIMIT 1)[OFFSET(0)] AS end_of_day_near,
+  MAX(staked) AS max_staked_near,
+  SUM(IF(delta &gt; 0, delta, 0)) AS inflow_near,
+  SUM(IF(delta &lt; 0, -delta, 0)) AS outflow_near,
+  COUNTIF(delta &lt; -1) AS outflows_over_1_near,
+  STRING_AGG(DISTINCT update_reason) AS update_reasons
+FROM d
+GROUP BY block_date
+ORDER BY block_date
+</code></pre></details>
+</section></div><h2>Valuation</h2><div class="grid">
+<section class="card" id="price">
+  <h3>NEAR price vs organic usage, 2026</h3>
+  <p class="sentence">NEAR&#x27;s price changed +137% since 1 Jan while organic signers changed -66% from January to August; they do not move together in this sample.</p>
+  <div class="chart"><canvas id="cv-price"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>data/market/near_price_daily.csv</code>, <code>data/bq/q10_daily_signers_by_segment.csv</code> &middot; Descriptive only. No lead-lag or causal claim is made here.</p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_price  (reads the files listed above)
+def s_price(data):
+    price = {r[&quot;day&quot;]: float(r[&quot;near_usd&quot;]) for r in rd(data, &quot;market&quot;, &quot;near_price_daily.csv&quot;)}
+    org = {r[&quot;block_date&quot;]: int(r[&quot;organic_signers&quot;]) for r in rd(data, &quot;bq&quot;, &quot;q10_daily_signers_by_segment.csv&quot;)}
+    days = sorted(d for d in price if d in org)
+    avg = [round(sum(org[x] for x in days[max(0, i - 6):i + 1]) / len(days[max(0, i - 6):i + 1])) for i in range(len(days))]
+    return line(days, [(&quot;NEAR price (USD)&quot;, [price[d] for d in days]), (&quot;organic signers, 7-day average&quot;, avg)],
+                &quot;USD&quot;, y2={&quot;organic signers, 7-day average&quot;: &quot;accounts per day&quot;}), \
+        [&quot;data/market/near_price_daily.csv&quot;, &quot;data/bq/q10_daily_signers_by_segment.csv&quot;]
+</code></pre></details>
+</section>
+<section class="card" id="peers">
+  <h3>Market cap per dollar of chain fees, vs peers</h3>
+  <p class="sentence">Measured on base-layer gas fees, all of these chains trade at very high multiples; NEAR&#x27;s figure ignores NEAR Intents revenue, which is shown in the tiles above.</p>
+  <div class="chart"><canvas id="cv-peers"></canvas></div>
+  <p class="meta"><span class="kind fact">FACT</span> Source: <code>data/market/peers.csv</code> &middot; Chain fees = DefiLlama 30-day L1 fees x 365/30. Market cap from CoinGecko at fetch time. Methodologies differ across chains.</p>
+  <details><summary>Query behind this chart</summary><pre><code># dashboard/build_dashboard.py :: s_peers  (reads the files listed above)
+def s_peers(data):
+    p = rd(data, &quot;market&quot;, &quot;peers.csv&quot;)
+    return bar([r[&quot;chain&quot;] for r in p], [(&quot;market cap / annualised chain fees (x)&quot;,
+                [round(float(r[&quot;market_cap_usd&quot;]) / (float(r[&quot;chain_fees_30d_usd&quot;]) * 365 / 30)) for r in p])],
+               &quot;x (log scale)&quot;), [&quot;data/market/peers.csv&quot;]
+</code></pre></details>
+</section></div>
+<footer>Built by dashboard/build_dashboard.py. Sources: NEAR Intents Explorer API (1Click swaps), Google BigQuery public dataset crypto_near_mainnet_us, NEAR JSON-RPC, DefiLlama, CoinGecko. Not investment advice.</footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const CHARTS = {"volume": {"type": "line", "data": {"labels": ["2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"], "datasets": [{"label": "1Click swaps (our download, SUCCESS)", "data": [69.45, 53.4, 32.61, 38.18, 23.79, 19.82, 39.03, 35.74, 34.35, 52.73, 68.45, 39.78, 34.56, 38.91, 39.48, 31.4, 30.0, 21.25, 41.83, 41.06, 26.12, 35.64, 37.51, 30.18, 30.87, 22.99, 23.09, 41.53, 38.11, 32.62, 33.84, 57.94, 21.95, 26.47, 46.4, 40.82, 48.33, 39.34, 35.82, 29.08, 26.3, 43.29], "borderColor": "#2f6fde", "backgroundColor": "#2f6fde", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}, {"label": "All NEAR Intents (DefiLlama)", "data": [213.68, 173.18, 125.04, 124.14, 76.63, 64.35, 117.18, 126.23, 119.71, 256.07, 255.7, 153.19, 122.77, 139.5, 133.64, 145.43, 99.64, 88.17, 130.73, 138.81, 97.67, 121.45, 151.45, 132.26, 95.55, 85.99, 89.29, 134.32, 141.26, 112.39, 141.72, 191.9, 73.43, 81.93, 155.29, 137.91, 143.98, 131.02, 141.56, 114.75, 87.67, 166.23], "borderColor": "#e07b28", "backgroundColor": "#e07b28", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}]}, "options": {"scales": {"y": {"type": "linear", "title": {"display": true, "text": "USD millions per day"}}}}}, "sizes": {"type": "bar", "data": {"labels": ["< $1", "$1-10", "$10-100", "$100-1k", "$1k-10k", ">= $10k"], "datasets": [{"label": "% of swaps", "data": [7.93, 21.76, 29.35, 25.76, 11.82, 3.38], "backgroundColor": "#2f6fde"}, {"label": "% of USD volume", "data": [0.0, 0.05, 0.57, 4.28, 18.81, 76.29], "backgroundColor": "#e07b28"}]}, "options": {"scales": {"x": {"stacked": false}, "y": {"stacked": false, "title": {"display": true, "text": "%"}}}}}, "referrals": {"type": "bar", "data": {"labels": ["swapkit", "(none)", "lifi", "zodl", "rango", "stableflow", "trustwallet", "new.intents-referral.near", "vizor", "near-intents.intents-referral.near"], "datasets": [{"label": "% of 1Click USD volume", "data": [39.68, 19.16, 9.3, 6.63, 5.7, 1.72, 1.67, 1.54, 1.41, 1.24], "backgroundColor": "#2f6fde"}]}, "options": {"scales": {"x": {"stacked": false}, "y": {"stacked": false, "title": {"display": true, "text": "%"}}}, "indexAxis": "y"}}, "refunds": {"type": "bar", "data": {"labels": ["2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"], "datasets": [{"label": "INTENT_SUBMIT_FAILED", "data": [0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.01, 0.07, 0.49, 0.02, 0.0, 0.0, 0.0, 0.0, 30.81, 58.17, 0.0, 0.01, 0.0, 0.0], "backgroundColor": "#2f6fde"}, {"label": "all other refund reasons", "data": [1.74, 2.42, 3.99, 5.05, 2.89, 2.42, 2.17, 1.97, 1.46, 1.54, 1.6, 1.19, 3.74, 1.18, 1.82, 1.53, 3.28, 3.65, 3.68, 2.76, 2.71, 2.72, 1.83, 2.17, 2.25, 2.1, 2.33, 1.54, 2.86, 1.92, 3.23, 2.85, 2.57, 2.15, 3.77, 2.87, 1.76, 0.6, 1.47, 1.37, 2.24, 1.72], "backgroundColor": "#e07b28"}]}, "options": {"scales": {"x": {"stacked": true}, "y": {"stacked": true, "title": {"display": true, "text": "% of all swaps that day"}}}}}, "feeunit": {"type": "scatter", "data": {"datasets": [{"label": "fee groups (200+ stablecoin swaps each)", "data": [{"x": 0.0, "y": 1.13}, {"x": 1.0, "y": 2.49}, {"x": 2.0, "y": 3.08}, {"x": 4.0, "y": 13.35}, {"x": 10.0, "y": 11.67}, {"x": 15.0, "y": 19.69}, {"x": 20.0, "y": 26.36}, {"x": 21.0, "y": 22.32}, {"x": 25.0, "y": 36.69}, {"x": 30.0, "y": 31.49}, {"x": 31.0, "y": 37.99}, {"x": 50.0, "y": 51.67}, {"x": 70.0, "y": 74.21}, {"x": 71.0, "y": 78.63}, {"x": 73.0, "y": 84.44}, {"x": 80.0, "y": 81.01}, {"x": 88.0, "y": 97.11}, {"x": 100.0, "y": 102.71}, {"x": 110.0, "y": 120.1}, {"x": 138.0, "y": 142.75}, {"x": 150.0, "y": 158.67}, {"x": 176.0, "y": 190.12}], "backgroundColor": "#2f6fde"}, {"label": "if fee = basis points (y = x)", "data": [{"x": 0, "y": 0}, {"x": 176.0, "y": 176.0}], "type": "line", "borderColor": "#8a8f98", "borderDash": [6, 4], "pointRadius": 0}]}, "options": {"scales": {"x": {"title": {"display": true, "text": "sum of appFees.fee on the swap"}}, "y": {"title": {"display": true, "text": "median haircut users took (bps)"}}}}}, "wallet": {"type": "line", "data": {"labels": ["2026-03-25", "2026-04-01", "2026-04-08", "2026-04-15", "2026-04-22", "2026-04-29", "2026-05-06", "2026-05-13", "2026-05-20", "2026-05-27", "2026-06-03", "2026-06-10", "2026-06-17", "2026-06-24", "2026-07-01", "2026-07-08", "2026-07-15", "2026-07-22", "2026-07-29", "2026-08-05", "2026-08-12", "2026-08-19", "2026-08-26", "2026-09-02", "2026-09-09", "2026-09-16", "2026-09-23", "2026-09-30", "2026-10-07", "2026-10-14", "2026-10-21", "2026-10-28", "2026-11-04", "2026-11-11"], "datasets": [{"label": "buybacks.multisignature.near balance", "data": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0216, 0.0722, 0.1157, 0.1598, 0.2277, 0.2797, 0.3871, 0.4287, 0.4557, 0.4865, 0.5227, 0.5577, 0.6008, 0.6431, 0.6811, 0.7278, 0.768, 0.8834, 0.9497, 1.0676, 1.6445, 1.7598, 1.8336, 1.8899, 1.9672, 2.0337, 2.0984, 2.1649, 2.2404], "borderColor": "#2f6fde", "backgroundColor": "#2f6fde", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}]}, "options": {"scales": {"y": {"type": "linear", "title": {"display": true, "text": "million NEAR"}}}}}, "inflow": {"type": "bar", "data": {"labels": ["2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-11", "2026-07-12", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-18", "2026-07-19", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-25", "2026-07-26", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-01", "2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-08", "2026-08-09", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14", "2026-08-15", "2026-08-16", "2026-08-17", "2026-08-18", "2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22", "2026-08-23", "2026-08-24", "2026-08-25", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04", "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-12", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"], "datasets": [{"label": "NEAR in", "data": [5407, 6127, 5275, 2787, 3131, 6424, 6262, 7717, 7027, 5735, 2857, 3923, 5379, 14414, 6805, 7297, 6637, 5923, 3897, 4699, 7829, 15355, 5854, 3842, 2465, 4116, 5965, 4722, 6694, 7014, 5882, 5394, 2531, 5413, 5074, 7026, 5108, 8811, 5583, 5985, 6035, 8101, 6876, 4140, 6505, 3189, 3433, 9952, 6118, 23410, 15513, 23677, 16390, 11265, 13974, 11191, 11664, 10804, 10103, 7560, 8762, 8536, 8304, 12498, 25541, 34096, 10331, 20496, 7021, 8493, 514686, 9862, 12071, 9217, 9846, 9821, 11362, 11709, 23627, 25550, 11510, 7537, 18573, 16842, 16872, 11886, 13057, 5397, 5936, 9911, 10908, 13918, 10164, 7875, 3743, 4971, 8263, 7344, 7651, 16238, 16897, 10674, 10365, 8212, 7055, 10688, 19930, 5933, 4728, 6073, 7654, 11538, 7998, 8221, 6508, 7210, 10002, 13065, 11701, 9733, 15946, 12997, 7877, 5221, 7148, 7541, 9232, 12525, 15624, 8101, 7280, 11791], "backgroundColor": "#2f6fde"}, {"label": "NEAR out", "data": [0, 0, 0, 0, 0, 0, 0, 0, 0, -12000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "backgroundColor": "#e07b28"}]}, "options": {"scales": {"x": {"stacked": false}, "y": {"stacked": false, "title": {"display": true, "text": "NEAR per day"}}}}}, "capture": {"type": "bar", "data": {"labels": ["New NEAR issued per year (2.5%, today)", "New NEAR issued per year (1.6%, HSP-029 end state)", "NEAR flowing into the buyback wallet per year (Oct pace)"], "datasets": [{"label": "million NEAR per year", "data": [32.79, 20.98, 3.6], "backgroundColor": "#2f6fde"}]}, "options": {"scales": {"x": {"stacked": false}, "y": {"stacked": false, "title": {"display": true, "text": "million NEAR / year"}}}}}, "signers": {"type": "line", "data": {"labels": ["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-10", "2026-01-11", "2026-01-12", "2026-01-13", "2026-01-14", "2026-01-15", "2026-01-16", "2026-01-17", "2026-01-18", "2026-01-19", "2026-01-20", "2026-01-21", "2026-01-22", "2026-01-23", "2026-01-24", "2026-01-25", "2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-01-31", "2026-02-01", "2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05", "2026-02-06", "2026-02-07", "2026-02-08", "2026-02-09", "2026-02-10", "2026-02-11", "2026-02-12", "2026-02-13", "2026-02-14", "2026-02-15", "2026-02-16", "2026-02-17", "2026-02-18", "2026-02-19", "2026-02-20", "2026-02-21", "2026-02-22", "2026-02-23", "2026-02-24", "2026-02-25", "2026-02-26", "2026-02-27", "2026-02-28", "2026-03-01", "2026-03-02", "2026-03-03", "2026-03-04", "2026-03-05", "2026-03-06", "2026-03-07", "2026-03-08", "2026-03-09", "2026-03-10", "2026-03-11", "2026-03-12", "2026-03-13", "2026-03-14", "2026-03-15", "2026-03-16", "2026-03-17", "2026-03-18", "2026-03-19", "2026-03-20", "2026-03-21", "2026-03-22", "2026-03-23", "2026-03-24", "2026-03-25", "2026-03-26", "2026-03-27", "2026-03-28", "2026-03-29", "2026-03-30", "2026-03-31", "2026-04-01", "2026-04-02", "2026-04-03", "2026-04-04", "2026-04-05", "2026-04-06", "2026-04-07", "2026-04-08", "2026-04-09", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-21", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-29", "2026-04-30", "2026-05-01", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-10", "2026-07-11", "2026-07-12", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-17", "2026-07-18", "2026-07-19", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-25", "2026-07-26", "2026-07-27", "2026-07-28", "2026-07-29", "2026-07-30", "2026-07-31", "2026-08-01", "2026-08-02", "2026-08-03", "2026-08-04", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-08", "2026-08-09", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14", "2026-08-15", "2026-08-16", "2026-08-17", "2026-08-18", "2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22", "2026-08-23", "2026-08-24", "2026-08-25", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04", "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-12", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"], "datasets": [{"label": "HOT game signers", "data": [177878, 182124, 181319, 186568, 188286, 185812, 182757, 181839, 173625, 168529, 164470, 167678, 167033, 164624, 162563, 157702, 159971, 162059, 164679, 163800, 162113, 162162, 162396, 159489, 156642, 160144, 163369, 163106, 167318, 159241, 163943, 161485, 164647, 158686, 160684, 158217, 153276, 148843, 147876, 150062, 148388, 141748, 146687, 147418, 148361, 139926, 140771, 137028, 138649, 139962, 138387, 137841, 139779, 149943, 153735, 154956, 151523, 151934, 145600, 133351, 135951, 143123, 145559, 145627, 143793, 140731, 140146, 143452, 143831, 142402, 143395, 140843, 139514, 136548, 139820, 139944, 135795, 136987, 131502, 131170, 132429, 132430, 133770, 134588, 132265, 129309, 128727, 128920, 132667, 133017, 133949, 132159, 127323, 126131, 124955, 129279, 127382, 128630, 128128, 126413, 126905, 126547, 128642, 122551, 128194, 129520, 126612, 121088, 122806, 125182, 124999, 124976, 121412, 117599, 118555, 114692, 119983, 116759, 119077, 115090, 114793, 116715, 115533, 117560, 123069, 120432, 120269, 119206, 115808, 115649, 116495, 119325, 117799, 116253, 103044, 107926, 111882, 113468, 114246, 115573, 111079, 116314, 116327, 116303, 117040, 116766, 112246, 110535, 109391, 108227, 108234, 112791, 112655, 114067, 112950, 110587, 107566, 107875, 108750, 107774, 110751, 107766, 107715, 106274, 105204, 111506, 109364, 109775, 106162, 106595, 102930, 105345, 108054, 109082, 106367, 105181, 102098, 102122, 101748, 103936, 102535, 100010, 101247, 100690, 100369, 102582, 102988, 101338, 101398, 99019, 99066, 87287, 86796, 88628, 88995, 87523, 85756, 84487, 83825, 82853, 85702, 86683, 86514, 85515, 82049, 81770, 82172, 83661, 82873, 82863, 82009, 78474, 79052, 78843, 81976, 82209, 80918, 80793, 78139, 75766, 77551, 79455, 79437, 79086, 79563, 76677, 77072, 77457, 77944, 77416, 77473, 78707, 77700, 75949, 76078, 77240, 76254, 77374, 76888, 75180, 74304, 73771, 74582, 73629, 73983, 74334, 72797, 69921, 69678, 70314, 68013, 67557, 66930, 65725, 63374, 58004, 45547, 39912, 37873, 37382, 45769, 42523, 45626, 47292, 46489, 44999, 43880, 44406, 44150, 42746, 41862, 44990, 44784, 44261, 43808, 44624, 46769, 47546, 47079, 45866, 47126, 44958, 44629, 46014, 47612, 46474, 47144, 45705, 45765, 44680, 44675, 45600, 44749, 45099, 44297, 44767, 44148, 43968, 43984, 44289, 43736, 43005, 41761, 41460, 41974, 42385, 62577, 74796, 74247, 73910, 73244, 74209, 73537], "borderColor": "#2f6fde", "backgroundColor": "#2f6fde", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}, {"label": "organic signers", "data": [13948, 15044, 13929, 16452, 21196, 19501, 17822, 16708, 14194, 14375, 10869, 16481, 17156, 14394, 10393, 11163, 11953, 13393, 18472, 15051, 12867, 12150, 11585, 11503, 13462, 14215, 15065, 12810, 11222, 11771, 13364, 11278, 12185, 12450, 14604, 13474, 11947, 10476, 9059, 10368, 8660, 9466, 9751, 9759, 10012, 10000, 9948, 9490, 9750, 12599, 9487, 10827, 9693, 9898, 9312, 10745, 9043, 8465, 9727, 8630, 9615, 9452, 9620, 9151, 8185, 9550, 8421, 7905, 10253, 9978, 16869, 9422, 8874, 9403, 9629, 9323, 9598, 10074, 9334, 7662, 8017, 10610, 9762, 10179, 9235, 11545, 8687, 7626, 9229, 9765, 8208, 8929, 7891, 8425, 7269, 7814, 7176, 8555, 7885, 9768, 8619, 9184, 13757, 7644, 7500, 6657, 7093, 8327, 7441, 7504, 6970, 8287, 7476, 6975, 6828, 6550, 7194, 6688, 7074, 7069, 6904, 14714, 13856, 14605, 16081, 11819, 7833, 7899, 7800, 7369, 11190, 7379, 8087, 7154, 6170, 6549, 5953, 7934, 6463, 6982, 7550, 13033, 9590, 11033, 13315, 11926, 9291, 7003, 9076, 8147, 8628, 8690, 8706, 10390, 8973, 8588, 6881, 7167, 8392, 7353, 6664, 6920, 7523, 6376, 7416, 9146, 7017, 9184, 7936, 5823, 6234, 6389, 6724, 6427, 6211, 6715, 6343, 6505, 6632, 7039, 7125, 6597, 6716, 5948, 5942, 6926, 6461, 5823, 5777, 5383, 5267, 5130, 5377, 5122, 5080, 5366, 5003, 5989, 5349, 5092, 5130, 5069, 4966, 5302, 5256, 4881, 4741, 5273, 5038, 5661, 4953, 5218, 4929, 4276, 4731, 4609, 4539, 4651, 5590, 4650, 4192, 4711, 4997, 4189, 4576, 4640, 4133, 3957, 3641, 3624, 4797, 6207, 5760, 5507, 4813, 5168, 4702, 6385, 6367, 4418, 4336, 4604, 4602, 5037, 4525, 4807, 4824, 6266, 7211, 7462, 5658, 6334, 5896, 6418, 5705, 4966, 5414, 6052, 5378, 8278, 19133, 12234, 14549, 15374, 12983, 12945, 11446, 14450, 11430, 22472, 21599, 19350, 15373, 18252, 12923, 10722, 9978, 9842, 10831, 9950, 12214, 10007, 13396, 9873, 12776, 10154, 12778, 10825, 10434, 10159, 8049, 8449, 7442, 9646, 7763, 7099, 7102, 6157, 6441, 18466, 6299, 7069, 6264, 5296, 5311, 6308, 6060, 6060, 6022, 6251, 5693, 6946, 5699], "borderColor": "#e07b28", "backgroundColor": "#e07b28", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}, {"label": "self-transaction-only signers", "data": [123, 154, 100, 160, 132, 167, 156, 157, 138, 323, 410, 170, 150, 165, 132, 220, 96, 118, 144, 332, 133, 143, 139, 120, 132, 121, 144, 156, 213, 151, 134, 98, 180, 196583, 131464, 99105, 97309, 98245, 98051, 106604, 226098, 233161, 225095, 223755, 179531, 447369, 280050, 400012, 360546, 136, 102, 95, 94, 113, 135, 113, 123, 107, 87, 105, 137, 107, 164, 104, 122, 97, 81, 110, 99, 271, 98, 104, 96, 92, 90, 117, 92, 97, 79, 121, 244, 153, 96, 125, 82, 82, 110, 72, 73, 111, 87, 260, 91, 79, 83, 91, 129, 86, 136, 99, 95, 108, 97, 90, 209, 231, 112, 2684, 227, 102, 180, 126, 106, 113, 70, 97, 94, 112, 114, 125, 101, 112, 66, 83, 83, 79, 94, 86, 123, 86, 87, 95, 110, 83, 116, 56, 620, 80, 95, 109, 72, 151, 90, 91, 101, 135, 381, 98, 118, 71, 85, 85, 97, 137, 103, 63, 66, 219, 10069, 85, 62, 62, 69, 72, 108, 85, 70, 66, 67, 60, 57, 58, 76, 62, 75, 65, 58, 46, 66, 66, 67, 67, 70, 59, 53, 60, 60, 63, 62, 58, 57, 58, 49, 65, 55, 69, 62, 50, 42, 45, 54, 66, 71, 82, 52, 1410, 625, 117, 126, 71, 72, 59, 56, 90, 56, 312, 51, 61, 55, 55, 59, 78, 78, 62, 48, 67, 58, 450, 54, 84, 81, 99, 86, 123, 96, 505, 113, 62, 63, 169, 53, 63, 63, 61, 68, 92, 56, 58, 66, 73, 74, 67, 98, 60, 69, 70, 92, 312, 53, 91, 698, 79, 103, 183, 157, 151, 126, 164, 192, 495, 359, 674, 260, 1053, 62709, 122969, 122033, 40077, 68288, 121471, 24424, 122, 156, 171, 148, 134, 177, 117, 159, 858, 114, 145, 810, 297, 94, 293, 88, 86, 166, 116, 154, 116, 111, 96, 81, 164, 4947, 239, 124, 107, 101, 83, 138], "borderColor": "#1a9e8f", "backgroundColor": "#1a9e8f", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}]}, "options": {"scales": {"y": {"type": "logarithmic", "title": {"display": true, "text": "accounts per day (log scale)"}}}}}, "weekly": {"type": "line", "data": {"labels": ["2026-01-05", "2026-01-12", "2026-01-19", "2026-01-26", "2026-02-02", "2026-02-09", "2026-02-16", "2026-02-23", "2026-03-02", "2026-03-09", "2026-03-16", "2026-03-23", "2026-03-30", "2026-04-06", "2026-04-13", "2026-04-20", "2026-04-27", "2026-05-04", "2026-05-11", "2026-05-18", "2026-05-25", "2026-06-01", "2026-06-08", "2026-06-15", "2026-06-22", "2026-06-29", "2026-07-06", "2026-07-13", "2026-07-20", "2026-07-27", "2026-08-03", "2026-08-10", "2026-08-17", "2026-08-24", "2026-08-31", "2026-09-07", "2026-09-14", "2026-09-21", "2026-09-28", "2026-10-05", "2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02"], "datasets": [{"label": "L1 organic", "data": [76930, 61377, 66383, 59456, 53532, 40805, 40753, 38940, 39812, 47674, 39304, 44010, 38108, 37387, 39237, 32356, 44698, 50192, 32414, 39868, 44605, 35779, 30836, 32897, 27694, 29528, 23556, 22792, 20761, 20930, 20463, 18959, 21518, 22303, 22831, 25810, 51096, 70818, 68423, 50724, 51419, 34809, 39025, 27245], "borderColor": "#2f6fde", "backgroundColor": "#2f6fde", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}, {"label": "L2 engaged", "data": [37782, 29700, 36927, 25100, 23143, 15282, 17786, 15924, 14336, 16478, 17023, 19898, 15282, 13069, 11574, 11324, 11566, 15142, 11672, 15378, 15420, 12586, 10472, 9672, 8423, 8468, 7441, 6659, 7051, 6909, 5902, 6216, 6572, 7243, 8110, 8261, 15289, 25922, 31302, 17937, 25214, 15297, 9714, 9387], "borderColor": "#e07b28", "backgroundColor": "#e07b28", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}, {"label": "L3 returning", "data": [13803, 17543, 18698, 21829, 19982, 18435, 17250, 17786, 15403, 15741, 14550, 15049, 14526, 14227, 12869, 12355, 12205, 14383, 12238, 14559, 15500, 15828, 13026, 12937, 11046, 11359, 10294, 9972, 9115, 9272, 8397, 8587, 8624, 8968, 9107, 9501, 12162, 16383, 21918, 21656, 17700, 14086, 12186, 11668], "borderColor": "#1a9e8f", "backgroundColor": "#1a9e8f", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}, {"label": "L4 engaged and returning", "data": [10572, 11563, 12033, 12658, 12321, 10495, 10555, 10634, 9181, 8818, 8778, 8966, 8611, 8274, 7535, 7432, 7371, 9308, 7482, 9117, 9558, 9324, 7867, 7607, 6571, 6676, 5936, 5170, 5269, 5347, 4529, 4729, 4612, 5334, 5339, 5692, 7408, 9961, 14724, 11605, 10751, 8401, 6949, 6776], "borderColor": "#8a5cd1", "backgroundColor": "#8a5cd1", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}]}, "options": {"scales": {"y": {"type": "linear", "title": {"display": true, "text": "accounts per week"}}}}}, "retention": {"type": "line", "data": {"labels": ["2025-12-29", "2026-01-05", "2026-01-12", "2026-01-19", "2026-01-26", "2026-02-02", "2026-02-09", "2026-02-16", "2026-02-23", "2026-03-02", "2026-03-09", "2026-03-16", "2026-03-23", "2026-03-30", "2026-04-06", "2026-04-13", "2026-04-20", "2026-04-27", "2026-05-04", "2026-05-11", "2026-05-18", "2026-05-25", "2026-06-01", "2026-06-08", "2026-06-15", "2026-06-22", "2026-06-29", "2026-07-06", "2026-07-13", "2026-07-20", "2026-07-27", "2026-08-03", "2026-08-10", "2026-08-17", "2026-08-24", "2026-08-31", "2026-09-07", "2026-09-14", "2026-09-21", "2026-09-28", "2026-10-05", "2026-10-12"], "datasets": [{"label": "back the next week", "data": [30.59, 11.54, 9.04, 7.06, 7.29, 4.43, 5.64, 7.3, 5.48, 5.4, 3.89, 5.54, 2.82, 3.81, 4.66, 3.5, 3.59, 2.49, 2.32, 6.39, 7.46, 5.75, 4.16, 3.26, 2.45, 3.43, 2.44, 3.23, 2.55, 3.71, 3.82, 3.13, 3.65, 4.24, 3.38, 4.4, 6.69, 8.69, 16.84, 9.08, 7.14, 4.35], "borderColor": "#2f6fde", "backgroundColor": "#2f6fde", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}, {"label": "back within 4 weeks", "data": [37.48, 18.43, 17.39, 10.35, 11.45, 8.47, 10.42, 11.32, 9.57, 8.86, 6.78, 8.5, 5.14, 6.27, 9.47, 6.13, 8.38, 4.71, 5.17, 9.39, 10.94, 8.03, 7.9, 6.37, 4.2, 7.7, 5.55, 5.44, 4.88, 6.56, 6.82, 5.86, 5.94, 8.45, 8.27, 10.55, 15.58, 12.94, 24.61, 13.83, 10.28, 6.21], "borderColor": "#e07b28", "backgroundColor": "#e07b28", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}]}, "options": {"scales": {"y": {"type": "linear", "title": {"display": true, "text": "% of the cohort"}}}}}, "game": {"type": "bar", "data": {"labels": ["2026-07-07", "2026-08-01", "2026-08-20", "2026-09-01", "2026-09-10", "2026-09-15", "2026-10-01"], "datasets": [{"label": "distinct callers of l2_claim", "data": [125508, 113875, 96112, 73543, 66889, 39810, 59697], "backgroundColor": "#2f6fde"}]}, "options": {"scales": {"x": {"stacked": false}, "y": {"stacked": false, "title": {"display": true, "text": "accounts"}}}}}, "oct27": {"type": "bar", "data": {"labels": ["2026-10-20", "2026-10-21", "2026-10-22", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29"], "datasets": [{"label": "NEAR in", "data": [0.0, 0.3, 0.0, 0.0, 4072.2, 1.6, 128.3], "backgroundColor": "#2f6fde"}, {"label": "NEAR out", "data": [-60.2, -214.7, -398.4, -735.7, -23.4, -0.0, -78677.0], "backgroundColor": "#e07b28"}]}, "options": {"scales": {"x": {"stacked": false}, "y": {"stacked": false, "title": {"display": true, "text": "NEAR"}}}}}, "price": {"type": "line", "data": {"labels": ["2026-01-01", "2026-01-02", "2026-01-04", "2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-11", "2026-01-12", "2026-01-13", "2026-01-15", "2026-01-16", "2026-01-18", "2026-01-19", "2026-01-20", "2026-01-22", "2026-01-23", "2026-01-24", "2026-01-26", "2026-01-27", "2026-01-29", "2026-01-31", "2026-02-01", "2026-02-02", "2026-02-03", "2026-02-04", "2026-02-06", "2026-02-08", "2026-02-09", "2026-02-10", "2026-02-11", "2026-02-13", "2026-02-14", "2026-02-15", "2026-02-17", "2026-02-19", "2026-02-21", "2026-02-23", "2026-02-25", "2026-02-26", "2026-02-27", "2026-03-01", "2026-03-02", "2026-03-03", "2026-03-05", "2026-03-06", "2026-03-08", "2026-03-09", "2026-03-11", "2026-03-12", "2026-03-14", "2026-03-15", "2026-03-16", "2026-03-17", "2026-03-19", "2026-03-21", "2026-03-22", "2026-03-23", "2026-03-24", "2026-03-25", "2026-03-27", "2026-03-28", "2026-03-29", "2026-03-30", "2026-03-31", "2026-04-01", "2026-04-02", "2026-04-03", "2026-04-05", "2026-04-06", "2026-04-07", "2026-04-08", "2026-04-09", "2026-04-10", "2026-04-11", "2026-04-12", "2026-04-13", "2026-04-14", "2026-04-15", "2026-04-16", "2026-04-17", "2026-04-18", "2026-04-19", "2026-04-20", "2026-04-22", "2026-04-23", "2026-04-24", "2026-04-25", "2026-04-26", "2026-04-27", "2026-04-28", "2026-04-30", "2026-05-02", "2026-05-03", "2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-09", "2026-05-10", "2026-05-11", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-13", "2026-06-14", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-22", "2026-06-24", "2026-06-25", "2026-06-27", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-07", "2026-07-08", "2026-07-09", "2026-07-11", "2026-07-12", "2026-07-13", "2026-07-14", "2026-07-15", "2026-07-16", "2026-07-18", "2026-07-20", "2026-07-21", "2026-07-22", "2026-07-23", "2026-07-24", "2026-07-26", "2026-07-27", "2026-07-28", "2026-07-30", "2026-07-31", "2026-08-01", "2026-08-02", "2026-08-03", "2026-08-05", "2026-08-06", "2026-08-07", "2026-08-08", "2026-08-09", "2026-08-10", "2026-08-11", "2026-08-12", "2026-08-13", "2026-08-14", "2026-08-15", "2026-08-16", "2026-08-17", "2026-08-18", "2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22", "2026-08-23", "2026-08-24", "2026-08-25", "2026-08-26", "2026-08-27", "2026-08-28", "2026-08-29", "2026-08-30", "2026-08-31", "2026-09-01", "2026-09-02", "2026-09-03", "2026-09-04", "2026-09-05", "2026-09-06", "2026-09-07", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-12", "2026-09-13", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18", "2026-09-19", "2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25", "2026-09-26", "2026-09-27", "2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-05", "2026-10-06", "2026-10-07", "2026-10-08", "2026-10-09", "2026-10-10", "2026-10-11", "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-10-31", "2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"], "datasets": [{"label": "NEAR price (USD)", "data": [1.626398, 1.690486, 1.710696, 1.725484, 1.807825, 1.719642, 1.686992, 1.701636, 1.69899, 1.67286, 1.855106, 1.800526, 1.73188, 1.749347, 1.595844, 1.504072, 1.527323, 1.507135, 1.50372, 1.463585, 1.488596, 1.372983, 1.317603, 1.203963, 1.172306, 1.198311, 1.15952, 1.086473, 1.074419, 1.039841, 0.991567, 0.960769, 1.02289, 1.084841, 1.055633, 1.043922, 1.005925, 1.05906, 0.979266, 0.967289, 1.126537, 1.093477, 1.168038, 1.151609, 1.357154, 1.275125, 1.225842, 1.213823, 1.232805, 1.298069, 1.367513, 1.325769, 1.347714, 1.491116, 1.452996, 1.334957, 1.316023, 1.284231, 1.273618, 1.312188, 1.278122, 1.222388, 1.179215, 1.160838, 1.160512, 1.186447, 1.190026, 1.162121, 1.209014, 1.255786, 1.246668, 1.249276, 1.312357, 1.330955, 1.367039, 1.361451, 1.402621, 1.347081, 1.417122, 1.359303, 1.409348, 1.433765, 1.410128, 1.344346, 1.363079, 1.386023, 1.401719, 1.406365, 1.408366, 1.401984, 1.395104, 1.34688, 1.295643, 1.287532, 1.296276, 1.274977, 1.261777, 1.297122, 1.468293, 1.594493, 1.565794, 1.54769, 1.575728, 1.571709, 1.543785, 1.497521, 1.506028, 1.621542, 1.599005, 1.698602, 1.923479, 2.101482, 2.453896, 2.392667, 2.77533, 2.540999, 2.493352, 2.417812, 2.240304, 2.319411, 2.631866, 2.619746, 2.819372, 2.204337, 1.960722, 2.052981, 2.127914, 2.155605, 2.063152, 2.007468, 2.215904, 2.388273, 2.30799, 2.177709, 2.234752, 2.178949, 2.097865, 2.067872, 1.961499, 1.832727, 1.870216, 1.832984, 1.861625, 1.779113, 1.804114, 1.94016, 1.998239, 2.013478, 2.052764, 1.890582, 1.919273, 1.891608, 1.889385, 1.916971, 2.009678, 2.065407, 1.966588, 1.932333, 1.976917, 1.935249, 1.867399, 1.882828, 1.805615, 1.791065, 1.836979, 1.649967, 1.620557, 1.675712, 1.661029, 1.672269, 1.734122, 1.729082, 1.697891, 1.656305, 1.590676, 1.610897, 1.598026, 1.599678, 1.617848, 1.642677, 1.639012, 1.639549, 1.616586, 1.601093, 1.636468, 1.58796, 1.730383, 1.767162, 1.966122, 1.878457, 2.01415, 1.953637, 1.86034, 1.900101, 1.927721, 1.823827, 1.868115, 1.818123, 1.91973, 1.886486, 1.886041, 1.954283, 2.171893, 2.191666, 2.436852, 2.30543, 2.320387, 2.484817, 2.442979, 2.363498, 2.370272, 2.299384, 2.468123, 2.335236, 2.616015, 3.148546, 3.762513, 3.586531, 4.163361, 4.266851, 4.412072, 4.333075, 4.589213, 4.950438, 5.035805, 5.38986, 4.818652, 4.886593, 5.335091, 4.807012, 4.690818, 4.829822, 4.913315, 5.289065, 5.066796, 5.334629, 4.461436, 4.882424, 5.291002, 5.887577, 5.08617, 5.036516, 4.881085, 5.256842, 5.060827, 4.856513, 5.007468, 4.899897, 4.923929, 5.261122, 4.878253, 4.684548, 4.496169, 4.588818, 4.501463, 4.674921, 4.728523, 4.051594, 4.287445, 4.431227, 4.285644, 3.863389, 3.832592, 4.005304, 3.658232, 3.710369, 3.732029, 3.580703], "borderColor": "#2f6fde", "backgroundColor": "#2f6fde", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true}, {"label": "organic signers, 7-day average", "data": [13948, 14496, 15148, 16660, 17228, 17327, 17239, 17274, 16677, 16682, 16104, 14803, 13852, 13378, 13990, 14587, 13968, 13172, 13331, 13767, 14006, 12970, 12729, 12605, 12690, 12826, 12881, 12436, 12127, 11699, 11325, 10936, 10552, 9896, 9618, 9679, 9998, 10308, 10369, 10510, 10372, 10152, 10030, 9603, 9407, 9300, 8934, 8846, 8766, 8958, 9994, 9912, 9948, 10154, 10283, 10593, 10262, 8997, 9245, 9297, 9375, 9693, 9495, 9489, 9663, 9542, 9320, 9141, 8619, 8417, 8444, 8150, 7977, 7931, 8051, 8155, 8429, 9278, 9345, 9194, 9018, 8636, 8595, 8346, 7452, 7544, 7541, 7586, 7548, 7294, 7259, 7143, 6969, 8003, 8986, 10097, 11458, 12119, 12282, 12387, 11338, 10957, 10026, 8750, 7943, 7760, 7779, 7650, 7048, 6972, 7812, 8300, 8941, 9709, 10490, 10820, 10742, 10176, 9970, 9635, 8977, 8758, 8712, 8939, 8625, 8485, 8294, 8002, 7507, 7136, 6968, 6988, 7276, 7359, 7239, 7141, 7143, 7044, 6929, 6576, 6372, 6545, 6673, 6702, 6701, 6664, 6553, 6613, 6440, 6247, 6074, 5847, 5765, 5648, 5385, 5319, 5209, 5204, 5204, 5160, 5138, 5169, 5154, 5116, 5105, 5092, 5076, 5112, 5058, 4918, 4917, 4812, 4757, 4848, 4767, 4661, 4723, 4761, 4711, 4701, 4565, 4491, 4458, 4305, 4109, 4195, 4428, 4588, 4785, 4907, 5125, 5279, 5506, 5529, 5337, 5170, 5140, 5059, 5107, 4841, 4618, 4676, 4952, 5325, 5733, 5822, 6080, 6236, 6464, 6383, 6063, 5770, 5826, 5690, 6030, 7847, 8779, 10148, 11571, 12561, 13642, 14095, 13426, 13311, 14443, 15332, 16242, 16589, 17561, 17343, 17242, 15457, 13777, 12560, 11785, 10923, 10506, 10888, 10873, 11292, 11196, 11600, 11401, 11462, 11000, 10739, 10121, 9734, 9286, 8849, 8372, 7936, 7665, 7379, 8953, 8475, 8376, 8257, 7999, 7878, 7859, 6087, 6053, 5903, 5901, 5958, 6191, 6104], "borderColor": "#e07b28", "backgroundColor": "#e07b28", "pointRadius": 0, "borderWidth": 2, "tension": 0.15, "spanGaps": true, "yAxisID": "y2"}]}, "options": {"scales": {"y": {"type": "linear", "title": {"display": true, "text": "USD"}}, "y2": {"position": "right", "grid": {"drawOnChartArea": false}, "title": {"display": true, "text": "accounts per day"}}}}}, "peers": {"type": "bar", "data": {"labels": ["NEAR", "Solana", "Sui", "Aptos", "TON"], "datasets": [{"label": "market cap / annualised chain fees (x)", "data": [2950, 237, 3251, 331, 4431], "backgroundColor": "#2f6fde"}]}, "options": {"scales": {"x": {"stacked": false}, "y": {"stacked": false, "title": {"display": true, "text": "x (log scale)"}}}}}};
+const css = getComputedStyle(document.documentElement);
+if (window.Chart) {
+  Chart.defaults.color = css.getPropertyValue('--muted').trim();
+  Chart.defaults.borderColor = css.getPropertyValue('--line').trim();
+  Chart.defaults.maintainAspectRatio = false;
+  for (const [id, cfg] of Object.entries(CHARTS)) {
+    cfg.options = Object.assign({interaction: {mode: 'index', intersect: false}, plugins: {legend: {position: 'bottom'}}}, cfg.options || {});
+    if (id === 'peers') cfg.options.scales.y.type = 'logarithmic';
+    const el = document.getElementById('cv-' + id);
+    if (el) new Chart(el, cfg);
+  }
+} else {
+  document.querySelectorAll('.chart').forEach(c => c.innerHTML = '<p class="meta">Chart library could not load (offline?). The data and query are still below.</p>');
+}
+</script></body></html>

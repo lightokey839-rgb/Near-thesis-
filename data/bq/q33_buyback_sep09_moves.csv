@@ -1,0 +1,2 @@
+block_date,block_timestamp_utc,update_reason,delta_near,balance_after_near,caused_by_transaction_hash,caused_by_receipt_id
+2026-09-09,2026-09-09T10:39:10.545953+00:00,receipt_processing,502793.0,1573564.3194,,6bnALp1E4P2rLBDKcp3UA6YGzwpssQ1Xus2suXzYvtvH

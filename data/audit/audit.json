@@ -1,0 +1,454 @@
+{
+  "input_file": "data\\intents_swaps.jsonl",
+  "rows": 818000,
+  "unreadable": 0,
+  "duplicates": 0,
+  "rows_out_of_time_order": 0,
+  "first_swap_utc": "2026-09-28T06:45:43+00:00",
+  "last_swap_utc": "2026-11-10T12:48:46+00:00",
+  "partial_days": [
+    "2026-09-28",
+    "2026-11-10"
+  ],
+  "largest_gap_seconds": 18976,
+  "median_swaps_per_hour": 745,
+  "hours_below_20pct_of_median": [
+    "2026-10-15 08:00",
+    "2026-10-15 09:00",
+    "2026-10-20 06:00",
+    "2026-10-29 23:00",
+    "2026-11-02 12:00"
+  ],
+  "success_swaps": 755175,
+  "success_usd_in": 1617100871.25,
+  "success_usd_min_of_in_out": 1607542262.38,
+  "success_same_asset_swaps": 47298,
+  "success_same_asset_usd_in": 56745223.12,
+  "success_share_paying_buyback": 0.3567,
+  "fee_unit_test": [
+    {
+      "fee": 0.0,
+      "swaps": 16722,
+      "p10": 0.0,
+      "median": 1.13,
+      "p90": 19.84,
+      "median_minus_fee": 1.13
+    },
+    {
+      "fee": 1.0,
+      "swaps": 59724,
+      "p10": -2.41,
+      "median": 2.49,
+      "p90": 29.98,
+      "median_minus_fee": 1.49
+    },
+    {
+      "fee": 2.0,
+      "swaps": 10224,
+      "p10": -5.84,
+      "median": 3.08,
+      "p90": 16.35,
+      "median_minus_fee": 1.08
+    },
+    {
+      "fee": 4.0,
+      "swaps": 316,
+      "p10": 4.18,
+      "median": 13.35,
+      "p90": 17.23,
+      "median_minus_fee": 9.35
+    },
+    {
+      "fee": 6.0,
+      "swaps": 40,
+      "p10": -1.31,
+      "median": 7.05,
+      "p90": 17.7,
+      "median_minus_fee": 1.05
+    },
+    {
+      "fee": 7.0,
+      "swaps": 83,
+      "p10": 8.57,
+      "median": 16.38,
+      "p90": 21.83,
+      "median_minus_fee": 9.38
+    },
+    {
+      "fee": 10.0,
+      "swaps": 1589,
+      "p10": 9.68,
+      "median": 11.67,
+      "p90": 33.35,
+      "median_minus_fee": 1.67
+    },
+    {
+      "fee": 11.0,
+      "swaps": 94,
+      "p10": 1.86,
+      "median": 12.49,
+      "p90": 23.9,
+      "median_minus_fee": 1.49
+    },
+    {
+      "fee": 12.0,
+      "swaps": 155,
+      "p10": 1.92,
+      "median": 13.11,
+      "p90": 31.97,
+      "median_minus_fee": 1.11
+    },
+    {
+      "fee": 15.0,
+      "swaps": 559,
+      "p10": 14.56,
+      "median": 19.69,
+      "p90": 28.69,
+      "median_minus_fee": 4.69
+    },
+    {
+      "fee": 18.0,
+      "swaps": 151,
+      "p10": 7.15,
+      "median": 28.83,
+      "p90": 30.82,
+      "median_minus_fee": 10.83
+    },
+    {
+      "fee": 20.0,
+      "swaps": 17626,
+      "p10": 20.37,
+      "median": 26.36,
+      "p90": 33.69,
+      "median_minus_fee": 6.36
+    },
+    {
+      "fee": 21.0,
+      "swaps": 994,
+      "p10": 13.14,
+      "median": 22.32,
+      "p90": 39.96,
+      "median_minus_fee": 1.32
+    },
+    {
+      "fee": 22.0,
+      "swaps": 112,
+      "p10": 14.68,
+      "median": 25.1,
+      "p90": 143.71,
+      "median_minus_fee": 3.1
+    },
+    {
+      "fee": 25.0,
+      "swaps": 223,
+      "p10": 26.09,
+      "median": 36.69,
+      "p90": 45.02,
+      "median_minus_fee": 11.69
+    },
+    {
+      "fee": 26.0,
+      "swaps": 62,
+      "p10": 19.65,
+      "median": 35.41,
+      "p90": 40.09,
+      "median_minus_fee": 9.41
+    },
+    {
+      "fee": 30.0,
+      "swaps": 1122,
+      "p10": 27.68,
+      "median": 31.49,
+      "p90": 49.65,
+      "median_minus_fee": 1.49
+    },
+    {
+      "fee": 31.0,
+      "swaps": 794,
+      "p10": 30.2,
+      "median": 37.99,
+      "p90": 73.6,
+      "median_minus_fee": 6.99
+    },
+    {
+      "fee": 40.0,
+      "swaps": 69,
+      "p10": 40.92,
+      "median": 49.1,
+      "p90": 70.49,
+      "median_minus_fee": 9.1
+    },
+    {
+      "fee": 41.0,
+      "swaps": 41,
+      "p10": 36.93,
+      "median": 43.31,
+      "p90": 71.59,
+      "median_minus_fee": 2.31
+    },
+    {
+      "fee": 50.0,
+      "swaps": 634,
+      "p10": 50.35,
+      "median": 51.67,
+      "p90": 64.45,
+      "median_minus_fee": 1.67
+    },
+    {
+      "fee": 51.0,
+      "swaps": 76,
+      "p10": 46.51,
+      "median": 53.37,
+      "p90": 66.85,
+      "median_minus_fee": 2.37
+    },
+    {
+      "fee": 59.0,
+      "swaps": 39,
+      "p10": 59.44,
+      "median": 64.57,
+      "p90": 73.61,
+      "median_minus_fee": 5.57
+    },
+    {
+      "fee": 60.0,
+      "swaps": 72,
+      "p10": 61.72,
+      "median": 73.93,
+      "p90": 98.5,
+      "median_minus_fee": 13.93
+    },
+    {
+      "fee": 66.0,
+      "swaps": 32,
+      "p10": 56.5,
+      "median": 67.21,
+      "p90": 84.27,
+      "median_minus_fee": 1.21
+    },
+    {
+      "fee": 70.0,
+      "swaps": 5837,
+      "p10": 69.36,
+      "median": 74.21,
+      "p90": 100.3,
+      "median_minus_fee": 4.21
+    },
+    {
+      "fee": 71.0,
+      "swaps": 224,
+      "p10": 70.32,
+      "median": 78.63,
+      "p90": 99.36,
+      "median_minus_fee": 7.63
+    },
+    {
+      "fee": 73.0,
+      "swaps": 881,
+      "p10": 65.06,
+      "median": 84.44,
+      "p90": 102.91,
+      "median_minus_fee": 11.44
+    },
+    {
+      "fee": 80.0,
+      "swaps": 470,
+      "p10": 79.91,
+      "median": 81.01,
+      "p90": 93.15,
+      "median_minus_fee": 1.01
+    },
+    {
+      "fee": 85.0,
+      "swaps": 155,
+      "p10": 84.82,
+      "median": 96.63,
+      "p90": 174.07,
+      "median_minus_fee": 11.63
+    },
+    {
+      "fee": 88.0,
+      "swaps": 338,
+      "p10": 87.66,
+      "median": 97.11,
+      "p90": 102.12,
+      "median_minus_fee": 9.11
+    },
+    {
+      "fee": 100.0,
+      "swaps": 267,
+      "p10": 100.13,
+      "median": 102.71,
+      "p90": 115.28,
+      "median_minus_fee": 2.71
+    },
+    {
+      "fee": 101.0,
+      "swaps": 41,
+      "p10": 101.97,
+      "median": 114.71,
+      "p90": 156.44,
+      "median_minus_fee": 13.71
+    },
+    {
+      "fee": 110.0,
+      "swaps": 236,
+      "p10": 110.15,
+      "median": 120.1,
+      "p90": 168.47,
+      "median_minus_fee": 10.1
+    },
+    {
+      "fee": 120.0,
+      "swaps": 40,
+      "p10": 119.59,
+      "median": 122.65,
+      "p90": 235.21,
+      "median_minus_fee": 2.65
+    },
+    {
+      "fee": 132.0,
+      "swaps": 72,
+      "p10": -26.67,
+      "median": 183.04,
+      "p90": 336.97,
+      "median_minus_fee": 51.04
+    },
+    {
+      "fee": 138.0,
+      "swaps": 2558,
+      "p10": 136.09,
+      "median": 142.75,
+      "p90": 154.72,
+      "median_minus_fee": 4.75
+    },
+    {
+      "fee": 140.0,
+      "swaps": 50,
+      "p10": 17.67,
+      "median": 149.12,
+      "p90": 278.12,
+      "median_minus_fee": 9.12
+    },
+    {
+      "fee": 146.0,
+      "swaps": 83,
+      "p10": 146.99,
+      "median": 155.79,
+      "p90": 288.93,
+      "median_minus_fee": 9.79
+    },
+    {
+      "fee": 150.0,
+      "swaps": 856,
+      "p10": 149.97,
+      "median": 158.67,
+      "p90": 205.72,
+      "median_minus_fee": 8.67
+    },
+    {
+      "fee": 176.0,
+      "swaps": 309,
+      "p10": 176.86,
+      "median": 190.12,
+      "p90": 233.74,
+      "median_minus_fee": 14.12
+    },
+    {
+      "fee": 190.0,
+      "swaps": 39,
+      "p10": 183.32,
+      "median": 201.83,
+      "p90": 223.04,
+      "median_minus_fee": 11.83
+    }
+  ],
+  "refund_reasons_overall": {
+    "NO_LIQUIDITY": 9329,
+    "QUOTE_EXPIRED": 2184,
+    "PARTIAL_DEPOSIT": 392,
+    "AMOUNT_LESS_THAN_MIN_AMOUNT_OUT": 2632,
+    "AMOUNT_MORE_THAN_BALANCE": 3135,
+    "INTENT_SUBMIT_FAILED": 41560,
+    "UNKNOWN": 276,
+    "AMOUNT_LESS_THAN_MIN_WITHDRAWABLE": 10,
+    "None": 79,
+    "FEE_ESTIMATION_FAILED": 89,
+    "REFUND_ADD_FAILED": 1
+  },
+  "refund_spike_concentration": {
+    "2026-11-04": {
+      "refunded": 10053,
+      "distinct_refund_addresses": 319,
+      "top1_share": 0.0986,
+      "top10_share": 0.7196,
+      "top100_share": 0.9782
+    },
+    "2026-11-05": {
+      "refunded": 32277,
+      "distinct_refund_addresses": 265,
+      "top1_share": 0.0596,
+      "top10_share": 0.3994,
+      "top100_share": 0.9949
+    }
+  },
+  "refund_spike_usd": {
+    "refunded_usd_in_sum": 6373465.93,
+    "median_usd": 10.1536,
+    "p90_usd": 349.78,
+    "share_under_1_usd": 0.0571
+  },
+  "refund_spike_top_origin_assets": [
+    [
+      "2026-11-05",
+      "nep141:eth-0xdac17f958d2ee523a2206206994597c13d831ec7.omft.near",
+      4713
+    ],
+    [
+      "2026-11-05",
+      "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near",
+      4682
+    ],
+    [
+      "2026-11-05",
+      "nep141:tron-d28a265909efecdcee7c5028585214ea0b96f015.omft.near",
+      3700
+    ],
+    [
+      "2026-11-05",
+      "nep245:v2_1.omni.hot.tg:56_2CMMyVTGZkeyNZTSvS5sarzfir6g",
+      3103
+    ],
+    [
+      "2026-11-04",
+      "nep141:arb-0xaf88d065e77c8cc2239327c5edb3a432268e5831.omft.near",
+      2634
+    ],
+    [
+      "2026-11-05",
+      "nep141:eth-0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.omft.near",
+      2300
+    ],
+    [
+      "2026-11-05",
+      "nep141:eth.omft.near",
+      1950
+    ],
+    [
+      "2026-11-04",
+      "nep141:eth-0xdac17f958d2ee523a2206206994597c13d831ec7.omft.near",
+      1717
+    ],
+    [
+      "2026-11-05",
+      "nep245:v2_1.omni.hot.tg:137_3hpYoaLtt8MP1Z2GH1U473DMRKgr",
+      1705
+    ],
+    [
+      "2026-11-05",
+      "nep141:arb-0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9.omft.near",
+      1612
+    ]
+  ],
+  "seconds": 42.7
+}

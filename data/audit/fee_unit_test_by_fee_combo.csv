@@ -1,0 +1,26 @@
+fee_combo,swaps,haircut_bps_median
+buybacks=1,40680,2.09
+"app=0,buybacks=1",17950,10.78
+"app=12,app=8",16629,27.58
+(no fees),9527,0.75
+"app=1,buybacks=1",9510,3.06
+app=0,7192,3.04
+app=70,5817,74.17
+app=138,2558,142.75
+"app=1,app=20",992,22.32
+app=30,988,31.47
+app=73,881,84.44
+"app=75,buybacks=75",854,158.74
+"app=1,app=30",794,37.99
+app=1,713,1.93
+"app=5,buybacks=5",677,11.63
+"app=4,app=6",656,11.38
+"app=25,buybacks=25",606,51.78
+"app=1,app=1",522,3.68
+app=20,500,21.0
+buybacks=20,386,29.7
+"app=0,app=1",381,3.53
+app=15,330,15.99
+app=80,327,80.91
+"app=87,buybacks=1",316,97.24
+"app=88,buybacks=88",309,190.12

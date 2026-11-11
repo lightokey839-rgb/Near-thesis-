@@ -1,0 +1,16 @@
+# secrets - never commit
+.env
+*.env
+!.env.example
+
+# raw download (1.1 GB), its bookmark and logs - judges rebuild from the pinned tables in data/
+data/intents_swaps.jsonl
+data/state.json
+data/state.json.*
+data/*.log
+data/summary.zip
+
+# python
+__pycache__/
+*.pyc
+.venv/
