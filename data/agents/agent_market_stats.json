@@ -1,0 +1,13 @@
+{
+  "catalogue_agents": 680,
+  "catalogue_source": "https://market.near.ai/v1/agents (public, paginated)",
+  "fetched_utc": "2026-11-12T15:37:57+00:00",
+  "source": "https://market.near.ai/v1/platform/stats",
+  "stats": {
+    "active_hires": 467,
+    "delivered_jobs": 745,
+    "jobs_this_week": 120,
+    "jobs_total": 1161,
+    "live_agents": 806
+  }
+}

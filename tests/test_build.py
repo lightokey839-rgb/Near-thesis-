@@ -90,6 +90,22 @@ class PinnedDataTest(unittest.TestCase):
         self.assertTrue(0.25 < cut < 0.45)
         # section 7: "the hits that did appear are not about Intents"
         self.assertEqual(self.m["leadlag_intents_significant"], 0)
+        # section 0 / 3d: "real but small; today it settles outside NEAR"
+        self.assertEqual(self.m["agent_market_agents_payable_in_near"], 0)
+        self.assertLess(self.m["agent_market_agents_with_a_delivered_job_share"], 0.5)
+        # section 3d: agent-named 1Click channels are a negligible share of volume
+        self.assertLess(self.m["oneclick_agent_named_usd_share"], 0.001)
+        # section 4: "supply grew at almost the full ceiling" and "all gas fees are burned"
+        self.assertTrue(0.9 < self.m["realised_vs_ceiling_issuance"] < 1.05)
+        self.assertEqual(self.m["burnt_gas_reward"], 0)
+        # section 2: the 9 Sep transfer matches the 1Click fund's largest weekly fall (within 1%), in September
+        self.assertLess(self.m["onecs_fall_vs_sep09_transfer"], 0.01)
+        self.assertTrue(self.m["onecs_largest_fall_week"].startswith("2026-09"))
+        # section 3c: the front-end fund "has accumulated" over the year
+        fe = [r for r in self.m["revenue_wallet_balances"] if r[0] == "fefundsadmin.sputnik-dao.near"][0]
+        self.assertGreater(fe[2], fe[1])
+        # section 3d: "a large share of all Intents volume today"
+        self.assertGreater(self.m["agent_volume_for_10pct_of_issuance_usd_per_day"], 0.25 * self.m["intents_volume_usd_per_day"])
 
 
 class BuildTest(unittest.TestCase):

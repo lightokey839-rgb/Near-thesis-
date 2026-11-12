@@ -10,7 +10,8 @@
 |---|---|---|---|
 | **1. Demand** | Is Intents activity real and lasting? | **Yes, but concentrated.** Higher since September. | All Intents {intents_volume_usd_per_day|musd}/day ({defillama_window}). The top 5 apps send {top5_referrals_usd_share|pct0} of 1Click volume; $10k+ swaps are {swaps_10k_plus_share_of_usd|pct0} of the dollars. |
 | **2. Capture** | How much does NEAR keep? | **A thin slice, and it depends on which app sends the swap.** | NEAR keeps {captured_share_of_gross_fees|pct0} of gross fees ({captured_revenue_take_bps|d1} of {intents_gross_fee_bps|d1} bps). The app with the most volume pays {top_volume_channel_buyback_share|pct1} of the buyback. |
-| **3. Accrual** | Does it outweigh dilution? | **No, not yet.** It is held in custody, not burned. | The buyback wallet absorbs {wallet_inflow_share_of_issuance|pct0} of new NEAR. Even 100% of today's gross fees would cover only {gross_fees_to_issuance_usd|pct0} of issuance at today's price. |
+| **3. Accrual** | Does it outweigh dilution? | **No, not yet.** It is held in custody, not burned. | The buyback wallet absorbs {wallet_inflow_share_of_issuance|pct0} of new NEAR. Even 100% of today's gross fees would cover only {gross_fees_to_issuance_usd|pct0} of issuance at today's price. Supply actually grew {realised_supply_growth|pct1} last year. The three revenue wallets hold {revenue_wallets_total_near|mnear} NEAR, in custody. |
+| **4. Future demand: AI agents** | Could agents add demand that reaches the token? | **Real but small. Today it settles outside NEAR.** | NEAR AI Agent Market: {agent_market_live_agents|int} live agents, {agent_market_delivered_jobs|int} delivered jobs all-time. {agent_market_agents_payable_in_near} catalogue agents accept NEAR (section 3d). |
 
 **Current conclusion: "{scorecard_verdict}".** The scorecard is in section 5.
 - **This depends on the window.** Measured over the whole buyback era, the same rules read "bearish" (section 5).
@@ -46,7 +47,9 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
   - **Custody is not a lock.** It is a multisig, and its signers can move the NEAR. "Held" means "has not been moved so far", not "removed from supply".
   - Daily data starts 1 Jul. Since then, the only day with more than 10 NEAR leaving was **{wallet_outflow_days_over_10_near}**, {wallet_outflow_near_since_jul|int} NEAR in total ({wallet_outflow_share_of_inflows|pct1} of all NEAR received; its destination is not identified). Before July there are only weekly samples. It has never staked (max staked {wallet_max_staked_near}).
   - {wallet_inflows_from_intents_share|pct1} of its inbound receipts come from `intents.near`.
-  - One inflow was not fee flow: a **{wallet_sep09_treasury_transfer_near|int} NEAR** treasury transfer on 9 Sep (a Trezu DAO proposal).
+  - One inflow was not *new* fee flow: a **{wallet_sep09_treasury_transfer_near|int} NEAR** treasury transfer on 9 Sep, made through a Trezu DAO proposal.
+  - **INFERENCE (high confidence):** this was the 1Click fund (`1csfundsadmin.sputnik-dao.near`) emptying into the buyback wallet. The fund peaked at {onecs_peak_near|int} NEAR ({onecs_peak_week}) and fell by {onecs_largest_fall_near|int} NEAR in the week sampled on {onecs_largest_fall_week}, matching the transfer to within {onecs_fall_vs_sep09_transfer|pct2}.
+  - That also explains where captured revenue went in February-April, when the buyback wallet held almost nothing: it was parked in the 1Click fund, then moved into the buyback wallet. DefiLlama treats such hops between its revenue wallets as internal.
 - **INFERENCE - size of the flow.** From 6 Oct to 8 Nov the wallet took in a mean of **{wallet_inflow_near_per_day|int} NEAR/day**. That is about **{wallet_inflow_share_of_issuance|pct0} of annual issuance today**, and **{wallet_inflow_share_of_issuance_hsp029|pct0}** at HSP-029's 1.6% end state. In dollars, section 3c values it at each day's price, so it can be compared with DefiLlama.
 - **INFERENCE - the 4-5 Nov refund spike was not lost demand.**
   - FACT: {refund_spike_refunded|int} refunds, {refund_spike_intent_submit_failed_share|pct0} of them `INTENT_SUBMIT_FAILED` and {refund_spike_aurora_share|pct0} from Aurora referral codes.
@@ -131,9 +134,51 @@ Every 1Click swap records the app that sent it (its referral code) and the fee i
 - Break-even needs a take-rate of about **{break_even_take_bps|d1} bps** of all Intents volume at 2.5% issuance, or {break_even_take_bps_hsp029|d1} bps at 1.6%. Both are above what users pay in total today.
 - **INFERENCE:** closing the gap therefore needs more volume, higher fees, or lower issuance, not just a bigger share of today's fees.
 
+**All three revenue wallets, read from the chain** (weekly samples, {supply_history_window}):
+
+<!-- REVENUE_WALLETS -->
+
+- Together they hold **{revenue_wallets_total_near|mnear} NEAR ({revenue_wallets_share_of_supply|pct2} of supply)**.
+- The front-end fund `fefundsadmin.sputnik-dao.near` holds {fefunds_balance_near|mnear} NEAR. It has accumulated since before the buyback program began; weeks in which its balance fell by more than 1 NEAR: {fefunds_weeks_falling}.
+- It is a Sputnik DAO treasury, so its members can vote to move funds. Its release rules are not published.
+
 **Custody is not burn.** In this thesis:
 - only tokens with on-chain burn evidence count as removed from supply;
 - NEAR bought back and held in a multisig or DAO wallet is *custody*: it is out of the float only while it stays there.
+
+## 3d. The agent economy, measured: could AI agents become NEAR's next demand?
+
+This hackathon is built around AI agents, so the thesis has to ask whether agents are, or could become, a source of demand that reaches the NEAR token.
+
+**We count an account as an "AI agent" only on identified evidence.** An address that transacts a lot could be a bot, a market maker, a script or a power user.
+- **Tier 1:** the operator's own registry.
+- **Tier 3:** automation proxies. These are *not* counted as agents.
+- **Tier 4:** names chosen by the app itself, which prove nothing.
+
+**Tier 1 - NEAR AI Agent Market, the operator's own public data** (snapshot {agent_market_fetched_utc}):
+- **Platform totals:** {agent_market_live_agents|int} live agents, {agent_market_jobs_total|int} jobs posted all-time, {agent_market_delivered_jobs|int} delivered, {agent_market_jobs_this_week|int} this week.
+- **Who does the work:** of the {agent_market_catalogue_agents|int} agents in the public catalogue, only **{agent_market_agents_with_a_delivered_job|int} ({agent_market_agents_with_a_delivered_job_share|pct0}) have ever delivered a job**. The 10 busiest did {agent_market_top10_share_of_delivered|pct0} of all delivered jobs.
+- **When they arrived:** {agent_market_listed_since_oct_share|pct0} of catalogue agents were listed on or after 1 Oct 2026, the run-up to this hackathon. Listings are not usage.
+
+<!-- AGENTS -->
+
+- **How agents are paid (FACT, from the marketplace's own docs; see section 12):**
+  - Jobs are priced in **USD (card, via Stripe) or USDC**. Balances are held by a third-party wallet provider.
+  - Buyers pay no gas when a payment is held or released.
+  - The marketplace keeps a 5% fee.
+  - In the catalogue, **{agent_market_agents_payable_in_near} agents accept NEAR**: {agent_market_agents_usdc_only|int} take USDC only, and {agent_market_agents_usd_and_usdc|int} take USD or USDC.
+
+**Tier 4 - 1Click swaps from apps whose names mention agents or bots:** {oneclick_agent_named_codes}. Together they made {oneclick_agent_named_swaps|int} swaps worth ${oneclick_agent_named_usd|int}, or {oneclick_agent_named_usd_share|pct2} of 1Click volume. Agents may also use 1Click without a referral code or under a generic one, so this is a floor, not a count.
+
+**Tier 3 - automation, not agents:** the share of 1Click swaps from addresses making 10+ swaps a day rose from {heavy_user_share_first_week|pct1} to {heavy_user_share_last_week|pct1} (section 3). We cannot tell agents from bots, so none of this is counted as agent activity.
+
+**INFERENCE - what this means for the token.**
+- **Today:** NEAR's flagship agent marketplace is real and growing, but small. Its commerce settles in dollars and USDC, not in NEAR.
+- **So agent demand reaches a NEAR holder only indirectly:** if agent payments are routed through NEAR Intents (for example USDC moved via Intents), they pay the same fees as any other swap, and part of those fees funds the buyback. Whether that already happens at scale is **not measured**: job values and routes are not public.
+- **The size it would need to matter (a hypothetical, not a forecast):** to add captured revenue worth 10% of today's issuance at today's take-rate, agents would have to route about **{agent_volume_for_10pct_of_issuance_usd_per_day|musd} of payments per day** through Intents. That is a large share of all Intents volume today ({intents_volume_usd_per_day|musd}/day).
+- **Bull case:** agents become the users that the "which apps pay" finding of section 3b rewards, routing through high-fee direct channels.
+- **Bear case:** agent commerce grows in USDC on rails where NEAR is optional.
+- **What would change our mind:** Agent Market or another agent platform settling in NEAR or through Intents with published volumes, or agent-labelled channels showing up in the fee data.
 
 ## 4. Staking, issuance and the catalyst calendar
 
@@ -149,7 +194,12 @@ Every 1Click swap records the app that sent it (its referral code) and the fee i
 **INFERENCE:** the gross staking-yield ceiling is **{staking_yield_ceiling|pct1}** now and **{staking_yield_ceiling_hsp029|pct1}** at 1.6%.
 - Issuance goes to stakers. So a holder who stakes roughly keeps their share of supply, while one who does not is diluted by about the inflation rate each year.
 - The protocol treasury cut above is read from the RPC. Some press coverage of HSP-029 describes a 90/10 staker/treasury split; the on-chain parameter we read is the treasury cut shown here.
-- Issuance in this thesis is the protocol's **maximum** (supply × inflation ceiling), which assumes full validator uptime. Realised supply growth is measured separately in phase 2 of the pipeline.
+- Issuance in this thesis is the protocol's **maximum** (supply × inflation ceiling), which assumes full validator uptime.
+
+**FACT - what actually happened to supply** (block-header `total_supply`, weekly samples, {supply_history_window}):
+- Supply grew **{realised_supply_growth|pct2} a year**, or {realised_new_near_per_year|mnear} NEAR, net of everything burned. That is {realised_vs_ceiling_issuance|r2}x the maximum. So the 2.5% ceiling is, in practice, what holders are diluted by.
+- **Burning is on, but small.** The live parameter `burnt_gas_reward` = {burnt_gas_reward} (read {protocol_config_read_utc}), so all gas fees are burned since HSP-027. Supply still grew at almost the full ceiling, so base-layer gas burn does little against issuance at today's usage.
+- **Custody absorbed part of it.** Over the same days, the three revenue wallets together added NEAR equal to **{custody_share_of_realised_new_supply|pct0} of the net new supply**. Moves between the three wallets, like the 9 Sep transfer, cancel out in this total. That NEAR is out of the float only while it stays there.
 
 **Catalyst calendar** (dates from the sources in section 12; statuses as read on 12 Nov 2026):
 
@@ -157,7 +207,7 @@ Every 1Click swap records the app that sent it (its referral code) and the fee i
 |---|---|---|---|
 | 23 Feb 2026 | Captured Intents revenue starts funding NEAR buybacks (DefiLlama methodology) | in force | Start of the "since buybacks began" window in section 5 |
 | 7 Jul 2026 | Confidential Intents generally available | in force | Swaps routed privately may be missing from public volume series (section 8) |
-| Jun-Jul 2026 | HSP-027: the 30% developer gas rebate goes to 0%, so all gas is burned | passed; mainnet status checked in phase 2 | The only verified *burn* channel. It is small next to issuance. |
+| Jun-Jul 2026 | HSP-027: the 30% developer gas rebate goes to 0%, so all gas is burned | **in force** (`burnt_gas_reward` = {burnt_gas_reward} on mainnet, read {protocol_config_read_utc}) | The only verified *burn* channel. It is small next to issuance (section 4). |
 | 1 Oct 2026 | NEAR Intents exploit (~$3.8M, Omni deposit/withdraw bug); services paused, funds returned in full | resolved | Explains the 1 Oct hole in our swap data (section 9); a security risk (section 10) |
 | 2 Nov 2026 | HSP-029 approved by House of Stake: inflation ceiling 2.5% → 1.6% over 24 months | approved, **not in force** | Section 6 |
 | to 16 Nov 2026 | HSP-029 Security Council veto window | open | First of three remaining steps |
@@ -228,7 +278,7 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
 
 - **AI agents on NEAR:** not measurable. There is no published label set, and rising repeat-swapper share cannot be attributed to agents.
 - **Intents users on the NEAR chain:** not measurable with BigQuery, because `intents.near` signs settlements.
-- **Who runs the 27 Oct wallet, and who sent the 9 Sep treasury transfer:** not found.
+- **Who runs the 27 Oct wallet:** not found. The 9 Sep transfer is very likely from the 1Click fund (section 2), but the Trezu proposal's signer set is not checked.
 - **Cause of the HOT game's summer decline and its 3-4 Nov jump:** not found.
 - **A causal link between Intents activity and NEAR's price:** not testable here. Section 7 finds no lead-lag, but with low power. It uses DefiLlama's all-Intents series (from January 2026), because our own 1Click download covers only six weeks.
 - **The documented 20 bps minimum for 1Click's fee share vs observed 1-5 bps buyback fees:** unresolved.
@@ -236,7 +286,7 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
 - **Confidential Intents volume:** not measured.
   - Since 7 Jul 2026, swaps can settle privately. Press reports put that at a large share of near.com's volume (section 12); not verified here.
   - Our 1Click download and DefiLlama's series may miss part of it, while its fees may still reach NEAR's revenue wallets. If so, measured take-rates would be biased upward. The direction and size are **unknown**.
-- **What the other two revenue wallets do with their NEAR:** `fefundsadmin.sputnik-dao.near` and `1csfundsadmin.sputnik-dao.near` are DAO treasuries. Their balances are read in phase 2; their release rules are not known.
+- **What the other two revenue wallets will do with their NEAR:** `fefundsadmin.sputnik-dao.near` and `1csfundsadmin.sputnik-dao.near` are DAO treasuries. Weekly balances are in section 3c; daily flows and release rules are not measured.
 - **Market share against other cross-chain routes** (Across, Relay, LayerZero/Stargate, deBridge, THORChain, Wormhole): not measured. Their methodologies differ from Intents', so we do not state a share.
 
 ## 9. Data caveats
@@ -258,7 +308,7 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
 |---|---|---|---|
 | **Value capture is policy, not protocol** | NEAR keeps {captured_share_of_gross_fees|pct0} of gross fees; the buyback wallet's fee varies by app (section 3b) | Fee splits renegotiated down; large apps routing around fees | Bearish |
 | **Concentration** | Top 5 apps {top5_referrals_usd_share|pct0} of 1Click volume; {top_volume_channel} alone {top_volume_channel_usd_share|pct0}, paying {top_volume_channel_buyback_bps|d1} bps | One integrator leaving | Bearish for volume; small effect on the buyback (section 3b) |
-| **Custody and release** | {wallet_balance_near|int} NEAR held in a multisig; one unexplained outflow on 10 Jul | Any sale or transfer from the revenue wallets | Bearish (would turn the `buyback_outflows` signal red) |
+| **Custody and release** | {revenue_wallets_total_near|mnear} NEAR across a multisig and two DAO treasuries; one unexplained outflow from the buyback wallet on 10 Jul | Any sale or transfer from the revenue wallets | Bearish (would turn the `buyback_outflows` signal red) |
 | **Security** | The 1 Oct exploit (~$3.8M, funds returned, section 4) | A repeat without recovery | Bearish |
 | **Measurement blind spots** | Confidential Intents; refund-address proxy; 1Click-only microdata (sections 8-9) | Private settlement growing | Unknown |
 | **Incentive-driven demand** | Volume, take-rate, organic usage and price all peaked in Sep-Oct (sections 3, 5b) | Activity falling back to pre-September levels | Bearish |
@@ -282,9 +332,10 @@ So that anyone can attack them, these are all the windows and thresholds we chos
 ## 12. Sources for typed facts (all read 11-12 Nov 2026)
 
 - DefiLlama NEAR Intents fee adapter: the three revenue wallets, and buybacks from 23 Feb 2026. https://github.com/DefiLlama/dimension-adapters/blob/master/fees/near-intents/index.ts
-- NEAR JSON-RPC `EXPERIMENTAL_protocol_config` (`max_inflation_rate`, `protocol_reward_rate`, `burnt_gas_reward`): public RPC, read 12 Nov 2026; pinned in phase 2.
+- NEAR JSON-RPC `EXPERIMENTAL_protocol_config` (`max_inflation_rate`, `protocol_reward_rate`, `burnt_gas_reward`) and block-header `total_supply`: public archival RPC, pinned in `data/onchain/` by `pipeline/chain_history.py`.
 - 1Click fee configuration (fee in basis points): https://docs.near-intents.org/integration/distribution-channels/1click-api/fee-config
 - HSP-029 approval, 24-month schedule, grace period and validator upgrade: https://www.theblock.co/news/defi/2026-11-03-near-governance-approves-token-issuance-432378 ; veto window to 16 Nov: https://www.altcoinbuzz.io/near-issuance-cut-to-1-6-passes-vote-staking-yield-set-to-fall
 - HSP-027 (developer gas rebate removed, all gas burned): https://cryptobriefing.com/near-protocol-governance-eliminates-developer-gas-rebate/
 - 1 Oct exploit, pause and return of funds: https://www.theblock.co/news/ecosystems/2026-10-01-near-intents-halts-services-after-3-8-million-exploit-promises-full-compensation-417404 ; https://cointelegraph.com/news/near-intents-recovers-entire-stolen-38m-after-ultimatum-to-exploiter
+- NEAR AI Agent Market: payments in USD or USDC, a third-party wallet provider, no gas, 5% fee. https://docs.market.near.ai/concepts/payments-and-disputes.md ; https://docs.market.near.ai/builders/faq.md ; public data: https://market.near.ai/v1/platform/stats and https://market.near.ai/v1/agents (snapshot by `pipeline/agent_market.py`)
 - Confidential Intents general availability (7 Jul 2026) and share reports: https://glitchwire.com/news/nears-confidential-intents-reaches-general-availability-bringing-privacy-infrast/ ; https://nansen.ai/post/nansen-near-quarterly-report-q2-2026

@@ -1611,6 +1611,423 @@
       ],
       "method": "l2_claim share of game calls on 7 Jul"
     },
+    "agent_market_fetched_utc": {
+      "value": "2026-11-12T15:37:57+00:00",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_stats.json"
+      ],
+      "method": "time the Agent Market snapshot was taken"
+    },
+    "agent_market_live_agents": {
+      "value": 806,
+      "unit": "agents",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_stats.json"
+      ],
+      "method": "/v1/platform/stats live_agents"
+    },
+    "agent_market_jobs_total": {
+      "value": 1161,
+      "unit": "jobs",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_stats.json"
+      ],
+      "method": "/v1/platform/stats jobs_total (all time)"
+    },
+    "agent_market_jobs_this_week": {
+      "value": 120,
+      "unit": "jobs",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_stats.json"
+      ],
+      "method": "/v1/platform/stats jobs_this_week"
+    },
+    "agent_market_delivered_jobs": {
+      "value": 745,
+      "unit": "jobs",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_stats.json"
+      ],
+      "method": "/v1/platform/stats delivered_jobs (all time)"
+    },
+    "agent_market_catalogue_agents": {
+      "value": 680,
+      "unit": "agents",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "agents in the public catalogue (/v1/agents)"
+    },
+    "agent_market_agents_with_a_delivered_job": {
+      "value": 131,
+      "unit": "agents",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "catalogue agents with at least one delivered job"
+    },
+    "agent_market_agents_with_a_delivered_job_share": {
+      "value": 0.192647,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "same, as a share"
+    },
+    "agent_market_top10_share_of_delivered": {
+      "value": 0.405872,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "share of the catalogue's delivered jobs done by its 10 busiest agents"
+    },
+    "agent_market_agents_payable_in_near": {
+      "value": 0,
+      "unit": "agents",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "catalogue agents that accept NEAR as payment"
+    },
+    "agent_market_agents_usdc_only": {
+      "value": 549,
+      "unit": "agents",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "accept USDC only"
+    },
+    "agent_market_agents_usd_and_usdc": {
+      "value": 131,
+      "unit": "agents",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "accept USD (card) or USDC"
+    },
+    "agent_market_listed_since_oct_share": {
+      "value": 0.725,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "share of catalogue agents created on or after 1 Oct 2026 (the hackathon was announced 19 Oct)"
+    },
+    "agent_market_listed_by_month": {
+      "value": [
+        [
+          "2026-07",
+          12,
+          11
+        ],
+        [
+          "2026-08",
+          26,
+          5
+        ],
+        [
+          "2026-09",
+          149,
+          22
+        ],
+        [
+          "2026-10",
+          343,
+          74
+        ],
+        [
+          "2026-11",
+          150,
+          19
+        ]
+      ],
+      "unit": "agents",
+      "kind": "FACT",
+      "sources": [
+        "data/agents/agent_market_agents.csv"
+      ],
+      "method": "per month: agents created, and how many of them have delivered at least one job"
+    },
+    "oneclick_agent_named_codes": {
+      "value": [
+        "outlayer_test_app",
+        "ping-agentpay",
+        "swiftbotlabs",
+        "telegram-intents-bot"
+      ],
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "1Click referral codes whose names contain: agent, bot, claw, outlayer"
+    },
+    "oneclick_agent_named_usd": {
+      "value": 54.53,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "their SUCCESS volume over the whole download"
+    },
+    "oneclick_agent_named_swaps": {
+      "value": 51,
+      "unit": "swaps",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "their SUCCESS swaps"
+    },
+    "oneclick_agent_named_usd_share": {
+      "value": 0.0,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "their share of 1Click SUCCESS volume"
+    },
+    "agent_volume_for_10pct_of_issuance_usd_per_day": {
+      "value": 66977100.559961,
+      "unit": "USD/day",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/derived/metrics.json"
+      ],
+      "method": "HYPOTHETICAL: agent payments per day routed through NEAR Intents, at today's captured take-rate, that would add captured revenue worth 10% of today's issuance in USD"
+    },
+    "protocol_config_read_utc": {
+      "value": "2026-11-12T14:43:23+00:00",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/protocol_config.json"
+      ],
+      "method": "when the protocol parameters were read"
+    },
+    "burnt_gas_reward": {
+      "value": 0.0,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/protocol_config.json"
+      ],
+      "method": "runtime_config.transaction_costs.burnt_gas_reward: share of burnt gas paid to contracts (0 = all gas fees burned)"
+    },
+    "protocol_reward_rate_live": {
+      "value": 0.0,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/protocol_config.json"
+      ],
+      "method": "protocol_reward_rate (treasury cut of issuance)"
+    },
+    "supply_history_window": {
+      "value": "2025-11-12 to 2026-11-11 (364 days)",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "first and last weekly sample"
+    },
+    "realised_supply_growth": {
+      "value": 0.02481,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "total_supply (block header) growth between the first and last sample, annualised: new NEAR minted minus NEAR burned"
+    },
+    "realised_new_near_per_year": {
+      "value": 31749693.461538,
+      "unit": "NEAR/yr",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "same in NEAR per year"
+    },
+    "realised_vs_ceiling_issuance": {
+      "value": 0.980375,
+      "unit": "ratio",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py",
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "net supply added / (mean supply x max inflation rate x years): 1.0 = the maximum, all of it net of burns"
+    },
+    "revenue_wallet_balances": {
+      "value": [
+        [
+          "buybacks.multisignature.near",
+          0,
+          2240389
+        ],
+        [
+          "fefundsadmin.sputnik-dao.near",
+          153342,
+          1999999
+        ],
+        [
+          "1csfundsadmin.sputnik-dao.near",
+          6,
+          271
+        ]
+      ],
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "native NEAR balance of each revenue wallet at the first and last weekly sample"
+    },
+    "fefunds_balance_near": {
+      "value": 1999998.5196,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "fefundsadmin.sputnik-dao.near (front-end fund, a Sputnik DAO) at the last sample"
+    },
+    "fefunds_weeks_falling": {
+      "value": 0,
+      "unit": "weeks",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "weekly samples where the front-end fund's balance fell by more than 1 NEAR"
+    },
+    "fefunds_largest_weekly_fall_near": {
+      "value": 0.0,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "its largest weekly fall"
+    },
+    "onecs_peak_near": {
+      "value": 536987.6798,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "highest weekly balance of 1csfundsadmin.sputnik-dao.near (the 1Click fund)"
+    },
+    "onecs_peak_week": {
+      "value": "2026-04-22",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "week of that peak"
+    },
+    "onecs_largest_fall_near": {
+      "value": 502791.5808,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "largest week-on-week fall in the 1Click fund's balance"
+    },
+    "onecs_largest_fall_week": {
+      "value": "2026-09-16",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "the weekly sample right after that fall"
+    },
+    "onecs_fall_vs_sep09_transfer": {
+      "value": 3e-06,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py",
+        "data/bq/q33_buyback_sep09_moves.csv"
+      ],
+      "method": "|1Click fund's largest weekly fall - the 9 Sep transfer into the buyback wallet| / that transfer (0 = identical)"
+    },
+    "revenue_wallets_total_near": {
+      "value": 4240658.3401,
+      "unit": "NEAR",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "NEAR held across the three revenue wallets at the last sample"
+    },
+    "revenue_wallets_share_of_supply": {
+      "value": 0.003234,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "same, as a share of total supply"
+    },
+    "revenue_wallets_added_near_per_year": {
+      "value": 4098539.163721,
+      "unit": "NEAR/yr",
+      "kind": "FACT",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "growth of NEAR held across the three wallets between the samples, annualised (moves between the three wallets cancel out)"
+    },
+    "custody_share_of_realised_new_supply": {
+      "value": 0.129089,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/onchain/chain_history.csv",
+        "pipeline/chain_history.py"
+      ],
+      "method": "NEAR added to the revenue wallets / net new NEAR supply, same days: the part of dilution parked in custody, if it stays there"
+    },
     "wallet_largest_outflow_share_90d": {
       "value": 0.0,
       "unit": "share of balance",

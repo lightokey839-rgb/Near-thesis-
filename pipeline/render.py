@@ -129,11 +129,25 @@ def windows_md(met):
     return "\n".join(out)
 
 
+def agents_md(met):
+    out = ["| Agents listed in month | Listed | Of these, delivered at least one job |", "|---|---|---|"]
+    for mo, listed, working in met["agent_market_listed_by_month"]["value"]:
+        out.append("| %s | %d | %d |" % (mo, listed, working))
+    return "\n".join(out)
+
+
+def revenue_wallets_md(met):
+    out = ["| Revenue wallet | NEAR at first sample | NEAR at last sample |", "|---|---|---|"]
+    for w, a, b in met["revenue_wallet_balances"]["value"]:
+        out.append("| `%s` | {:,} | {:,} |".format(a, b) % w)
+    return "\n".join(out)
+
+
 def render_thesis(text, met):
     for marker, fn in (("<!-- SCORECARD -->", scorecard_md), ("<!-- SENSITIVITY -->", sensitivity_md),
                        ("<!-- LEADLAG -->", leadlag_md), ("<!-- CHANNELS -->", channels_md),
                        ("<!-- FAMILIES -->", families_md), ("<!-- BRIDGE_MONTHLY -->", bridge_monthly_md),
-                       ("<!-- WINDOWS -->", windows_md)):
+                       ("<!-- WINDOWS -->", windows_md), ("<!-- AGENTS -->", agents_md), ("<!-- REVENUE_WALLETS -->", revenue_wallets_md)):
         if marker in text:
             text = text.replace(marker, fn(met))
     return text

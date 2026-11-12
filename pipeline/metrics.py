@@ -461,11 +461,135 @@ def accounts(m):
           sum(int(r["calls"]) for r in calls), "share", "FACT", ["data/bq/q26_game_methods_daily.csv"], "l2_claim share of game calls on 7 Jul")
 
 
+# ----------------------------------------------------------------------------- the agent economy (pillar C)
+AGENT_NAME_WORDS = ("agent", "bot", "claw", "outlayer")   # self-chosen referral names: evidence tier 4 only
+
+
+def agents(m):
+    """AI agents, measured only from identified sources.
+    Tier 1: NEAR AI Agent Market's own public catalogue and platform totals (data/agents, pipeline/agent_market.py).
+    Tier 4: 1Click referral codes whose self-chosen names mention agents or bots (a name proves nothing).
+    Tier 3 (automation, not agents): the repeat-swapper share is in the swaps section."""
+    js = m.json("agents", "agent_market_stats.json")
+    st_ = js["stats"]
+    src = ["data/agents/agent_market_stats.json"]
+    m.put("agent_market_fetched_utc", js["fetched_utc"], "", "FACT", src, "time the Agent Market snapshot was taken")
+    m.put("agent_market_live_agents", st_["live_agents"], "agents", "FACT", src, "/v1/platform/stats live_agents")
+    m.put("agent_market_jobs_total", st_["jobs_total"], "jobs", "FACT", src, "/v1/platform/stats jobs_total (all time)")
+    m.put("agent_market_jobs_this_week", st_["jobs_this_week"], "jobs", "FACT", src, "/v1/platform/stats jobs_this_week")
+    m.put("agent_market_delivered_jobs", st_["delivered_jobs"], "jobs", "FACT", src, "/v1/platform/stats delivered_jobs (all time)")
+
+    rows = m.csv("agents", "agent_market_agents.csv")
+    src = ["data/agents/agent_market_agents.csv"]
+    n = len(rows)
+    dj = sorted((int(r["delivered_jobs"]) for r in rows), reverse=True)
+    tot = sum(dj)
+    m.put("agent_market_catalogue_agents", n, "agents", "FACT", src, "agents in the public catalogue (/v1/agents)")
+    m.put("agent_market_agents_with_a_delivered_job", sum(1 for x in dj if x > 0), "agents", "FACT", src,
+          "catalogue agents with at least one delivered job")
+    m.put("agent_market_agents_with_a_delivered_job_share", sum(1 for x in dj if x > 0) / n, "share", "FACT", src, "same, as a share")
+    m.put("agent_market_top10_share_of_delivered", sum(dj[:10]) / tot if tot else 0.0, "share", "FACT", src,
+          "share of the catalogue's delivered jobs done by its 10 busiest agents")
+    pay = [set((r["payable_with"] or "").split("+")) for r in rows]
+    m.put("agent_market_agents_payable_in_near", sum(1 for p in pay if "NEAR" in p), "agents", "FACT", src,
+          "catalogue agents that accept NEAR as payment")
+    m.put("agent_market_agents_usdc_only", sum(1 for p in pay if p == {"USDC"}), "agents", "FACT", src, "accept USDC only")
+    m.put("agent_market_agents_usd_and_usdc", sum(1 for p in pay if p == {"USD", "USDC"}), "agents", "FACT", src, "accept USD (card) or USDC")
+    since = sum(1 for r in rows if r["created_day"] >= "2026-10-01")
+    m.put("agent_market_listed_since_oct_share", since / n, "share", "FACT", src,
+          "share of catalogue agents created on or after 1 Oct 2026 (the hackathon was announced 19 Oct)")
+    months = sorted({r["created_day"][:7] for r in rows if r["created_day"]})
+    m.put("agent_market_listed_by_month", [[mo, sum(1 for r in rows if r["created_day"].startswith(mo)),
+                                            sum(1 for r in rows if r["created_day"].startswith(mo) and int(r["delivered_jobs"]) > 0)]
+                                           for mo in months], "agents", "FACT", src,
+          "per month: agents created, and how many of them have delivered at least one job")
+
+    ch = m.csv("audit", "buyback_by_referral.csv")
+    src = ["data/audit/buyback_by_referral.csv"]
+    named = [r for r in ch if any(w in r["referral"].lower() for w in AGENT_NAME_WORDS)]
+    tu = sum(f(r["usd_in_success"]) for r in ch)
+    m.put("oneclick_agent_named_codes", sorted(r["referral"] for r in named), "", "FACT", src,
+          "1Click referral codes whose names contain: " + ", ".join(AGENT_NAME_WORDS))
+    m.put("oneclick_agent_named_usd", sum(f(r["usd_in_success"]) for r in named), "USD", "FACT", src,
+          "their SUCCESS volume over the whole download")
+    m.put("oneclick_agent_named_swaps", sum(int(r["success_swaps"]) for r in named), "swaps", "FACT", src, "their SUCCESS swaps")
+    m.put("oneclick_agent_named_usd_share", sum(f(r["usd_in_success"]) for r in named) / tu, "share", "FACT", src,
+          "their share of 1Click SUCCESS volume")
+
+    # What would it take? Agent payments routed through Intents at today's captured take-rate.
+    if "issuance_usd_per_year" in m.out and "captured_revenue_take_bps" in m.out:
+        need = 0.10 * m.out["issuance_usd_per_year"]["value"] / (m.out["captured_revenue_take_bps"]["value"] / 1e4)
+        m.put("agent_volume_for_10pct_of_issuance_usd_per_day", need / 365, "USD/day", "INFERENCE",
+              ["data/derived/metrics.json"],
+              "HYPOTHETICAL: agent payments per day routed through NEAR Intents, at today's captured take-rate, that would add "
+              "captured revenue worth 10% of today's issuance in USD")
+
+
+# ----------------------------------------------------------------------------- accrual: realised supply and all revenue wallets
+REVENUE_WALLETS = ["buybacks.multisignature.near", "fefundsadmin.sputnik-dao.near", "1csfundsadmin.sputnik-dao.near"]
+
+
+def chain(m):
+    """Realised supply growth and the three revenue wallets, from weekly archival-RPC samples (pipeline/chain_history.py)."""
+    cfg = m.json("onchain", "protocol_config.json")
+    src = ["data/onchain/protocol_config.json"]
+    m.put("protocol_config_read_utc", cfg["read_at_utc"], "", "FACT", src, "when the protocol parameters were read")
+    m.put("burnt_gas_reward", cfg["burnt_gas_reward"], "share", "FACT", src,
+          "runtime_config.transaction_costs.burnt_gas_reward: share of burnt gas paid to contracts (0 = all gas fees burned)")
+    m.put("protocol_reward_rate_live", cfg["protocol_reward_rate"], "share", "FACT", src, "protocol_reward_rate (treasury cut of issuance)")
+
+    rows = [r for r in m.csv("onchain", "chain_history.csv") if f(r["total_supply_near"])]
+    src = ["data/onchain/chain_history.csv", "pipeline/chain_history.py"]
+    a, b = rows[0], rows[-1]
+    days = (date.fromisoformat(b["week_day"]) - date.fromisoformat(a["week_day"])).days
+    s0, s1 = f(a["total_supply_near"]), f(b["total_supply_near"])
+    m.put("supply_history_window", "%s to %s (%d days)" % (a["week_day"], b["week_day"], days), "", "FACT", src, "first and last weekly sample")
+    m.put("realised_supply_growth", (s1 / s0 - 1) * 365 / days, "share", "FACT", src,
+          "total_supply (block header) growth between the first and last sample, annualised: new NEAR minted minus NEAR burned")
+    m.put("realised_new_near_per_year", (s1 - s0) * 365 / days, "NEAR/yr", "FACT", src, "same in NEAR per year")
+    ceiling = st.mean([f(r["total_supply_near"]) for r in rows]) * m.out["max_inflation_rate"]["value"] * days / 365
+    m.put("realised_vs_ceiling_issuance", (s1 - s0) / ceiling, "ratio", "INFERENCE", src + ["data/market/near_chain_snapshot.json"],
+          "net supply added / (mean supply x max inflation rate x years): 1.0 = the maximum, all of it net of burns")
+
+    bal = {w: [f(r[w]) for r in rows] for w in REVENUE_WALLETS}
+    latest = {w: (bal[w][-1] or 0.0) for w in REVENUE_WALLETS}
+    first = {w: (bal[w][0] or 0.0) for w in REVENUE_WALLETS}
+    m.put("revenue_wallet_balances", [[w, round(first[w]), round(latest[w])] for w in REVENUE_WALLETS], "NEAR", "FACT", src,
+          "native NEAR balance of each revenue wallet at the first and last weekly sample")
+    m.put("fefunds_balance_near", latest["fefundsadmin.sputnik-dao.near"], "NEAR", "FACT", src,
+          "fefundsadmin.sputnik-dao.near (front-end fund, a Sputnik DAO) at the last sample")
+    fe = [x for x in bal["fefundsadmin.sputnik-dao.near"] if x is not None]
+    drops = [(fe[i] - fe[i + 1]) for i in range(len(fe) - 1) if fe[i + 1] < fe[i] - 1]
+    m.put("fefunds_weeks_falling", len(drops), "weeks", "FACT", src, "weekly samples where the front-end fund's balance fell by more than 1 NEAR")
+    m.put("fefunds_largest_weekly_fall_near", max(drops) if drops else 0.0, "NEAR", "FACT", src, "its largest weekly fall")
+    # The 1Click fund: where captured revenue went before the buyback wallet existed, and the 9 Sep transfer.
+    oc = [(r["week_day"], f(r["1csfundsadmin.sputnik-dao.near"])) for r in rows if f(r["1csfundsadmin.sputnik-dao.near"]) is not None]
+    peak = max(oc, key=lambda x: x[1])
+    falls = [(oc[i + 1][0], oc[i][1] - oc[i + 1][1]) for i in range(len(oc) - 1)]
+    big = max(falls, key=lambda x: x[1])
+    m.put("onecs_peak_near", peak[1], "NEAR", "FACT", src, "highest weekly balance of 1csfundsadmin.sputnik-dao.near (the 1Click fund)")
+    m.put("onecs_peak_week", peak[0], "", "FACT", src, "week of that peak")
+    m.put("onecs_largest_fall_near", big[1], "NEAR", "FACT", src, "largest week-on-week fall in the 1Click fund's balance")
+    m.put("onecs_largest_fall_week", big[0], "", "FACT", src, "the weekly sample right after that fall")
+    if "wallet_sep09_treasury_transfer_near" in m.out:
+        t = m.out["wallet_sep09_treasury_transfer_near"]["value"]
+        m.put("onecs_fall_vs_sep09_transfer", abs(big[1] - t) / t, "share", "INFERENCE", src + ["data/bq/q33_buyback_sep09_moves.csv"],
+              "|1Click fund's largest weekly fall - the 9 Sep transfer into the buyback wallet| / that transfer (0 = identical)")
+    held = sum(latest.values())
+    m.put("revenue_wallets_total_near", held, "NEAR", "FACT", src, "NEAR held across the three revenue wallets at the last sample")
+    m.put("revenue_wallets_share_of_supply", held / s1, "share", "FACT", src, "same, as a share of total supply")
+    added = held - sum(first.values())
+    m.put("revenue_wallets_added_near_per_year", added * 365 / days, "NEAR/yr", "FACT", src,
+          "growth of NEAR held across the three wallets between the samples, annualised (moves between the three wallets cancel out)")
+    m.put("custody_share_of_realised_new_supply", added / (s1 - s0), "share", "INFERENCE", src,
+          "NEAR added to the revenue wallets / net new NEAR supply, same days: the part of dilution parked in custody, if it stays there")
+
+
 def run(data):
     import models
     m = Metrics(data)
     yaml_path = os.path.join(os.path.dirname(os.path.abspath(data)), "thesis.yaml")
-    for name, fn in (("swaps", swaps), ("audit", audit), ("channels", channels), ("market", market), ("wallet", wallet), ("accounts", accounts),
+    for name, fn in (("swaps", swaps), ("audit", audit), ("channels", channels), ("market", market), ("wallet", wallet), ("accounts", accounts), ("agents", agents), ("chain", chain),
                      ("extra", models.extra), ("windows", models.windows), ("sensitivity", models.sensitivity),
                      ("leadlag", models.leadlag),
                      ("scorecard", lambda mm: models.scorecard(mm, yaml_path))):

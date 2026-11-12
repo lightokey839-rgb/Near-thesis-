@@ -193,6 +193,23 @@ def s_families(data):
         ["data/bq/q10_daily_signers_by_segment.csv", "data/derived/metrics.json (organic_family_monthly)"]
 
 
+def s_custody(data):
+    rows = [r for r in rd(data, "onchain", "chain_history.csv") if r["total_supply_near"]]
+    wallets = [("buyback wallet (multisig)", "buybacks.multisignature.near"), ("front-end fund (DAO)", "fefundsadmin.sputnik-dao.near"),
+               ("1Click fund (DAO)", "1csfundsadmin.sputnik-dao.near")]
+    return line([r["week_day"] for r in rows],
+                [(n, [round(float(r[c]) / 1e6, 4) if r[c] else None for r in rows]) for n, c in wallets], "million NEAR held"), \
+        ["data/onchain/chain_history.csv", "pipeline/chain_history.py"]
+
+
+def s_agents(data):
+    met = _metrics(data)
+    rows = met["agent_market_listed_by_month"]["value"]
+    return bar([r[0] for r in rows], [("agents listed that month", [r[1] for r in rows]),
+                                      ("of these, delivered at least one job", [r[2] for r in rows])], "agents"), \
+        ["data/agents/agent_market_agents.csv", "pipeline/agent_market.py"]
+
+
 def s_signers(data):
     q = rd(data, "bq", "q10_daily_signers_by_segment.csv")
     return line([r["block_date"] for r in q], [("HOT game signers", [int(r["game_signers"]) for r in q]),
@@ -321,6 +338,9 @@ CHARTS = [
     ("bridge", "Value capture", s_bridge, "INFERENCE", "Following the money: buyback wallet vs DefiLlama captured revenue",
      "Over the latest 30 days, {bridge_wallet_share_of_defillama|pct0} of the revenue DefiLlama counts reached the buyback wallet, and each month since July looks similar; DefiLlama also counts two DAO treasuries (fefundsadmin, 1csfundsadmin) whose flows this chart does not show.",
      None, "Buyback-wallet NEAR is valued at each day's NEAR price; the 9 Sep treasury transfer is excluded. September and October include the incentive period."),
+    ("custody", "Value capture", s_custody, "FACT", "All three revenue wallets: NEAR held in custody",
+     "The three wallets DefiLlama counts as NEAR's captured revenue hold {revenue_wallets_total_near|mnear} NEAR ({revenue_wallets_share_of_supply|pct2} of supply); none of it is burned, and supply still grew {realised_supply_growth|pct1} over the year.",
+     None, "Weekly balances from the public archival RPC. A multisig and two DAO treasuries: held means not moved so far, not locked."),
     ("windows", "Valuation", s_windows, "INFERENCE", "Valuation depends on the revenue window",
      "Market cap is {market_cap_to_captured_revenue|x0} the latest 30 days of captured revenue, but higher on longer windows; over the whole buyback era the scorecard verdict is bearish (THESIS.md section 5b).",
      None, "Same market cap in every bar; only the revenue window changes."),
@@ -329,6 +349,9 @@ CHARTS = [
      None, "First and last weeks are partial (download 28 Sep 06:45 to 10 Nov 12:48 UTC)."),
     ("signers", "Usage", s_signers, "FACT", "Daily signing accounts by type (log scale)",
      None, "q10_daily_signers_by_segment", "Spikes in the self-transaction line are account factories ({burst_feb_implicit_self_only|int} accounts in Feb, {burst_oct_kaiching_self_only|int} kaiching accounts in Oct)."),
+    ("agents", "AI agents", s_agents, "FACT", "NEAR AI Agent Market: agents listed vs agents doing work",
+     "Of {agent_market_catalogue_agents|int} agents in the public catalogue, {agent_market_agents_with_a_delivered_job|int} have ever delivered a job, and {agent_market_listed_since_oct_share|pct0} were listed since October; {agent_market_agents_payable_in_near} accept NEAR (jobs are paid in USD or USDC).",
+     None, "Evidence tier 1: the operator's own public catalogue (market.near.ai/v1/agents) and totals (/v1/platform/stats), snapshot {agent_market_fetched_utc}. Listings are not usage; job values are not public."),
     ("families", "Usage", s_families, "FACT", "Who the organic signers are: account families",
      "Telegram (.tg) wallet accounts were {organic_tg_share_jan|pct0} of January's organic signers and {organic_tg_share_of_jan_to_aug_drop|pct0} of the fall to August; named .near accounts changed {organic_dot_near_change_jan_to_latest|pctsigned} from January to the latest month.",
      None, "Organic = sent at least one transaction to something other than the HOT game or itself; not a *.users.kaiching account. The last month is partial."),

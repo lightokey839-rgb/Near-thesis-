@@ -27,7 +27,7 @@ import sys
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(ROOT, "data")
 MANIFEST = os.path.join(DATA, "MANIFEST.json")
-PINNED_DIRS = ["summary", "audit", "bq", "onchain", "market"]
+PINNED_DIRS = ["summary", "audit", "bq", "onchain", "market", "agents"]
 PINNED_FILES = ["summary.json"]
 sys.path.insert(0, os.path.join(ROOT, "pipeline"))
 sys.path.insert(0, os.path.join(ROOT, "dashboard"))
