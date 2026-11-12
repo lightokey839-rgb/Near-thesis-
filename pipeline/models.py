@@ -186,6 +186,56 @@ def windows(m):
           "revenue-based ratios over different windows ending %s; 'since buybacks began' starts %s" % (b, BUYBACK_START))
 
 
+# ----------------------------------------------------------------------------- five-year scenarios and reverse valuation
+def scenario_start(m):
+    """Today's values the scenario model starts from (all from metrics.json)."""
+    return {"volume_usd_per_day": _v(m, "intents_volume_usd_per_day"), "take_bps": _v(m, "captured_revenue_take_bps"),
+            "gross_fee_bps": _v(m, "intents_gross_fee_bps"), "supply_near": _v(m, "total_supply_near"),
+            "custody_near": _v(m, "revenue_wallets_total_near"), "price_usd": _v(m, "near_price_usd"),
+            "market_cap_usd": _v(m, "near_market_cap_usd"), "inflation_rate": _v(m, "max_inflation_rate"),
+            "realised_factor": _v(m, "realised_vs_ceiling_issuance")}
+
+
+def scenarios(m, path):
+    import json
+    import scenario_model as sm
+    with open(path, encoding="utf-8") as f:
+        cfg = json.load(f)
+    start = scenario_start(m)
+    src = ["scenarios.json", "data/derived/metrics.json", "pipeline/scenario_model.py"]
+    m.put("scenario_start", start, "", "INFERENCE", src, "today's values the scenarios start from (see scenario_model.py)")
+    m.put("scenario_config", {k: v for k, v in cfg.items() if k != "note"}, "", "INFERENCE", ["scenarios.json"],
+          "scenario assumptions (chosen by us; not forecasts)")
+    results, summary = {}, []
+    for sc in cfg["scenarios"]:
+        rows = sm.run(start, cfg, sc)
+        results[sc["id"]] = rows
+        last = rows[-1]
+        cum_float = 1.0
+        for r in rows:
+            cum_float *= 1.0 + r["float_growth"]
+        summary.append({"id": sc["id"], "label": sc["label"], "volume_usd_per_day": last["volume_usd_per_day"],
+                        "take_bps": last["take_bps"], "captured_usd": last["captured_usd"],
+                        "buyback_share_of_issuance": last["buyback_share_of_issuance"],
+                        "float_growth_final_year": last["float_growth"], "float_change_total": cum_float - 1.0,
+                        "market_cap_to_revenue": last["market_cap_to_revenue"]})
+    m.put("scenario_results", results, "", "INFERENCE", src, "year-by-year outputs of each scenario")
+    m.put("scenario_summary", summary, "", "INFERENCE", src, "final-year outputs of each scenario, plus 5-year float change")
+    by = {s["id"]: s for s in summary}
+    for sid in ("bear", "base", "bull", "stress"):
+        if sid in by:
+            m.put("scenario_%s_final_buyback_share" % sid, by[sid]["buyback_share_of_issuance"], "share", "INFERENCE", src,
+                  "%s scenario: NEAR bought back / NEAR issued, final year" % sid)
+            m.put("scenario_%s_float_change_total" % sid, by[sid]["float_change_total"], "share", "INFERENCE", src,
+                  "%s scenario: change in tradable float over the whole period" % sid)
+    m.put("scenarios_offsetting_issuance", [s["id"] for s in summary if s["buyback_share_of_issuance"] >= 1.0], "", "INFERENCE", src,
+          "scenarios in which NEAR bought back reaches NEAR issued by the final year")
+    rv = sm.reverse(start, cfg)
+    for k, v in rv.items():
+        m.put("reverse_" + k, v, "", "INFERENCE", src,
+              "reverse valuation (scenario_model.reverse): " + k.replace("_", " ") + "; at today's NEAR price")
+
+
 # ----------------------------------------------------------------------------- HSP-029 sensitivity
 def sensitivity(m):
     supply, stake = _v(m, "total_supply_near"), _v(m, "validator_stake_near")

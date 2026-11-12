@@ -2,3 +2,6 @@
 * text=auto eol=lf
 # ...except pinned data, which must stay byte-identical on every OS or the SHA-256 checks in data/MANIFEST.json fail.
 data/** -text
+
+# vendored third-party files must stay byte-identical (their SHA-512 is checked by the build)
+dashboard/vendor/** -text

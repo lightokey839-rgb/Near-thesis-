@@ -1,0 +1,18 @@
+{
+  "note": "Scenario assumptions for THESIS.md section 6b and the dashboard sliders. These are ASSUMPTIONS chosen on 12 Nov 2026 to span plausible paths; they are not forecasts and not price targets. Starting values (volume, take-rate, supply, price, market cap, NEAR in custody) come from data/derived/metrics.json. Edit this file and rebuild to change them.",
+  "years": 5,
+  "hsp029_activation_years": 0.26,
+  "hsp029_ramp_years": 2.0,
+  "hsp029_end_rate": 0.016,
+  "valuation_multiple_for_reverse": 50,
+  "scenarios": [
+    {"id": "bear", "label": "Bear: volume shrinks, capture falls, custody leaks",
+     "volume_cagr": -0.10, "take_bps_end": 3.0, "hsp029": false, "custody_release_per_year": 0.25},
+    {"id": "base", "label": "Base: volume grows 25%/yr, today's take-rate, HSP-029 activates",
+     "volume_cagr": 0.25, "take_bps_end": null, "hsp029": true, "custody_release_per_year": 0.0},
+    {"id": "bull", "label": "Bull: volume grows 60%/yr, take-rate rises to 8 bps, HSP-029 activates",
+     "volume_cagr": 0.60, "take_bps_end": 8.0, "hsp029": true, "custody_release_per_year": 0.0},
+    {"id": "stress", "label": "Stress: activity booms but capture weakens and half of custody is released each year",
+     "volume_cagr": 0.50, "take_bps_end": 2.0, "hsp029": true, "custody_release_per_year": 0.5}
+  ]
+}

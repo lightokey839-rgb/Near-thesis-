@@ -104,6 +104,14 @@ class PinnedDataTest(unittest.TestCase):
         # section 3c: the front-end fund "has accumulated" over the year
         fe = [r for r in self.m["revenue_wallet_balances"] if r[0] == "fefundsadmin.sputnik-dao.near"][0]
         self.assertGreater(fe[2], fe[1])
+        # section 6b: base "still short of break-even"; bull "outweigh issuance and the float shrinks";
+        # stress "lands about where the base case does"; only the bull case offsets issuance
+        self.assertLess(self.m["scenario_base_final_buyback_share"], 1.0)
+        self.assertGreater(self.m["scenario_base_float_change_total"], 0)
+        self.assertGreater(self.m["scenario_bull_final_buyback_share"], 1.0)
+        self.assertLess(self.m["scenario_bull_float_change_total"], 0)
+        self.assertLess(abs(self.m["scenario_stress_final_buyback_share"] - self.m["scenario_base_final_buyback_share"]), 0.15)
+        self.assertEqual(self.m["scenarios_offsetting_issuance"], ["bull"])
         # section 3d: "a large share of all Intents volume today"
         self.assertGreater(self.m["agent_volume_for_10pct_of_issuance_usd_per_day"], 0.25 * self.m["intents_volume_usd_per_day"])
 
@@ -119,13 +127,16 @@ class BuildTest(unittest.TestCase):
             with open(os.path.join(ROOT, path), encoding="utf-8") as f:
                 text = f.read()
             text = re.sub(r"(?s)<pre>.*?</pre>", "", text)  # query listings legitimately contain {64}, {{project}}
+            text = re.sub(r"(?s)<script[^>]*>.*?</script>", "", text)  # page code (scenario model, Chart.js), not prose
             self.assertIsNone(re.search(r"\{[a-z][a-z0-9_]*(\|[a-z0-9]+)?\}", text), path)
 
     def test_every_chart_shows_a_query(self):
         with open(os.path.join(ROOT, "dashboard", "index.html"), encoding="utf-8") as f:
             page = f.read()
         self.assertEqual(page.count("<canvas"), page.count("Query behind this chart"))
-        self.assertEqual(page.count("<canvas"), len(build_dashboard.CHARTS))
+        # the CHARTS list, plus the interactive scenario panel's chart
+        self.assertEqual(page.count("<canvas"), len(build_dashboard.CHARTS) + 1)
+        self.assertEqual(page.count('id="cv-scenario"'), 1)
 
 
 if __name__ == "__main__":

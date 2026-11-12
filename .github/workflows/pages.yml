@@ -1,0 +1,52 @@
+# Publishes the dashboard (and THESIS.md) to GitHub Pages on every push to main.
+# It rebuilds from the pinned tables first, so the published page is exactly what `python build.py` makes.
+# Skipped while the repository is private (GitHub Pages needs a public repository on the free plan).
+# One-time setup after making the repository public: Settings -> Pages -> Source: "GitHub Actions".
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild from pinned tables
+        run: python build.py
+
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp dashboard/index.html _site/index.html
+          cp THESIS.md _site/THESIS.md
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4

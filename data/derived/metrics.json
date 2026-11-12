@@ -5154,6 +5154,632 @@
       ],
       "method": "weekly: same-week r and whether its CI excludes 0"
     },
+    "scenario_start": {
+      "value": {
+        "volume_usd_per_day": 123823455.7,
+        "take_bps": 5.002324,
+        "gross_fee_bps": 15.562719,
+        "supply_near": 1311421153.0,
+        "custody_near": 4240658.3401,
+        "price_usd": 3.73,
+        "market_cap_usd": 4897021974.0,
+        "inflation_rate": 0.025,
+        "realised_factor": 0.980375
+      },
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "today's values the scenarios start from (see scenario_model.py)"
+    },
+    "scenario_config": {
+      "value": {
+        "years": 5,
+        "hsp029_activation_years": 0.26,
+        "hsp029_ramp_years": 2.0,
+        "hsp029_end_rate": 0.016,
+        "valuation_multiple_for_reverse": 50,
+        "scenarios": [
+          {
+            "id": "bear",
+            "label": "Bear: volume shrinks, capture falls, custody leaks",
+            "volume_cagr": -0.1,
+            "take_bps_end": 3.0,
+            "hsp029": false,
+            "custody_release_per_year": 0.25
+          },
+          {
+            "id": "base",
+            "label": "Base: volume grows 25%/yr, today's take-rate, HSP-029 activates",
+            "volume_cagr": 0.25,
+            "take_bps_end": null,
+            "hsp029": true,
+            "custody_release_per_year": 0.0
+          },
+          {
+            "id": "bull",
+            "label": "Bull: volume grows 60%/yr, take-rate rises to 8 bps, HSP-029 activates",
+            "volume_cagr": 0.6,
+            "take_bps_end": 8.0,
+            "hsp029": true,
+            "custody_release_per_year": 0.0
+          },
+          {
+            "id": "stress",
+            "label": "Stress: activity booms but capture weakens and half of custody is released each year",
+            "volume_cagr": 0.5,
+            "take_bps_end": 2.0,
+            "hsp029": true,
+            "custody_release_per_year": 0.5
+          }
+        ]
+      },
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json"
+      ],
+      "method": "scenario assumptions (chosen by us; not forecasts)"
+    },
+    "scenario_results": {
+      "value": {
+        "bear": [
+          {
+            "year": 1,
+            "volume_usd_per_day": 111441110.13000001,
+            "take_bps": 4.6018592,
+            "captured_usd": 18718524.87371331,
+            "bought_near": 5018371.279815901,
+            "inflation_rate": 0.025,
+            "issued_near": 32142112.821809378,
+            "buyback_share_of_issuance": 0.15613072194839622,
+            "revenue_to_issuance_usd": 0.15613072194839622,
+            "float_growth": 0.021560837422341717,
+            "custody_near": 8198865.034890901,
+            "market_cap_to_revenue": 261.6136691880543
+          },
+          {
+            "year": 2,
+            "volume_usd_per_day": 100296999.117,
+            "take_bps": 4.2013944,
+            "captured_usd": 15380634.640584359,
+            "bought_near": 4123494.5417116242,
+            "inflation_rate": 0.025,
+            "issued_near": 32929895.91825141,
+            "buyback_share_of_issuance": 0.12522039401364082,
+            "revenue_to_issuance_usd": 0.12522039401364082,
+            "float_growth": 0.023106889488052396,
+            "custody_near": 10272643.3178798,
+            "market_cap_to_revenue": 318.38881089330306
+          },
+          {
+            "year": 3,
+            "volume_usd_per_day": 90267299.20530002,
+            "take_bps": 3.8009296,
+            "captured_usd": 12523137.205344068,
+            "bought_near": 3357409.438430045,
+            "inflation_rate": 0.025,
+            "issued_near": 33736987.0860228,
+            "buyback_share_of_issuance": 0.0995171687936833,
+            "revenue_to_issuance_usd": 0.0995171687936833,
+            "float_growth": 0.024115973982819172,
+            "custody_near": 11061891.926839896,
+            "market_cap_to_revenue": 391.0379558813958
+          },
+          {
+            "year": 4,
+            "volume_usd_per_day": 81240569.28477,
+            "take_bps": 3.4004648,
+            "captured_usd": 10083332.910745988,
+            "bought_near": 2703306.410387664,
+            "inflation_rate": 0.025,
+            "issued_near": 34563859.5538843,
+            "buyback_share_of_issuance": 0.07821193712968509,
+            "revenue_to_issuance_usd": 0.07821193712968509,
+            "float_growth": 0.024747578394854974,
+            "custody_near": 10999725.355517585,
+            "market_cap_to_revenue": 485.65509215520956
+          },
+          {
+            "year": 5,
+            "volume_usd_per_day": 73116512.35629301,
+            "take_bps": 3.0,
+            "captured_usd": 8006258.103014084,
+            "bought_near": 2146449.893569459,
+            "inflation_rate": 0.025,
+            "issued_near": 35410998.14913778,
+            "buyback_share_of_issuance": 0.06061534567677028,
+            "revenue_to_issuance_usd": 0.060615345676770294,
+            "float_growth": 0.02511830324673814,
+            "custody_near": 10396243.910207648,
+            "market_cap_to_revenue": 611.6492762276098
+          }
+        ],
+        "base": [
+          {
+            "year": 1,
+            "volume_usd_per_day": 154779319.625,
+            "take_bps": 5.002324,
+            "captured_usd": 28260355.14212901,
+            "bought_near": 7576502.71906944,
+            "inflation_rate": 0.02392,
+            "issued_near": 30753573.547907207,
+            "buyback_share_of_issuance": 0.24636170190976145,
+            "revenue_to_issuance_usd": 0.24636170190976145,
+            "float_growth": 0.017730581907793752,
+            "custody_near": 11817161.05916944,
+            "market_cap_to_revenue": 173.28239328103078
+          },
+          {
+            "year": 2,
+            "volume_usd_per_day": 193474149.53125,
+            "take_bps": 5.002324,
+            "captured_usd": 35325443.92766126,
+            "bought_near": 9470628.398836799,
+            "inflation_rate": 0.01942,
+            "issued_near": 25553506.913215235,
+            "buyback_share_of_issuance": 0.3706195173523903,
+            "revenue_to_issuance_usd": 0.37061951735239035,
+            "float_growth": 0.012089139740765864,
+            "custody_near": 21287789.45800624,
+            "market_cap_to_revenue": 138.62591462482465
+          },
+          {
+            "year": 3,
+            "volume_usd_per_day": 241842686.9140625,
+            "take_bps": 5.002324,
+            "captured_usd": 44156804.90957657,
+            "bought_near": 11838285.498545999,
+            "inflation_rate": 0.016,
+            "issued_near": 21454185.070071165,
+            "buyback_share_of_issuance": 0.551793762376952,
+            "revenue_to_issuance_usd": 0.551793762376952,
+            "float_growth": 0.007141719200691732,
+            "custody_near": 33126074.956552237,
+            "market_cap_to_revenue": 110.90073169985972
+          },
+          {
+            "year": 4,
+            "volume_usd_per_day": 302303358.6425781,
+            "take_bps": 5.002324,
+            "captured_usd": 55196006.136970714,
+            "bought_near": 14797856.873182498,
+            "inflation_rate": 0.016,
+            "issued_near": 21790715.4170803,
+            "buyback_share_of_issuance": 0.6790899972739507,
+            "revenue_to_issuance_usd": 0.6790899972739507,
+            "float_growth": 0.005156761057187653,
+            "custody_near": 47923931.829734735,
+            "market_cap_to_revenue": 88.72058535988778
+          },
+          {
+            "year": 5,
+            "volume_usd_per_day": 377879198.30322266,
+            "take_bps": 5.002324,
+            "captured_usd": 68995007.6712134,
+            "bought_near": 18497321.091478124,
+            "inflation_rate": 0.016,
+            "issued_near": 22132524.579112627,
+            "buyback_share_of_issuance": 0.8357528769643752,
+            "revenue_to_issuance_usd": 0.8357528769643752,
+            "float_growth": 0.0026669642460332987,
+            "custody_near": 66421252.92121286,
+            "market_cap_to_revenue": 70.97646828791021
+          }
+        ],
+        "bull": [
+          {
+            "year": 1,
+            "volume_usd_per_day": 198117529.12,
+            "take_bps": 5.6018592,
+            "captured_usd": 40508667.36614811,
+            "bought_near": 10860232.537841316,
+            "inflation_rate": 0.02392,
+            "issued_near": 30753573.547907207,
+            "buyback_share_of_issuance": 0.35313725479491015,
+            "revenue_to_issuance_usd": 0.35313725479491015,
+            "float_growth": 0.015218511208921814,
+            "custody_near": 15100890.877941316,
+            "market_cap_to_revenue": 120.88825163605101
+          },
+          {
+            "year": 2,
+            "volume_usd_per_day": 316988046.59200007,
+            "take_bps": 6.2013944,
+            "captured_usd": 71750528.24059373,
+            "bought_near": 19236066.552438,
+            "inflation_rate": 0.01942,
+            "issued_near": 25553506.913215235,
+            "buyback_share_of_issuance": 0.7527759934386887,
+            "revenue_to_issuance_usd": 0.7527759934386887,
+            "float_growth": 0.004760428689777996,
+            "custody_near": 34336957.430379316,
+            "market_cap_to_revenue": 68.25067486025073
+          },
+          {
+            "year": 3,
+            "volume_usd_per_day": 507180874.54720014,
+            "take_bps": 6.8009296,
+            "captured_usd": 125899501.91256082,
+            "bought_near": 33753217.67092784,
+            "inflation_rate": 0.016,
+            "issued_near": 21454185.070071165,
+            "buyback_share_of_issuance": 1.5732696236509103,
+            "revenue_to_issuance_usd": 1.57326962365091,
+            "float_growth": -0.009223873608554367,
+            "custody_near": 68090175.10130715,
+            "market_cap_to_revenue": 38.89627758337804
+          },
+          {
+            "year": 4,
+            "volume_usd_per_day": 811489399.2755202,
+            "take_bps": 7.4004648,
+            "captured_usd": 219197053.8242746,
+            "bought_near": 58765966.17272778,
+            "inflation_rate": 0.016,
+            "issued_near": 21790715.4170803,
+            "buyback_share_of_issuance": 2.696835099166364,
+            "revenue_to_issuance_usd": 2.696835099166364,
+            "float_growth": -0.02798839440586709,
+            "custody_near": 126856141.27403493,
+            "market_cap_to_revenue": 22.340728985918915
+          },
+          {
+            "year": 5,
+            "volume_usd_per_day": 1298383038.8408322,
+            "take_bps": 8.0,
+            "captured_usd": 379127847.34152305,
+            "bought_near": 101642854.51515363,
+            "inflation_rate": 0.016,
+            "issued_near": 22132524.579112627,
+            "buyback_share_of_issuance": 4.592465452905367,
+            "revenue_to_issuance_usd": 4.592465452905366,
+            "float_growth": -0.06191829123797887,
+            "custody_near": 228498995.78918856,
+            "market_cap_to_revenue": 12.916545192705673
+          }
+        ],
+        "stress": [
+          {
+            "year": 1,
+            "volume_usd_per_day": 185735183.55,
+            "take_bps": 4.4018592,
+            "captured_usd": 29841674.616273846,
+            "bought_near": 8000448.958786554,
+            "inflation_rate": 0.02392,
+            "issued_near": 30753573.547907207,
+            "buyback_share_of_issuance": 0.26014696946758525,
+            "revenue_to_issuance_usd": 0.26014696946758525,
+            "float_growth": 0.01902832383192954,
+            "custody_near": 10120778.128836554,
+            "market_cap_to_revenue": 164.10010620950408
+          },
+          {
+            "year": 2,
+            "volume_usd_per_day": 278602775.325,
+            "take_bps": 3.8013944,
+            "captured_usd": 38656384.59298933,
+            "bought_near": 10363641.982034674,
+            "inflation_rate": 0.01942,
+            "issued_near": 25553506.913215235,
+            "buyback_share_of_issuance": 0.40556632861515457,
+            "revenue_to_issuance_usd": 0.40556632861515457,
+            "float_growth": 0.015202277670234299,
+            "custody_near": 15424031.04645295,
+            "market_cap_to_revenue": 126.68080643237694
+          },
+          {
+            "year": 3,
+            "volume_usd_per_day": 417904162.9875,
+            "take_bps": 3.2009296,
+            "captured_usd": 48825385.89235183,
+            "bought_near": 13089915.78883427,
+            "inflation_rate": 0.016,
+            "issued_near": 21454185.070071165,
+            "buyback_share_of_issuance": 0.6101334423135397,
+            "revenue_to_issuance_usd": 0.6101334423135397,
+            "float_growth": 0.011888068361953996,
+            "custody_near": 20801931.312060744,
+            "market_cap_to_revenue": 100.29663636037101
+          },
+          {
+            "year": 4,
+            "volume_usd_per_day": 626856244.48125,
+            "take_bps": 2.6004648,
+            "captured_usd": 59499292.3428295,
+            "bought_near": 15951552.9069248,
+            "inflation_rate": 0.016,
+            "issued_near": 21790715.4170803,
+            "buyback_share_of_issuance": 0.732034382607807,
+            "revenue_to_issuance_usd": 0.732034382607807,
+            "float_growth": 0.01186813778614293,
+            "custody_near": 26352518.56295517,
+            "market_cap_to_revenue": 82.30386919198644
+          },
+          {
+            "year": 5,
+            "volume_usd_per_day": 940284366.721875,
+            "take_bps": 2.0,
+            "captured_usd": 68640758.77069688,
+            "bought_near": 18402348.195897285,
+            "inflation_rate": 0.016,
+            "issued_near": 22132524.579112627,
+            "buyback_share_of_issuance": 0.8314617760896711,
+            "revenue_to_issuance_usd": 0.8314617760896712,
+            "float_growth": 0.012210157408343969,
+            "custody_near": 31578607.47737487,
+            "market_cap_to_revenue": 71.3427715791884
+          }
+        ]
+      },
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "year-by-year outputs of each scenario"
+    },
+    "scenario_summary": {
+      "value": [
+        {
+          "id": "bear",
+          "label": "Bear: volume shrinks, capture falls, custody leaks",
+          "volume_usd_per_day": 73116512.35629301,
+          "take_bps": 3.0,
+          "captured_usd": 8006258.103014084,
+          "buyback_share_of_issuance": 0.06061534567677028,
+          "float_growth_final_year": 0.02511830324673814,
+          "float_change_total": 0.12441148611333142,
+          "market_cap_to_revenue": 611.6492762276098
+        },
+        {
+          "id": "base",
+          "label": "Base: volume grows 25%/yr, today's take-rate, HSP-029 activates",
+          "volume_usd_per_day": 377879198.30322266,
+          "take_bps": 5.002324,
+          "captured_usd": 68995007.6712134,
+          "buyback_share_of_issuance": 0.8357528769643752,
+          "float_growth_final_year": 0.0026669642460332987,
+          "float_change_total": 0.04552080695004168,
+          "market_cap_to_revenue": 70.97646828791021
+        },
+        {
+          "id": "bull",
+          "label": "Bull: volume grows 60%/yr, take-rate rises to 8 bps, HSP-029 activates",
+          "volume_usd_per_day": 1298383038.8408322,
+          "take_bps": 8.0,
+          "captured_usd": 379127847.34152305,
+          "buyback_share_of_issuance": 4.592465452905367,
+          "float_growth_final_year": -0.06191829123797887,
+          "float_change_total": -0.07846952455360034,
+          "market_cap_to_revenue": 12.916545192705673
+        },
+        {
+          "id": "stress",
+          "label": "Stress: activity booms but capture weakens and half of custody is released each year",
+          "volume_usd_per_day": 940284366.721875,
+          "take_bps": 2.0,
+          "captured_usd": 68640758.77069688,
+          "buyback_share_of_issuance": 0.8314617760896711,
+          "float_growth_final_year": 0.012210157408343969,
+          "float_change_total": 0.07217561520810345,
+          "market_cap_to_revenue": 71.3427715791884
+        }
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "final-year outputs of each scenario, plus 5-year float change"
+    },
+    "scenario_bear_final_buyback_share": {
+      "value": 0.060615,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "bear scenario: NEAR bought back / NEAR issued, final year"
+    },
+    "scenario_bear_float_change_total": {
+      "value": 0.124411,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "bear scenario: change in tradable float over the whole period"
+    },
+    "scenario_base_final_buyback_share": {
+      "value": 0.835753,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "base scenario: NEAR bought back / NEAR issued, final year"
+    },
+    "scenario_base_float_change_total": {
+      "value": 0.045521,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "base scenario: change in tradable float over the whole period"
+    },
+    "scenario_bull_final_buyback_share": {
+      "value": 4.592465,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "bull scenario: NEAR bought back / NEAR issued, final year"
+    },
+    "scenario_bull_float_change_total": {
+      "value": -0.07847,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "bull scenario: change in tradable float over the whole period"
+    },
+    "scenario_stress_final_buyback_share": {
+      "value": 0.831462,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "stress scenario: NEAR bought back / NEAR issued, final year"
+    },
+    "scenario_stress_float_change_total": {
+      "value": 0.072176,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "stress scenario: change in tradable float over the whole period"
+    },
+    "scenarios_offsetting_issuance": {
+      "value": [
+        "bull"
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "scenarios in which NEAR bought back reaches NEAR issued by the final year"
+    },
+    "reverse_final_year_issuance_near": {
+      "value": 22132524.579113,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): final year issuance near; at today's NEAR price"
+    },
+    "reverse_revenue_needed_to_offset_final_year_usd": {
+      "value": 82554316.68009,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): revenue needed to offset final year usd; at today's NEAR price"
+    },
+    "reverse_volume_cagr_needed_at_today_take": {
+      "value": 0.29567,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): volume cagr needed at today take; at today's NEAR price"
+    },
+    "reverse_volume_cagr_needed_at_8_bps": {
+      "value": 0.179535,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): volume cagr needed at 8 bps; at today's NEAR price"
+    },
+    "reverse_volume_cagr_needed_at_gross_fee_bps": {
+      "value": 0.032551,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): volume cagr needed at gross fee bps; at today's NEAR price"
+    },
+    "reverse_multiple": {
+      "value": 50.0,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): multiple; at today's NEAR price"
+    },
+    "reverse_revenue_for_multiple_usd": {
+      "value": 97940439.48,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): revenue for multiple usd; at today's NEAR price"
+    },
+    "reverse_revenue_for_multiple_x_today": {
+      "value": 4.33206,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): revenue for multiple x today; at today's NEAR price"
+    },
+    "reverse_volume_per_day_for_multiple_at_today_take": {
+      "value": 536410618.700592,
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "reverse valuation (scenario_model.reverse): volume per day for multiple at today take; at today's NEAR price"
+    },
     "scorecard_by_window": {
       "value": [
         [

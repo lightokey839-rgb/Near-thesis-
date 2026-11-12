@@ -449,6 +449,7 @@ def build(data, out):
         yaml_text = f.read()
     g, y, rd_ = met["scorecard_counts"]["value"]
     scorecard = SCORECARD % (html.escape(met["scorecard_verdict"]["value"]), g, y, rd_, srows, html.escape(yaml_text))
+    scorecard += scenario_panel(met)
     sections, data_js = {}, {}
     for cid, section, fn, kind, title, sentence, sqlname, note in CHARTS:
         cfg, sources = fn(data)
@@ -473,7 +474,7 @@ def build(data, out):
                  (" &middot; " + html.escape(note)) if note else "", html.escape(query))
         sections.setdefault(section, []).append(card)
     body = "".join('<h2>%s</h2><div class="grid">%s</div>' % (html.escape(s), "".join(c)) for s, c in sections.items())
-    page = PAGE.replace("{{TILES}}", tiles).replace("{{BODY}}", scorecard + body).replace(
+    page = PAGE.replace("{{CHARTJS}}", chartjs_tag()).replace("{{TILES}}", tiles).replace("{{BODY}}", scorecard + body).replace(
         "{{DATA}}", json.dumps(data_js).replace("</", "<\\/")).replace(
         "{{STAMP}}", html.escape("%s; NEAR price %s at %s" % (
             met.get("swaps_last_utc", {}).get("value", "?"), met.get("near_price_usd", {}).get("value", "?"),
@@ -482,6 +483,106 @@ def build(data, out):
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         f.write(page)
     print("dashboard: %d charts -> %s" % (len(CHARTS), out))
+
+
+CHARTJS_URL = "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+CHARTJS_SRI = "sha512-CQBWl4fJHWbryGE+Pc7UAxWMUMNMWzWxF4SQo9CgkJIN1kx6djDQZjh3Y8SZ1d+6I+1zze6Z7kHXO7q3UyZAWw=="  # cdnjs, Chart.js 4.4.1
+
+
+def chartjs_tag():
+    """Inline Chart.js if a verified copy is in dashboard/vendor/ (works offline); otherwise load it from cdnjs with SRI."""
+    import base64
+    import hashlib
+    vendor = os.path.join(HERE, "vendor", "chart.umd.min.js")
+    if os.path.exists(vendor):
+        with open(vendor, "rb") as f:
+            raw = f.read()
+        got = "sha512-" + base64.b64encode(hashlib.sha512(raw).digest()).decode()
+        if got != CHARTJS_SRI:
+            raise SystemExit("dashboard/vendor/chart.umd.min.js does not match the published Chart.js 4.4.1 hash; delete it or re-download it.")
+        return "<script>/* Chart.js 4.4.1 (MIT), verified against %s */\n%s</script>" % (
+            CHARTJS_SRI, raw.decode("utf-8").replace("</script", "<\\/script"))
+    return '<script src="%s" integrity="%s" crossorigin="anonymous" referrerpolicy="no-referrer"></script>' % (CHARTJS_URL, CHARTJS_SRI)
+
+
+def scenario_panel(met):
+    """Interactive five-year scenarios: the same model as pipeline/scenario_model.py, run in the browser."""
+    if "scenario_start" not in met:
+        return ""
+    with open(os.path.join(HERE, "scenario_model.js"), encoding="utf-8") as f:
+        js_model = f.read()
+    with open(os.path.join(ROOT, "pipeline", "scenario_model.py"), encoding="utf-8") as f:
+        py_model = f.read()
+    data = {"start": met["scenario_start"]["value"], "cfg": met["scenario_config"]["value"]}
+    return SCENARIO_HTML.replace("{{SCEN_DATA}}", json.dumps(data).replace("</", "<\\/")).replace(
+        "{{SCEN_JS}}", js_model.replace("</", "<\\/")).replace("{{SCEN_PY}}", html.escape(py_model)).replace(
+        "{{PRICE}}", "$%.2f" % met["near_price_usd"]["value"])
+
+
+SCENARIO_HTML = r"""<h2>Scenarios: what would it take?</h2><section class="card" id="scenarios">
+<h3>Five-year scenarios (assumptions you can change)</h3>
+<p class="sentence">Pick a preset or move the sliders. Every output below is recomputed in your browser by the same model THESIS.md uses (section 6b). These are <b>scenarios, not forecasts</b>; NEAR's price is held at {{PRICE}}, and NEAR held in the revenue wallets is custody, not burned.</p>
+<div class="ctl">
+  <div class="presets"><button data-p="bear">Bear</button><button data-p="base">Base</button><button data-p="bull">Bull</button><button data-p="stress">Stress</button><button id="sc-reset">Reset to base</button></div>
+  <label>Intents volume growth per year: <b id="v-g"></b><input type="range" id="sc-g" min="-30" max="150" step="5"></label>
+  <label>Captured take-rate by year 5: <b id="v-t"></b><input type="range" id="sc-t" min="0.5" max="20" step="0.5"></label>
+  <label>Custody released back to the market each year: <b id="v-r"></b><input type="range" id="sc-r" min="0" max="100" step="5"></label>
+  <label class="chk"><input type="checkbox" id="sc-h"> HSP-029 activates (inflation ceiling 2.5% to 1.6%)</label>
+</div>
+<p class="sentence" id="sc-summary"></p>
+<div class="chart"><canvas id="cv-scenario"></canvas></div>
+<div class="tablewrap"><table id="sc-table"></table></div>
+<p class="meta"><span class="kind inference">SCENARIO</span> Starting values from <code>data/derived/metrics.json</code> (scenario_start); presets from <code>scenarios.json</code>. Market cap / revenue uses today's market cap and is descriptive only.</p>
+<details><summary>Query behind this chart: the scenario model (pipeline/scenario_model.py; the browser runs dashboard/scenario_model.js, tested to match)</summary><pre><code>{{SCEN_PY}}</code></pre></details>
+</section>
+<script>{{SCEN_JS}}</script>
+<script>
+(function () {
+  var D = {{SCEN_DATA}}, M = window.ScenarioModel, chart = null;
+  var P = {}; D.cfg.scenarios.forEach(function (s) { P[s.id] = s; });
+  var $ = function (id) { return document.getElementById(id); };
+  var fmtM = function (v) { return "$" + (v / 1e6).toFixed(1) + "M"; };
+  var pct = function (v, d) { return (100 * v).toFixed(d === undefined ? 1 : d) + "%"; };
+  function set(s) {
+    $("sc-g").value = Math.round(100 * s.volume_cagr);
+    $("sc-t").value = (s.take_bps_end === null ? D.start.take_bps : s.take_bps_end).toFixed(1);
+    $("sc-r").value = Math.round(100 * s.custody_release_per_year);
+    $("sc-h").checked = !!s.hsp029;
+    draw();
+  }
+  function current() {
+    return {volume_cagr: $("sc-g").value / 100, take_bps_end: Number($("sc-t").value),
+            custody_release_per_year: $("sc-r").value / 100, hsp029: $("sc-h").checked};
+  }
+  function draw() {
+    var sc = current(), rows = M.run(D.start, D.cfg, sc), last = rows[rows.length - 1];
+    $("v-g").textContent = pct(sc.volume_cagr, 0); $("v-t").textContent = sc.take_bps_end.toFixed(1) + " bps";
+    $("v-r").textContent = pct(sc.custody_release_per_year, 0);
+    var cum = rows.reduce(function (a, r) { return a * (1 + r.float_growth); }, 1) - 1;
+    $("sc-summary").innerHTML = "In year " + last.year + ", NEAR bought back would be <b>" + pct(last.buyback_share_of_issuance, 0) +
+      "</b> of NEAR issued, and the tradable float would have changed by <b>" + (cum >= 0 ? "+" : "") + pct(cum) +
+      "</b> over " + rows.length + " years. " + (last.buyback_share_of_issuance >= 1 ? "Buybacks outweigh issuance." : "Issuance still outweighs buybacks.");
+    var head = "<tr><th>Year</th><th>Intents volume/day</th><th>Take-rate</th><th>Captured revenue/yr</th><th>NEAR bought</th><th>NEAR issued</th><th>Bought / issued</th><th>Float growth</th><th>Market cap / revenue</th></tr>";
+    $("sc-table").innerHTML = head + rows.map(function (r) {
+      return "<tr><td>" + r.year + "</td><td>" + fmtM(r.volume_usd_per_day) + "</td><td>" + r.take_bps.toFixed(1) + " bps</td><td>" +
+        fmtM(r.captured_usd) + "</td><td>" + (r.bought_near / 1e6).toFixed(1) + "M</td><td>" + (r.issued_near / 1e6).toFixed(1) +
+        "M</td><td>" + pct(r.buyback_share_of_issuance, 0) + "</td><td>" + pct(r.float_growth, 2) + "</td><td>" +
+        Math.round(r.market_cap_to_revenue) + "x</td></tr>";
+    }).join("");
+    if (window.Chart) {
+      var cfg = {type: "bar", data: {labels: rows.map(function (r) { return "Year " + r.year; }), datasets: [
+        {label: "NEAR bought back / NEAR issued (%)", data: rows.map(function (r) { return +(100 * r.buyback_share_of_issuance).toFixed(1); }), backgroundColor: "#2f6fde"},
+        {type: "line", label: "break-even (100%)", data: rows.map(function () { return 100; }), borderColor: "#d64545", borderDash: [5, 4], pointRadius: 0, borderWidth: 1}]},
+        options: {maintainAspectRatio: false, animation: false, scales: {y: {beginAtZero: true, title: {display: true, text: "%"}}}, plugins: {legend: {position: "bottom"}}}};
+      if (chart) { chart.data = cfg.data; chart.update(); } else { chart = new Chart($("cv-scenario"), cfg); }
+    }
+  }
+  document.querySelectorAll("#scenarios .presets button[data-p]").forEach(function (b) { b.onclick = function () { set(P[b.dataset.p]); }; });
+  $("sc-reset").onclick = function () { set(P.base); };
+  ["sc-g", "sc-t", "sc-r", "sc-h"].forEach(function (id) { $(id).oninput = draw; $(id).onchange = draw; });
+  window.addEventListener("load", function () { set(P.base); });
+})();
+</script>"""
 
 
 SCORECARD = """<h2>Scorecard</h2><section class="card"><h3>Verdict: %s</h3>
@@ -513,6 +614,10 @@ footer{color:var(--muted);font-size:12px;margin-top:40px}
 .tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 .q{color:var(--muted);font-size:12px}.st{font-weight:700;font-size:11px;padding:2px 7px;border-radius:4px;color:#fff}
 .st.green{background:#1a7f5a}.st.yellow{background:#a87900}.st.red{background:#c23b3b}.st.not-computed{background:#6b7079}
+.ctl{display:grid;gap:10px;margin:8px 0 12px}.ctl label{display:grid;gap:4px;font-size:13px}.ctl label.chk{display:flex;gap:8px;align-items:center}
+.ctl input[type=range]{width:100%}.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font:inherit;font-size:13px;padding:5px 12px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.presets button:hover{border-color:var(--muted)}#sc-reset{margin-left:auto}
 </style></head><body><main>
 <h1>NEAR Intents: is the demand real, and does NEAR capture it?</h1>
 <p class="lead">Every number comes from pinned tables in this repo (<code>data/</code>) and is rebuilt by <code>python build.py</code>. Each chart shows its query. FACT = measured; INFERENCE = derived by arithmetic or modelling. Data as of {{STAMP}}.</p>
@@ -520,7 +625,7 @@ footer{color:var(--muted);font-size:12px;margin-top:40px}
 {{BODY}}
 <footer>Built by dashboard/build_dashboard.py. Sources: NEAR Intents Explorer API (1Click swaps), Google BigQuery public dataset crypto_near_mainnet_us, NEAR JSON-RPC, DefiLlama, CoinGecko. Not investment advice.</footer>
 </main>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+{{CHARTJS}}
 <script>
 const CHARTS = {{DATA}};
 const css = getComputedStyle(document.documentElement);

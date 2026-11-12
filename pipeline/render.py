@@ -143,11 +143,26 @@ def revenue_wallets_md(met):
     return "\n".join(out)
 
 
+def scenarios_md(met):
+    cfg = met["scenario_config"]["value"]
+    out = ["| Scenario | Volume growth / yr | Take-rate by year %d | HSP-029 | Custody released / yr | Year-%d volume / day | "
+           "Year-%d captured revenue | NEAR bought / issued (year %d) | Float change over %d years | Market cap / revenue (year %d) |"
+           % ((cfg["years"],) * 6), "|---|---|---|---|---|---|---|---|---|---|"]
+    by = {s["id"]: s for s in cfg["scenarios"]}
+    for s in met["scenario_summary"]["value"]:
+        c = by[s["id"]]
+        out.append("| **%s** | %+.0f%% | %.1f bps | %s | %.0f%% | $%.0fM | $%.0fM | %.0f%% | %+.1f%% | %.0fx |" % (
+            s["label"].split(":")[0], 100 * c["volume_cagr"], s["take_bps"], "yes" if c["hsp029"] else "no",
+            100 * c["custody_release_per_year"], s["volume_usd_per_day"] / 1e6, s["captured_usd"] / 1e6,
+            100 * s["buyback_share_of_issuance"], 100 * s["float_change_total"], s["market_cap_to_revenue"]))
+    return "\n".join(out)
+
+
 def render_thesis(text, met):
     for marker, fn in (("<!-- SCORECARD -->", scorecard_md), ("<!-- SENSITIVITY -->", sensitivity_md),
                        ("<!-- LEADLAG -->", leadlag_md), ("<!-- CHANNELS -->", channels_md),
                        ("<!-- FAMILIES -->", families_md), ("<!-- BRIDGE_MONTHLY -->", bridge_monthly_md),
-                       ("<!-- WINDOWS -->", windows_md), ("<!-- AGENTS -->", agents_md), ("<!-- REVENUE_WALLETS -->", revenue_wallets_md)):
+                       ("<!-- WINDOWS -->", windows_md), ("<!-- AGENTS -->", agents_md), ("<!-- REVENUE_WALLETS -->", revenue_wallets_md), ("<!-- SCENARIOS -->", scenarios_md)):
         if marker in text:
             text = text.replace(marker, fn(met))
     return text

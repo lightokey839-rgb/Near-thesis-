@@ -314,6 +314,39 @@ Three signals depend on how revenue is averaged: `take_rate`, `revenue_vs_diluti
 
 This is why the thesis is an option: it pays off only if **volume x take-rate** grows several-fold while issuance falls.
 
+## 6b. Five-year scenarios and reverse valuation
+
+**INFERENCE - scenarios, not forecasts.** This section asks what the next five years would have to look like for value capture to outweigh dilution.
+- **Assumptions are ours:** they are chosen to span plausible paths and stored in [`scenarios.json`](scenarios.json). Change them and rebuild, or move the sliders on the dashboard, which runs the same model.
+- **Starting values** come from the measured data:
+  - all-Intents volume $123.8M/day;
+  - captured take-rate 5.0 bps, across all three revenue wallets (section 3c);
+  - supply, market cap, and 4.2M NEAR already in custody;
+  - realised issuance at 0.98x the maximum (section 4).
+- **What the model does** (code: [`pipeline/scenario_model.py`](pipeline/scenario_model.py)):
+  - Captured revenue buys NEAR at **today's price** ($3.73, held constant), and that NEAR goes into custody.
+  - Custody can be released back to the market at a set rate. Nothing is counted as burned.
+  - With HSP-029, inflation falls from 2.5% to 1.6% over two years, starting about three months from now.
+
+| Scenario | Volume growth / yr | Take-rate by year 5 | HSP-029 | Custody released / yr | Year-5 volume / day | Year-5 captured revenue | NEAR bought / issued (year 5) | Float change over 5 years | Market cap / revenue (year 5) |
+|---|---|---|---|---|---|---|---|---|---|
+| **Bear** | -10% | 3.0 bps | no | 25% | $73M | $8M | 6% | +12.4% | 612x |
+| **Base** | +25% | 5.0 bps | yes | 0% | $378M | $69M | 84% | +4.6% | 71x |
+| **Bull** | +60% | 8.0 bps | yes | 0% | $1298M | $379M | 459% | -7.8% | 13x |
+| **Stress** | +50% | 2.0 bps | yes | 50% | $940M | $69M | 83% | +7.2% | 71x |
+
+**Reading, stated plainly.**
+- **Base:** volume keeps growing 25% a year at today's take-rate, and HSP-029 activates. Buybacks reach **84% of issuance by year 5**, still short of break-even, and the tradable float still grows +5% over five years.
+- **Bull:** 60% a year at 8 bps. Buybacks outweigh issuance and the float shrinks (-8%).
+- **Stress:** activity booms but capture weakens and custody leaks. That lands about where the base case does (83%). Growth alone does not fix value capture.
+- **Bear:** buybacks fade to 6% of issuance.
+- **Scenarios where buybacks reach issuance by year 5:** bull.
+
+**Reverse valuation: what has to be true** (at today's price, HSP-029 active):
+- **To fully offset issuance in year 5** (22.1M NEAR, or $82.6M of captured revenue a year), Intents volume must grow **30% a year** at today's take-rate. That falls to 18% a year at 8 bps, or 3% a year if NEAR kept every basis point of today's gross fees.
+- **For NEAR to trade at 50x its captured revenue at today's market cap,** captured revenue would have to be **4.3x today's** ($97.9M/yr). At today's take-rate, that means about $536.4M of Intents volume per day.
+- These are statements about what today's valuation assumes. They are not price targets and not advice.
+
 ## 7. Lead-lag: does Intents activity move NEAR's price or usage?
 
 **Method (INFERENCE):**

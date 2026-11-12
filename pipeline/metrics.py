@@ -592,6 +592,7 @@ def run(data):
     for name, fn in (("swaps", swaps), ("audit", audit), ("channels", channels), ("market", market), ("wallet", wallet), ("accounts", accounts), ("agents", agents), ("chain", chain),
                      ("extra", models.extra), ("windows", models.windows), ("sensitivity", models.sensitivity),
                      ("leadlag", models.leadlag),
+                     ("scenarios", lambda mm: models.scenarios(mm, os.path.join(os.path.dirname(os.path.abspath(data)), "scenarios.json"))),
                      ("scorecard", lambda mm: models.scorecard(mm, yaml_path))):
         m.section(name, fn)
     os.makedirs(os.path.join(data, "derived"), exist_ok=True)

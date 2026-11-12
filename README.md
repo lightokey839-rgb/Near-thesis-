@@ -6,7 +6,8 @@ An evidence-first investment thesis on NEAR: **is NEAR Intents demand real, and 
 
 - **Thesis:** [THESIS.md](THESIS.md) opens with a one-page decision memo, then tests the chain **demand → capture → accrual**: is Intents activity real, how much of it does NEAR keep, and does that outweigh issuance? Could AI agents add demand that reaches the token? Agents are measured from NEAR AI Agent Market's own public data, with evidence tiers so bots are never counted as agents. It covers evidence for and against, a risk matrix, a catalyst calendar and what would change my mind.
 - **Headline finding, only visible in swap-level data:** [volume is not value](THESIS.md#3b-volume-is-not-value-who-actually-pays-for-nears-buyback). The app that sends the most 1Click volume pays almost none of NEAR's buyback, and small channels fund most of it.
-- **Dashboard:** `dashboard/index.html` has a scorecard and 24 charts. Each chart shows its query and one plain sentence.
+- **Dashboard:** `dashboard/index.html` has a scorecard, an interactive five-year scenario panel (sliders, presets, reset) and 24 charts. Each chart shows its query and one plain sentence. Hosted copy: https://lightokey839-rgb.github.io/Near-thesis-/ (published by [`pages.yml`](.github/workflows/pages.yml) once the repository is public).
+- **Scenarios:** [`scenarios.json`](scenarios.json) holds the bear, base, bull and stress assumptions. [`pipeline/scenario_model.py`](pipeline/scenario_model.py) runs them and the reverse valuation (THESIS.md section 6b); the dashboard runs the same model in the browser, and a test checks that the two match.
 - **Scorecard rules:** [thesis.yaml](thesis.yaml) holds the claim and its numeric tripwires. Each build marks every signal green, yellow or red.
 - **Red-team log:** [docs/RED_TEAM_2026-11-11.md](docs/RED_TEAM_2026-11-11.md) records what we checked, what survived and what we corrected.
 
@@ -24,10 +25,12 @@ python build.py --test
 
 **You should see:**
 1. `all 57 pinned tables match data/MANIFEST.json`. The input tables are exactly the ones we analysed (SHA-256).
-2. `metrics: 224 computed, 0 sections not computed`, which writes `data/derived/metrics.json`. This includes the HSP-029 sensitivity tables, the lead-lag statistics and the `thesis.yaml` scorecard.
+2. `metrics: 246 computed, 0 sections not computed`, which writes `data/derived/metrics.json`. This includes the HSP-029 sensitivity tables, the five-year scenarios and reverse valuation, the lead-lag statistics and the `thesis.yaml` scorecard.
 3. `THESIS.md written (every number filled from metrics.json)`
 4. `dashboard: 24 charts -> dashboard/index.html`
-5. The tests (25), ending in `OK`. They include checks that sentences stating a conclusion in words still match the data.
+5. The tests (32), ending in `OK`. They include checks that sentences stating a conclusion in words still match the data, and that the browser's scenario model gives exactly the same numbers as the Python one. That check needs Node.js and is skipped without it.
+
+**Offline viewing (optional):** the page loads Chart.js 4.4.1 from cdnjs with an integrity hash. To make it fully offline, put the same file in `dashboard/vendor/chart.umd.min.js`. The build checks its SHA-512 against the published hash and inlines it.
 
 Then open `dashboard/index.html` in a browser (it loads Chart.js 4.4.1 from cdnjs). You should see 10 headline tiles, the scorecard (verdict, signals and their status) and 24 charts. Under each chart, **"Query behind this chart"** shows the exact SQL file or Python function that produced it.
 
