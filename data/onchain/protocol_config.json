@@ -1,0 +1,23 @@
+{
+  "burnt_gas_reward": 0.0,
+  "max_inflation_rate": 0.025,
+  "protocol_reward_rate": 0.0,
+  "protocol_version": 88,
+  "raw": {
+    "burnt_gas_reward": [
+      0,
+      1
+    ],
+    "epoch_length": 43200,
+    "max_inflation_rate": [
+      1,
+      40
+    ],
+    "protocol_reward_rate": [
+      0,
+      1
+    ]
+  },
+  "read_at_block_height": 224212010,
+  "read_at_utc": "2026-11-12T12:04:17+00:00"
+}
