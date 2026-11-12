@@ -102,9 +102,38 @@ def channels_md(met):
     return "\n".join(out)
 
 
+def families_md(met):
+    out = ["| Organic signers by account family (per day) | January | August | Latest month |", "|---|---|---|---|"]
+    for label, jan, aug, latest in met["organic_family_table"]["value"]:
+        out.append("| %s | {:,} | {:,} | {:,} |".format(jan, aug, latest) % label)
+    return "\n".join(out)
+
+
+def bridge_monthly_md(met):
+    out = ["| Month | (b) buyback-wallet inflow, USD at day prices | (c) DefiLlama captured revenue, USD | (b) / (c) |",
+           "|---|---|---|---|"]
+    for mo, b, c, ratio in met["bridge_monthly"]["value"]:
+        out.append("| %s | {:,} | {:,} | %s |".format(b, c) % (mo, "n/a" if ratio is None else "%.0f%%" % (100 * ratio)))
+    return "\n".join(out)
+
+
+def windows_md(met):
+    by = {r[0]: r for r in met.get("scorecard_by_window", {}).get("value", [])}
+    out = ["| Revenue window | Days | Take-rate | Captured revenue / yr | Revenue / issuance (USD) | Market cap / revenue | "
+           "Scorecard (green / yellow / red) | Verdict |", "|---|---|---|---|---|---|---|---|"]
+    for w in met["window_table"]["value"]:
+        s = by.get(w["window"], [w["window"], "?", "?", "?", "?"])
+        out.append("| %s (%s to %s) | %d | %.1f bps | $%.1fM | %.2f | %.0fx | %s / %s / %s | %s |" % (
+            w["window"], w["from"], w["to"], w["days"], w["take_bps"], w["revenue_usd_per_year"] / 1e6,
+            w["revenue_to_issuance_usd"], w["market_cap_to_revenue"], s[1], s[2], s[3], s[4]))
+    return "\n".join(out)
+
+
 def render_thesis(text, met):
     for marker, fn in (("<!-- SCORECARD -->", scorecard_md), ("<!-- SENSITIVITY -->", sensitivity_md),
-                       ("<!-- LEADLAG -->", leadlag_md), ("<!-- CHANNELS -->", channels_md)):
+                       ("<!-- LEADLAG -->", leadlag_md), ("<!-- CHANNELS -->", channels_md),
+                       ("<!-- FAMILIES -->", families_md), ("<!-- BRIDGE_MONTHLY -->", bridge_monthly_md),
+                       ("<!-- WINDOWS -->", windows_md)):
         if marker in text:
             text = text.replace(marker, fn(met))
     return text

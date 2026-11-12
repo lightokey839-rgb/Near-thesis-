@@ -105,6 +105,85 @@ def extra(m):
     vol = [float(r["intents_volume_usd"]) for r in ll][:-2]   # drop the 2 newest (often incomplete) days
     m.put("intents_volume_4w_vs_prior_12w", st.mean(vol[-28:]) / st.mean(vol[-112:-28]), "ratio", "FACT",
           ["data/market/defillama_intents_daily.csv"], "mean daily all-Intents volume, last 28 complete days / the 84 days before")
+    m.put("intents_volume_8w_vs_prior_8w", st.mean(vol[-56:]) / st.mean(vol[-112:-56]), "ratio", "FACT",
+          ["data/market/defillama_intents_daily.csv"], "same idea, last 56 days / the 56 days before (robustness)")
+    m.put("intents_volume_4w_vs_prior_4w", st.mean(vol[-28:]) / st.mean(vol[-56:-28]), "ratio", "FACT",
+          ["data/market/defillama_intents_daily.csv"], "same idea, last 28 days / the 28 days before (robustness)")
+
+
+# ----------------------------------------------------------------------------- value-capture bridge and windows
+BUYBACK_START = "2026-02-23"  # DefiLlama's adapter: captured revenue is used to buy back NEAR from this date
+
+
+def windows(m):
+    """Two robustness checks on the value-capture numbers, from pinned tables only.
+
+    1. Bridge: over the same days as DefiLlama's 30-day window, compare (a) 1Click buyback fees from our swaps,
+       (b) NEAR flowing into buybacks.multisignature.near valued at each day's price, (c) DefiLlama captured revenue.
+       DefiLlama's revenue counts three NEAR wallets (fefundsadmin.sputnik-dao.near, 1csfundsadmin.sputnik-dao.near and
+       the buyback wallet), so (c) - (b) is revenue that went to the other two wallets plus any measurement difference.
+    2. Windows: the revenue-based ratios over 30, 90 and 180 days and since the buyback program began.
+    """
+    ll = [r for r in _csv(m, "market", "defillama_intents_daily.csv") if r["intents_volume_usd"]]
+    rows = {r["day"]: r for r in ll}
+    a, b = _v(m, "defillama_window").split(" to ")
+    last = date.fromisoformat(b)
+    price = {r["day"]: float(r["near_usd"]) for r in _csv(m, "market", "near_price_daily.csv")}
+    q = {r["block_date"]: r for r in _csv(m, "bq", "q30_buyback_balance_daily.csv")}
+    sep09 = sum(float(r["delta_near"]) for r in _csv(m, "bq", "q33_buyback_sep09_moves.csv"))
+    oc = {r["day"]: float(r["buyback_usd_if_bps"]) for r in _csv(m, "audit", "buyback_usd_est_by_day_if_bps.csv")}
+    mcap, p_now = _v(m, "near_market_cap_usd"), _v(m, "near_price_usd")
+    iss_usd = _v(m, "total_supply_near") * _v(m, "max_inflation_rate") * p_now
+    src = ["data/market/defillama_intents_daily.csv", "data/market/near_price_daily.csv",
+           "data/bq/q30_buyback_balance_daily.csv", "data/bq/q33_buyback_sep09_moves.csv",
+           "data/audit/buyback_usd_est_by_day_if_bps.csv"]
+
+    def wallet_usd(d):
+        near_in = float(q[d]["inflow_near"]) - (sep09 if d == "2026-09-09" else 0.0)
+        return near_in * price[d]
+
+    ds = [d for d in sorted(rows) if a <= d <= b]
+    n = len(ds)
+    dl = sum(float(rows[d]["near_captured_revenue_usd"] or 0) for d in ds)
+    vol = sum(float(rows[d]["intents_volume_usd"]) for d in ds)
+    w = sum(wallet_usd(d) for d in ds)
+    one = sum(oc.get(d, 0.0) for d in ds)
+    m.put("bridge_window", "%s to %s (%d days)" % (ds[0], ds[-1], n), "", "FACT", src, "the same days for every row of the bridge")
+    m.put("bridge_oneclick_usd_per_year", one / n * 365, "USD/yr", "INFERENCE", src,
+          "(a) 1Click swaps: fee to the buyback wallet (bps) x amountInUsd, summed over the window, x 365 / days")
+    m.put("bridge_wallet_usd_per_year", w / n * 365, "USD/yr", "INFERENCE", src,
+          "(b) NEAR into buybacks.multisignature.near each day x that day's NEAR price, x 365 / days")
+    m.put("bridge_defillama_usd_per_year", dl / n * 365, "USD/yr", "INFERENCE", src,
+          "(c) DefiLlama captured revenue (three NEAR wallets), x 365 / days")
+    m.put("bridge_wallet_share_of_defillama", w / dl, "share", "INFERENCE", src, "(b) / (c)")
+    m.put("bridge_oneclick_share_of_wallet", one / w, "share", "INFERENCE", src, "(a) / (b)")
+    m.put("bridge_other_wallets_usd_per_year", (dl - w) / n * 365, "USD/yr", "INFERENCE", src,
+          "(c) - (b): captured revenue DefiLlama assigns to its other two wallets, plus any measurement difference")
+    m.put("wallet_take_bps_dayprice", w / vol * 1e4, "bps", "INFERENCE", src, "(b) / all-Intents volume, same days")
+    m.put("market_cap_to_wallet_inflow", mcap / (w / n * 365), "x", "INFERENCE", src + ["data/market/peers.csv"],
+          "market cap / (b) annualised: the multiple if only the buyback wallet's inflow is counted")
+    monthly = []
+    for mo in ("2026-07", "2026-08", "2026-09", "2026-10"):
+        md = [d for d in sorted(q) if d.startswith(mo) and d in rows and d in price]
+        wm = sum(wallet_usd(d) for d in md)
+        dm = sum(float(rows[d]["near_captured_revenue_usd"] or 0) for d in md)
+        monthly.append([mo, round(wm), round(dm), round(wm / dm, 3) if dm else None])
+    m.put("bridge_monthly", monthly, "USD", "INFERENCE", src, "per month: (b) buyback-wallet inflow at day prices, (c) DefiLlama revenue, (b)/(c)")
+
+    out = []
+    starts = [("30 days", (last - timedelta(days=29)).isoformat()), ("90 days", (last - timedelta(days=89)).isoformat()),
+              ("180 days", (last - timedelta(days=179)).isoformat()), ("since buybacks began", BUYBACK_START)]
+    for label, start in starts:
+        dd = [d for d in sorted(rows) if start <= d <= b]
+        v = sum(float(rows[d]["intents_volume_usd"]) for d in dd)
+        r = sum(float(rows[d]["near_captured_revenue_usd"] or 0) for d in dd)
+        r_yr = r / len(dd) * 365
+        out.append({"window": label, "from": dd[0], "to": dd[-1], "days": len(dd), "volume_usd_per_day": v / len(dd),
+                    "take_bps": r / v * 1e4, "revenue_usd_per_year": r_yr, "revenue_to_issuance_usd": r_yr / iss_usd,
+                    "market_cap_to_revenue": mcap / r_yr})
+    m.put("window_table", out, "", "INFERENCE", ["data/market/defillama_intents_daily.csv", "data/market/peers.csv",
+                                                 "data/market/near_chain_snapshot.json"],
+          "revenue-based ratios over different windows ending %s; 'since buybacks began' starts %s" % (b, BUYBACK_START))
 
 
 # ----------------------------------------------------------------------------- HSP-029 sensitivity
@@ -247,6 +326,13 @@ def leadlag(m):
     m.put("leadlag_weekly_nonzero_lag_significant", sum(1 for r in tests if r[9]), "tests", "INFERENCE", src,
           "of those, how many have a bootstrap CI excluding 0")
     m.put("leadlag_weekly_expected_false_positives", 0.05 * len(tests), "tests", "INFERENCE", src, "5% of the tests, by chance alone")
+    # The question the thesis asks is about Intents, so count that family on its own (placebo and BTC pairs excluded).
+    it = [r for r in tests if r[1].startswith("intents_")]
+    m.put("leadlag_intents_tests", len(it), "tests", "INFERENCE", src, "weekly lag != 0 tests where x = Intents volume")
+    m.put("leadlag_intents_significant", sum(1 for r in it if r[9]), "tests", "INFERENCE", src,
+          "of those, how many have a bootstrap CI excluding 0")
+    m.put("leadlag_organic_to_price_lag1", [r for r in nw if r[1] == "organic_to_price" and r[3] == 1][0][4], "r", "INFERENCE", src,
+          "weekly r: organic signers this week vs NEAR price next week (weekly means; may reflect averaging plus the same-week link)")
     for pid, *_ in PAIRS:
         lag, r, sig, n, crit, mde = summary["weekly:" + pid]
         m.put("leadlag_best_" + pid, [lag, round(r, 3), "CI excludes 0" if sig else "CI includes 0"], "", "INFERENCE", src,
@@ -294,21 +380,20 @@ def _check(cond, value, met):
     return {">=": value >= thr, "<=": value <= thr, ">": value > thr, "<": value < thr}[op], thr
 
 
-def scorecard(m, yaml_path):
-    with open(yaml_path, encoding="utf-8") as f:
-        doc = parse_thesis_yaml(f.read())
+def _score(doc, met, override=None):
+    """Score every thesis.yaml signal. `override` maps metric key -> value (used for the window robustness rows)."""
     rows = []
     for s in doc["signals"]:
         key = s["metric"]
-        if key not in m.out:
+        if key not in met:
             rows.append({**s, "value": None, "status": "not computed"})
             continue
-        val = m.out[key]["value"]
-        bull, bull_thr = _check(s["bullish_if"], val, m.out)
-        bear, bear_thr = _check(s["bearish_if"], val, m.out)
+        val = (override or {}).get(key, met[key]["value"])
+        bull, bull_thr = _check(s["bullish_if"], val, met)
+        bear, bear_thr = _check(s["bearish_if"], val, met)
         status = "red" if bear else "green" if bull else "yellow"
         rows.append({**s, "value": val, "bullish_threshold": bull_thr, "bearish_threshold": bear_thr, "status": status,
-                     "kind": m.out[key]["kind"]})
+                     "kind": met[key]["kind"]})
     counts = {c: sum(1 for r in rows if r["status"] == c) for c in ("green", "yellow", "red", "not computed")}
     if counts["red"] > counts["green"]:
         verdict = doc.get("verdict_if_more_red", "bearish")
@@ -316,6 +401,23 @@ def scorecard(m, yaml_path):
         verdict = doc.get("verdict_if_mostly_green", "bullish")
     else:
         verdict = doc.get("verdict_otherwise", "mixed")
+    return rows, counts, verdict
+
+
+def scorecard(m, yaml_path):
+    with open(yaml_path, encoding="utf-8") as f:
+        doc = parse_thesis_yaml(f.read())
+    rows, counts, verdict = _score(doc, m.out)
+    # Same rules, but with the three revenue-based signals measured over other windows (window_table).
+    alt = []
+    for w in (m.out.get("window_table") or {}).get("value", []):
+        override = {"captured_revenue_take_bps": w["take_bps"], "captured_revenue_to_issuance_usd": w["revenue_to_issuance_usd"],
+                    "market_cap_to_captured_revenue": w["market_cap_to_revenue"]}
+        _, c, v = _score(doc, m.out, override)
+        alt.append([w["window"], c["green"], c["yellow"], c["red"], v])
+    if alt:
+        m.put("scorecard_by_window", alt, "", "INFERENCE", ["thesis.yaml", "data/derived/metrics.json (window_table)"],
+              "the scorecard re-scored with take_rate, revenue_vs_dilution and valuation measured over each window")
     m.put("scorecard", rows, "", "INFERENCE", ["thesis.yaml", "data/derived/metrics.json"],
           "each signal: green if its bullish condition holds, red if its bearish condition holds, else yellow")
     m.put("scorecard_counts", [counts["green"], counts["yellow"], counts["red"]], "signals", "INFERENCE", ["thesis.yaml"],

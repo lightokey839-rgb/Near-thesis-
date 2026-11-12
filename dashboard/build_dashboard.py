@@ -165,6 +165,34 @@ def s_channels_weekly(data):
         ["data/audit/buyback_by_week_referral.csv", "data/derived/metrics.json (top_volume_channel_weekly)"]
 
 
+def s_bridge(data):
+    met = _metrics(data)
+    rows = met["bridge_monthly"]["value"]
+    return bar([r[0] for r in rows], [("(b) NEAR into the buyback wallet, USD at day prices", [round(r[1] / 1e6, 3) for r in rows]),
+                                      ("(c) DefiLlama captured revenue (three wallets)", [round(r[2] / 1e6, 3) for r in rows])],
+               "USD millions per month"), \
+        ["data/bq/q30_buyback_balance_daily.csv", "data/market/near_price_daily.csv", "data/market/defillama_intents_daily.csv",
+         "pipeline/models.py :: windows"]
+
+
+def s_windows(data):
+    met = _metrics(data)
+    w = met["window_table"]["value"]
+    cfg = bar(["%s (%s to %s)" % (r["window"], r["from"], r["to"]) for r in w],
+              [("market cap / annualised captured revenue (x)", [round(r["market_cap_to_revenue"]) for r in w])], "x")
+    cfg["data"]["datasets"].append({"type": "line", "label": "bearish line in thesis.yaml (400x)", "data": [400] * len(w),
+                                    "borderColor": COLORS[4], "borderDash": [5, 4], "pointRadius": 0, "borderWidth": 1})
+    return cfg, ["data/derived/metrics.json (window_table)", "pipeline/models.py :: windows"]
+
+
+def s_families(data):
+    met = _metrics(data)
+    rows = met["organic_family_monthly"]["value"]
+    names = ["Telegram (.tg)", "named .near", "implicit (64-hex)"]
+    return line([r[0] for r in rows], [(n, [r[i + 1] for r in rows]) for i, n in enumerate(names)], "organic signers per day (monthly mean)"), \
+        ["data/bq/q10_daily_signers_by_segment.csv", "data/derived/metrics.json (organic_family_monthly)"]
+
+
 def s_signers(data):
     q = rd(data, "bq", "q10_daily_signers_by_segment.csv")
     return line([r["block_date"] for r in q], [("HOT game signers", [int(r["game_signers"]) for r in q]),
@@ -290,11 +318,20 @@ CHARTS = [
     ("channels", "Value capture", s_channels, "INFERENCE", "Volume is not value: who pays for the buyback",
      "{top_volume_channel} sends {top_volume_channel_usd_share|pct0} of 1Click volume but only {top_volume_channel_buyback_share|pct1} of the buyback fees; swaps with no referral code are {no_referral_usd_share|pct0} of volume and {no_referral_buyback_share|pct0} of the buyback.",
      None, "Buyback fees = appFees fee to buybacks.multisignature.near (bps) x amountInUsd. 1Click only. A referral code is an app, not a user. Codes over 20 characters are shortened."),
+    ("bridge", "Value capture", s_bridge, "INFERENCE", "Following the money: buyback wallet vs DefiLlama captured revenue",
+     "Over the latest 30 days, {bridge_wallet_share_of_defillama|pct0} of the revenue DefiLlama counts reached the buyback wallet, and each month since July looks similar; DefiLlama also counts two DAO treasuries (fefundsadmin, 1csfundsadmin) whose flows this chart does not show.",
+     None, "Buyback-wallet NEAR is valued at each day's NEAR price; the 9 Sep treasury transfer is excluded. September and October include the incentive period."),
+    ("windows", "Valuation", s_windows, "INFERENCE", "Valuation depends on the revenue window",
+     "Market cap is {market_cap_to_captured_revenue|x0} the latest 30 days of captured revenue, but higher on longer windows; over the whole buyback era the scorecard verdict is bearish (THESIS.md section 5b).",
+     None, "Same market cap in every bar; only the revenue window changes."),
     ("channels_weekly", "Value capture", s_channels_weekly, "INFERENCE", "Volume is not value, week by week",
      "Every week, {top_volume_channel} carried {top_volume_channel_weekly_usd_share_min|pct0}-{top_volume_channel_weekly_usd_share_max|pct0} of 1Click volume while its share of the buyback stayed at or below {top_volume_channel_weekly_buyback_share_max|pct1}.",
      None, "First and last weeks are partial (download 28 Sep 06:45 to 10 Nov 12:48 UTC)."),
     ("signers", "Usage", s_signers, "FACT", "Daily signing accounts by type (log scale)",
      None, "q10_daily_signers_by_segment", "Spikes in the self-transaction line are account factories ({burst_feb_implicit_self_only|int} accounts in Feb, {burst_oct_kaiching_self_only|int} kaiching accounts in Oct)."),
+    ("families", "Usage", s_families, "FACT", "Who the organic signers are: account families",
+     "Telegram (.tg) wallet accounts were {organic_tg_share_jan|pct0} of January's organic signers and {organic_tg_share_of_jan_to_aug_drop|pct0} of the fall to August; named .near accounts changed {organic_dot_near_change_jan_to_latest|pctsigned} from January to the latest month.",
+     None, "Organic = sent at least one transaction to something other than the HOT game or itself; not a *.users.kaiching account. The last month is partial."),
     ("weekly", "Usage", s_weekly, "FACT", "Weekly real active accounts, four strictness levels",
      None, "q11_real_active_weekly", "L4 (engaged and returning) is the most conservative count of real users."),
     ("retention", "Usage", s_retention, "FACT", "Do new organic accounts come back?",
@@ -310,8 +347,8 @@ CHARTS = [
      "No: at every lag, Intents volume's correlation with NEAR's price stays inside the noise band, like the placebo's. Across all pairs, {leadlag_weekly_nonzero_lag_significant} of {leadlag_weekly_nonzero_lag_tests} lead/lag tests cleared it, about what chance gives ({leadlag_weekly_expected_false_positives|d1}). Organic signers (orange) move with price mainly in the same week.",
      None, "{leadlag_weeks} weekly changes; effects smaller than r = {leadlag_weekly_min_detectable_r|r2} would usually be missed. Daily and ex-incentive versions are in THESIS.md section 7."),
     ("price", "Valuation", s_price, "FACT", "NEAR price vs organic usage, 2026",
-     "NEAR's price changed {near_price_change_ytd|pctsigned} since 1 Jan while organic signers changed {organic_change_jan_to_aug|pctsigned} from January to August; they do not move together in this sample.",
-     None, "Descriptive only. No lead-lag or causal claim is made here."),
+     "Over the year the levels diverged: NEAR's price changed {near_price_change_ytd|pctsigned} since 1 Jan while organic signers changed {organic_change_jan_to_latest|pctsigned}. Week to week they move together, and both peaked in September-October.",
+     None, "Descriptive only. Same-week r of weekly changes: {leadlag_same_week_organic_to_price}. No causal claim is made here."),
     ("peers", "Valuation", s_peers, "FACT", "Market cap per dollar of chain fees, vs peers",
      "Measured on base-layer gas fees, all of these chains trade at very high multiples; NEAR's figure ignores NEAR Intents revenue, which is shown in the tiles above.",
      None, "Chain fees = DefiLlama 30-day L1 fees x 365/30. Market cap from CoinGecko at fetch time. Methodologies differ across chains."),
@@ -373,7 +410,7 @@ def build(data, out):
         tile(met, "wallet_inflow_share_of_issuance", pct, "Buyback inflow as a share of new NEAR issued"),
         tile(met, "top_volume_channel_buyback_share", pct, "Share of 1Click buyback fees from the app with the most volume"),
         tile(met, "organic_signers_per_day_latest", lambda v: "%.0f/day" % v, "Organic NEAR signers, latest month"),
-        tile(met, "organic_change_jan_to_aug", pct, "Organic signers, Jan to Aug 2026"),
+        tile(met, "organic_change_jan_to_latest", pct, "Organic signers, January to latest month"),
         tile(met, "strict_weekly_active_latest", lambda v: "%.0f/wk" % v, "Strict weekly active accounts (L4), last 2 weeks"),
         tile(met, "market_cap_to_captured_revenue", lambda v: "%.0fx" % v, "Market cap / captured Intents revenue"),
         tile(met, "scorecard_verdict", str, "Scorecard verdict (thesis.yaml)"),

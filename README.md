@@ -4,9 +4,9 @@
 
 An evidence-first investment thesis on NEAR: **is NEAR Intents demand real, and how much of it does the NEAR token capture?** It is built from 818,000 NEAR Intents (1Click) swaps, the NEAR BigQuery public dataset, the NEAR RPC, DefiLlama and CoinGecko. One command rebuilds every number, the thesis text and the dashboard from pinned data tables.
 
-- **Thesis:** [THESIS.md](THESIS.md) covers the claim, evidence for, evidence against, and what would change my mind.
+- **Thesis:** [THESIS.md](THESIS.md) opens with a one-page decision memo, then tests the chain **demand → capture → accrual**: is Intents activity real, how much of it does NEAR keep, and does that outweigh issuance? It covers evidence for and against, a risk matrix, a catalyst calendar and what would change my mind.
 - **Headline finding, only visible in swap-level data:** [volume is not value](THESIS.md#3b-volume-is-not-value-who-actually-pays-for-nears-buyback). The app that sends the most 1Click volume pays almost none of NEAR's buyback, and small channels fund most of it.
-- **Dashboard:** `dashboard/index.html` has a scorecard and 19 charts. Each chart shows its query and one plain sentence.
+- **Dashboard:** `dashboard/index.html` has a scorecard and 22 charts. Each chart shows its query and one plain sentence.
 - **Scorecard rules:** [thesis.yaml](thesis.yaml) holds the claim and its numeric tripwires. Each build marks every signal green, yellow or red.
 - **Red-team log:** [docs/RED_TEAM_2026-11-11.md](docs/RED_TEAM_2026-11-11.md) records what we checked, what survived and what we corrected.
 
@@ -24,12 +24,12 @@ python build.py --test
 
 **You should see:**
 1. `all 53 pinned tables match data/MANIFEST.json`. The input tables are exactly the ones we analysed (SHA-256).
-2. `metrics: 152 computed, 0 sections not computed`, which writes `data/derived/metrics.json`. This includes the HSP-029 sensitivity tables, the lead-lag statistics and the `thesis.yaml` scorecard.
+2. `metrics: 185 computed, 0 sections not computed`, which writes `data/derived/metrics.json`. This includes the HSP-029 sensitivity tables, the lead-lag statistics and the `thesis.yaml` scorecard.
 3. `THESIS.md written (every number filled from metrics.json)`
-4. `dashboard: 19 charts -> dashboard/index.html`
+4. `dashboard: 22 charts -> dashboard/index.html`
 5. The tests (25), ending in `OK`. They include checks that sentences stating a conclusion in words still match the data.
 
-Then open `dashboard/index.html` in a browser (it loads Chart.js 4.4.1 from cdnjs). You should see 10 headline tiles, the scorecard (verdict, signals and their status) and 19 charts. Under each chart, **"Query behind this chart"** shows the exact SQL file or Python function that produced it.
+Then open `dashboard/index.html` in a browser (it loads Chart.js 4.4.1 from cdnjs). You should see 10 headline tiles, the scorecard (verdict, signals and their status) and 22 charts. Under each chart, **"Query behind this chart"** shows the exact SQL file or Python function that produced it.
 
 **Why the numbers can't be invented:**
 - **Generated, not typed:** THESIS.md is generated from `docs/THESIS.template.md`. Every number in it is a placeholder like `{wallet_inflow_share_of_issuance|pct0}`, filled from `metrics.json`. A placeholder naming a metric that doesn't exist stops the build.

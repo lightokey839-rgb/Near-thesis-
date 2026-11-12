@@ -886,6 +886,68 @@
       ],
       "method": "market cap / annualised captured revenue"
     },
+    "intents_gross_fee_bps": {
+      "value": 15.562719,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "DefiLlama gross fees / volume, same 30 days"
+    },
+    "captured_share_of_gross_fees": {
+      "value": 0.32143,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "captured revenue / gross fees, same 30 days (the rest goes to integrators and solvers)"
+    },
+    "gross_fees_to_issuance_usd": {
+      "value": 0.575162,
+      "unit": "ratio",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_chain_snapshot.json",
+        "data/market/peers.csv"
+      ],
+      "method": "CEILING: if NEAR captured 100% of today's gross fees, annualised / issuance in USD at 2.5%"
+    },
+    "gross_fees_to_issuance_usd_hsp029": {
+      "value": 0.898691,
+      "unit": "ratio",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_chain_snapshot.json",
+        "data/market/peers.csv"
+      ],
+      "method": "same against 1.6% issuance"
+    },
+    "break_even_take_bps": {
+      "value": 27.057972,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_chain_snapshot.json",
+        "data/market/peers.csv"
+      ],
+      "method": "take-rate on today's all-Intents volume at which captured revenue would equal 2.5% issuance in USD"
+    },
+    "break_even_take_bps_hsp029": {
+      "value": 17.317102,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_chain_snapshot.json",
+        "data/market/peers.csv"
+      ],
+      "method": "same at 1.6% issuance"
+    },
     "oneclick_share_of_intents_volume_median": {
       "value": 0.290262,
       "unit": "share",
@@ -1103,6 +1165,243 @@
         "sql/q10_daily_signers_by_segment.sql"
       ],
       "method": "Aug mean / Jan mean - 1"
+    },
+    "organic_change_jan_to_latest": {
+      "value": -0.576944,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "latest month mean / Jan mean - 1"
+    },
+    "organic_monthly": {
+      "value": [
+        [
+          "2026-01",
+          14274
+        ],
+        [
+          "2026-02",
+          10445
+        ],
+        [
+          "2026-03",
+          9536
+        ],
+        [
+          "2026-04",
+          7892
+        ],
+        [
+          "2026-05",
+          9398
+        ],
+        [
+          "2026-06",
+          7383
+        ],
+        [
+          "2026-07",
+          5479
+        ],
+        [
+          "2026-08",
+          4784
+        ],
+        [
+          "2026-09",
+          10119
+        ],
+        [
+          "2026-10",
+          9892
+        ],
+        [
+          "2026-11",
+          6039
+        ]
+      ],
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "mean daily organic signers per calendar month (last month partial)"
+    },
+    "organic_peak_month": {
+      "value": "2026-01",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "complete month with the most organic signers"
+    },
+    "organic_trough_month": {
+      "value": "2026-08",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "complete month with the fewest organic signers"
+    },
+    "organic_family_table": {
+      "value": [
+        [
+          "Telegram (.tg)",
+          7859,
+          2137,
+          2198
+        ],
+        [
+          "named .near",
+          1838,
+          849,
+          1595
+        ],
+        [
+          "implicit (64-hex)",
+          4564,
+          1792,
+          2238
+        ],
+        [
+          "other",
+          13,
+          6,
+          8
+        ]
+      ],
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "mean daily organic signers by account family: January, August, latest month"
+    },
+    "organic_tg_share_of_jan_to_aug_drop": {
+      "value": 0.60295,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "Telegram (.tg) accounts' part of the January-to-August fall in organic signers"
+    },
+    "organic_tg_share_jan": {
+      "value": 0.550581,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": ".tg accounts' share of January organic signers"
+    },
+    "organic_ex_tg_change_jan_to_latest": {
+      "value": -0.401247,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "organic signers excluding .tg accounts: latest month / January - 1"
+    },
+    "organic_dot_near_change_jan_to_latest": {
+      "value": -0.132209,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "named .near organic signers: latest month / January - 1"
+    },
+    "organic_family_monthly": {
+      "value": [
+        [
+          "2026-01",
+          7859,
+          1838,
+          4564
+        ],
+        [
+          "2026-02",
+          5382,
+          1321,
+          3730
+        ],
+        [
+          "2026-03",
+          4766,
+          1142,
+          3614
+        ],
+        [
+          "2026-04",
+          3827,
+          986,
+          3069
+        ],
+        [
+          "2026-05",
+          3872,
+          1115,
+          4403
+        ],
+        [
+          "2026-06",
+          3394,
+          1019,
+          2964
+        ],
+        [
+          "2026-07",
+          2464,
+          848,
+          2160
+        ],
+        [
+          "2026-08",
+          2137,
+          849,
+          1792
+        ],
+        [
+          "2026-09",
+          3581,
+          2144,
+          4387
+        ],
+        [
+          "2026-10",
+          2668,
+          2419,
+          4797
+        ],
+        [
+          "2026-11",
+          2198,
+          1595,
+          2238
+        ]
+      ],
+      "unit": "accounts/day",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "sql/q10_daily_signers_by_segment.sql"
+      ],
+      "method": "per month: .tg, .near, implicit hex organic signers"
     },
     "nov03_organic_hex": {
       "value": [
@@ -1348,6 +1647,236 @@
         "data/market/defillama_intents_daily.csv"
       ],
       "method": "mean daily all-Intents volume, last 28 complete days / the 84 days before"
+    },
+    "intents_volume_8w_vs_prior_8w": {
+      "value": 1.482583,
+      "unit": "ratio",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "same idea, last 56 days / the 56 days before (robustness)"
+    },
+    "intents_volume_4w_vs_prior_4w": {
+      "value": 0.757678,
+      "unit": "ratio",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "same idea, last 28 days / the 28 days before (robustness)"
+    },
+    "bridge_window": {
+      "value": "2026-10-10 to 2026-11-08 (30 days)",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "the same days for every row of the bridge"
+    },
+    "bridge_oneclick_usd_per_year": {
+      "value": 5163993.841667,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "(a) 1Click swaps: fee to the buyback wallet (bps) x amountInUsd, summed over the window, x 365 / days"
+    },
+    "bridge_wallet_usd_per_year": {
+      "value": 16031982.153806,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "(b) NEAR into buybacks.multisignature.near each day x that day's NEAR price, x 365 / days"
+    },
+    "bridge_defillama_usd_per_year": {
+      "value": 22608282.5,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "(c) DefiLlama captured revenue (three NEAR wallets), x 365 / days"
+    },
+    "bridge_wallet_share_of_defillama": {
+      "value": 0.70912,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "(b) / (c)"
+    },
+    "bridge_oneclick_share_of_wallet": {
+      "value": 0.322106,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "(a) / (b)"
+    },
+    "bridge_other_wallets_usd_per_year": {
+      "value": 6576300.346194,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "(c) - (b): captured revenue DefiLlama assigns to its other two wallets, plus any measurement difference"
+    },
+    "wallet_take_bps_dayprice": {
+      "value": 3.547247,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "(b) / all-Intents volume, same days"
+    },
+    "market_cap_to_wallet_inflow": {
+      "value": 305.453307,
+      "unit": "x",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv",
+        "data/market/peers.csv"
+      ],
+      "method": "market cap / (b) annualised: the multiple if only the buyback wallet's inflow is counted"
+    },
+    "bridge_monthly": {
+      "value": [
+        [
+          "2026-07",
+          354793,
+          504864,
+          0.703
+        ],
+        [
+          "2026-08",
+          489763,
+          723262,
+          0.677
+        ],
+        [
+          "2026-09",
+          1241300,
+          1839513,
+          0.675
+        ],
+        [
+          "2026-10",
+          1448734,
+          2189521,
+          0.662
+        ]
+      ],
+      "unit": "USD",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv",
+        "data/audit/buyback_usd_est_by_day_if_bps.csv"
+      ],
+      "method": "per month: (b) buyback-wallet inflow at day prices, (c) DefiLlama revenue, (b)/(c)"
+    },
+    "window_table": {
+      "value": [
+        {
+          "window": "30 days",
+          "from": "2026-10-10",
+          "to": "2026-11-08",
+          "days": 30,
+          "volume_usd_per_day": 123823455.7,
+          "take_bps": 5.002323642950953,
+          "revenue_usd_per_year": 22608282.5,
+          "revenue_to_issuance_usd": 0.18487430155482157,
+          "market_cap_to_revenue": 216.60300706168192
+        },
+        {
+          "window": "90 days",
+          "from": "2026-08-11",
+          "to": "2026-11-08",
+          "days": 90,
+          "volume_usd_per_day": 132601318.34444444,
+          "take_bps": 4.185336300122562,
+          "revenue_usd_per_year": 20256810.555555556,
+          "revenue_to_issuance_usd": 0.16564565234827858,
+          "market_cap_to_revenue": 241.7469403966441
+        },
+        {
+          "window": "180 days",
+          "from": "2026-05-13",
+          "to": "2026-11-08",
+          "days": 180,
+          "volume_usd_per_day": 102600047.61666666,
+          "take_bps": 3.6405148796375877,
+          "revenue_usd_per_year": 13633370.499999998,
+          "revenue_to_issuance_usd": 0.11148391519902533,
+          "market_cap_to_revenue": 359.19378659884586
+        },
+        {
+          "window": "since buybacks began",
+          "from": "2026-02-23",
+          "to": "2026-11-08",
+          "days": 259,
+          "volume_usd_per_day": 90907232.85714285,
+          "take_bps": 3.3519384142381092,
+          "revenue_usd_per_year": 11122113.777027028,
+          "revenue_to_issuance_usd": 0.0909486607990293,
+          "market_cap_to_revenue": 440.2959789995052
+        }
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/peers.csv",
+        "data/market/near_chain_snapshot.json"
+      ],
+      "method": "revenue-based ratios over different windows ending 2026-11-08; 'since buybacks began' starts 2026-02-23"
     },
     "sensitivity_net_supply": {
       "value": [
@@ -3986,6 +4515,42 @@
       ],
       "method": "5% of the tests, by chance alone"
     },
+    "leadlag_intents_tests": {
+      "value": 24,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "weekly lag != 0 tests where x = Intents volume"
+    },
+    "leadlag_intents_significant": {
+      "value": 0,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "of those, how many have a bootstrap CI excluding 0"
+    },
+    "leadlag_organic_to_price_lag1": {
+      "value": 0.4656,
+      "unit": "r",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "weekly r: organic signers this week vs NEAR price next week (weekly means; may reflect averaging plus the same-week link)"
+    },
     "leadlag_best_intents_to_price": {
       "value": [
         -3,
@@ -4171,6 +4736,45 @@
         "data/market/placebo_daily.csv"
       ],
       "method": "weekly: same-week r and whether its CI excludes 0"
+    },
+    "scorecard_by_window": {
+      "value": [
+        [
+          "30 days",
+          0,
+          7,
+          0,
+          "working but not yet sufficient"
+        ],
+        [
+          "90 days",
+          0,
+          7,
+          0,
+          "working but not yet sufficient"
+        ],
+        [
+          "180 days",
+          0,
+          7,
+          0,
+          "working but not yet sufficient"
+        ],
+        [
+          "since buybacks began",
+          0,
+          5,
+          2,
+          "bearish - the option is losing value"
+        ]
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "thesis.yaml",
+        "data/derived/metrics.json (window_table)"
+      ],
+      "method": "the scorecard re-scored with take_rate, revenue_vs_dilution and valuation measured over each window"
     },
     "scorecard": {
       "value": [

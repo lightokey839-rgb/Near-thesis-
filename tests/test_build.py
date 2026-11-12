@@ -69,6 +69,27 @@ class PinnedDataTest(unittest.TestCase):
         # the per-channel table adds up to the whole
         ch = self.m["channel_table"]
         self.assertTrue(all(0 <= r[1] <= 1 and 0 <= r[2] <= 1 for r in ch))
+        # THESIS section 3: "January was the busiest complete month and August the quietest" (so Jan->Aug is peak-to-trough)
+        self.assertEqual(self.m["organic_peak_month"], "2026-01")
+        self.assertEqual(self.m["organic_trough_month"], "2026-08")
+        # section 3: ".tg accounts are most of the fall" (stated as a share; check it is the majority)
+        self.assertGreater(self.m["organic_tg_share_of_jan_to_aug_drop"], 0.5)
+        # section 3c: "break-even needs more than users pay in total today" (both issuance levels)
+        self.assertGreater(self.m["break_even_take_bps"], self.m["intents_gross_fee_bps"])
+        self.assertGreater(self.m["break_even_take_bps_hsp029"], self.m["intents_gross_fee_bps"])
+        # section 3c: "(b) / (c) is stable month to month"
+        ratios = [r[3] for r in self.m["bridge_monthly"] if r[3] is not None]
+        self.assertLess(max(ratios) - min(ratios), 0.1)
+        # section 5b: recent windows keep the verdict; the whole buyback era reads bearish
+        byw = {r[0]: r[4] for r in self.m["scorecard_by_window"]}
+        for w in ("30 days", "90 days", "180 days"):
+            self.assertEqual(byw[w], "working but not yet sufficient")
+        self.assertTrue(byw["since buybacks began"].startswith("bearish"))
+        # section 6: "HSP-029 cuts the required multiple by about a third"
+        cut = 1 - self.m["break_even_volume_x_today_hsp029_at_current_take"] / self.m["break_even_volume_x_today_at_current_take"]
+        self.assertTrue(0.25 < cut < 0.45)
+        # section 7: "the hits that did appear are not about Intents"
+        self.assertEqual(self.m["leadlag_intents_significant"], 0)
 
 
 class BuildTest(unittest.TestCase):

@@ -297,6 +297,21 @@ def market(m):
           src + ["data/market/near_chain_snapshot.json", "data/market/peers.csv"], "annualised captured revenue / issuance in USD")
     m.put("market_cap_to_captured_revenue", mcap / (rev30 / len(win) * 365), "x", "INFERENCE", src + ["data/market/peers.csv"],
           "market cap / annualised captured revenue")
+    # The take-rate lever has a ceiling: NEAR cannot capture more than the gross fees users pay.
+    gross_yr = fees30 / len(win) * 365
+    m.put("intents_gross_fee_bps", fees30 / vol30 * 1e4, "bps", "INFERENCE", src, "DefiLlama gross fees / volume, same 30 days")
+    m.put("captured_share_of_gross_fees", rev30 / fees30, "share", "INFERENCE", src,
+          "captured revenue / gross fees, same 30 days (the rest goes to integrators and solvers)")
+    m.put("gross_fees_to_issuance_usd", gross_yr / (issuance * price), "ratio", "INFERENCE",
+          src + ["data/market/near_chain_snapshot.json", "data/market/peers.csv"],
+          "CEILING: if NEAR captured 100% of today's gross fees, annualised / issuance in USD at 2.5%")
+    m.put("gross_fees_to_issuance_usd_hsp029", gross_yr / (supply * HSP029_RATE * price), "ratio", "INFERENCE",
+          src + ["data/market/near_chain_snapshot.json", "data/market/peers.csv"], "same against 1.6% issuance")
+    m.put("break_even_take_bps", issuance * price / (vol30 / len(win) * 365) * 1e4, "bps", "INFERENCE",
+          src + ["data/market/near_chain_snapshot.json", "data/market/peers.csv"],
+          "take-rate on today's all-Intents volume at which captured revenue would equal 2.5% issuance in USD")
+    m.put("break_even_take_bps_hsp029", supply * HSP029_RATE * price / (vol30 / len(win) * 365) * 1e4, "bps", "INFERENCE",
+          src + ["data/market/near_chain_snapshot.json", "data/market/peers.csv"], "same at 1.6% issuance")
 
     daily = {r["day"]: f(r["usd_in_success"]) for r in m.csv("summary", "daily.csv")}
     vol = {r["day"]: f(r["intents_volume_usd"]) for r in ll}
@@ -361,6 +376,35 @@ def accounts(m):
         m.put("game_signers_per_day_" + key, month_mean("game_signers", mon), "accounts/day", "FACT", src, "mean daily game.hot.tg signers in " + mon)
     m.put("organic_change_jan_to_aug", m.out["organic_signers_per_day_aug"]["value"] / m.out["organic_signers_per_day_jan"]["value"] - 1,
           "share", "FACT", src, "Aug mean / Jan mean - 1")
+    m.put("organic_change_jan_to_latest", m.out["organic_signers_per_day_latest"]["value"] / m.out["organic_signers_per_day_jan"]["value"] - 1,
+          "share", "FACT", src, "latest month mean / Jan mean - 1")
+    months = sorted({r["block_date"][:7] for r in q10})
+    monthly = [[mo, round(month_mean("organic_signers", mo))] for mo in months]
+    m.put("organic_monthly", monthly, "accounts/day", "FACT", src, "mean daily organic signers per calendar month (last month partial)")
+    full = monthly[:-1]  # the last month is partial
+    m.put("organic_peak_month", max(full, key=lambda x: x[1])[0], "", "FACT", src, "complete month with the most organic signers")
+    m.put("organic_trough_month", min(full, key=lambda x: x[1])[0], "", "FACT", src, "complete month with the fewest organic signers")
+    # Who the organic signers are: account families (q10 splits them by name pattern)
+    fam_cols = [("Telegram (.tg)", "organic_tg"), ("named .near", "organic_dot_near"),
+                ("implicit (64-hex)", "organic_hex_implicit")]
+    table = []
+    for label, col in fam_cols:
+        table.append([label] + [round(month_mean(col, mo)) for mo in ("2026-01", "2026-08", last_month)])
+    tot = [round(month_mean("organic_signers", mo)) for mo in ("2026-01", "2026-08", last_month)]
+    table.append(["other"] + [tot[i] - sum(r[i + 1] for r in table) for i in range(3)])
+    m.put("organic_family_table", table, "accounts/day", "FACT", src,
+          "mean daily organic signers by account family: January, August, latest month")
+    tg = table[0]
+    m.put("organic_tg_share_of_jan_to_aug_drop", (tg[1] - tg[2]) / (tot[0] - tot[1]), "share", "FACT", src,
+          "Telegram (.tg) accounts' part of the January-to-August fall in organic signers")
+    m.put("organic_tg_share_jan", tg[1] / tot[0], "share", "FACT", src, ".tg accounts' share of January organic signers")
+    m.put("organic_ex_tg_change_jan_to_latest", (tot[2] - tg[3]) / (tot[0] - tg[1]) - 1, "share", "FACT", src,
+          "organic signers excluding .tg accounts: latest month / January - 1")
+    near = table[1]
+    m.put("organic_dot_near_change_jan_to_latest", near[3] / near[1] - 1, "share", "FACT", src,
+          "named .near organic signers: latest month / January - 1")
+    m.put("organic_family_monthly", [[mo] + [round(month_mean(c, mo)) for _, c in fam_cols] for mo in months],
+          "accounts/day", "FACT", src, "per month: .tg, .near, implicit hex organic signers")
     by = {r["block_date"]: r for r in q10}
     m.put("nov03_organic_hex", [int(by[d]["organic_hex_implicit"]) for d in ("2026-11-02", "2026-11-03", "2026-11-04")],
           "accounts/day", "FACT", src, "organic implicit-hex signers on 2, 3, 4 Nov")
@@ -422,7 +466,8 @@ def run(data):
     m = Metrics(data)
     yaml_path = os.path.join(os.path.dirname(os.path.abspath(data)), "thesis.yaml")
     for name, fn in (("swaps", swaps), ("audit", audit), ("channels", channels), ("market", market), ("wallet", wallet), ("accounts", accounts),
-                     ("extra", models.extra), ("sensitivity", models.sensitivity), ("leadlag", models.leadlag),
+                     ("extra", models.extra), ("windows", models.windows), ("sensitivity", models.sensitivity),
+                     ("leadlag", models.leadlag),
                      ("scorecard", lambda mm: models.scorecard(mm, yaml_path))):
         m.section(name, fn)
     os.makedirs(os.path.join(data, "derived"), exist_ok=True)
