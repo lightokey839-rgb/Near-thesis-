@@ -53,6 +53,7 @@ class CheckGapsTest(unittest.TestCase):
             self.assertIn("real gap", res[1][6])
         finally:
             srv.shutdown()
+            srv.server_close()
 
 
 if __name__ == "__main__":

@@ -122,6 +122,14 @@ def gb(n):
     return (n or 0) / 1e9
 
 
+def shown_path(path):
+    """Path relative to the repo for logs; absolute if it is on another drive (Windows has no relative path across drives)."""
+    try:
+        return os.path.relpath(path, ROOT).replace("\\", "/")
+    except ValueError:
+        return os.path.abspath(path).replace("\\", "/")
+
+
 def run_one(client, name, sql, meta, sha, max_gb, dry_only, out_dir, config_factory=job_config):
     try:
         dry = client.query(sql, job_config=config_factory(True))
@@ -159,7 +167,7 @@ def run_one(client, name, sql, meta, sha, max_gb, dry_only, out_dir, config_fact
         for r in rows:
             w.writerow([cell(r[k]) for k in fields])
             n += 1
-    record.update({"rows": n, "csv": os.path.relpath(path, ROOT).replace("\\", "/")})
+    record.update({"rows": n, "csv": shown_path(path)})
     print("  saved %d rows -> %s (%.1fs, billed %.2f GB)" % (n, record["csv"], record["seconds"],
                                                              gb(job.total_bytes_billed)))
     return record
@@ -221,7 +229,11 @@ def main(argv=None, client=None, config_factory=job_config):
         plan = [("_schema", SCHEMA_SQL, {"title": "Columns of the NEAR public tables"}, "builtin")]
     else:
         if "all" in args.names:  # files marked "-- optional: true" only run when named
-            wanted = [n for n, p in queries if not re.search(r"(?m)^--\s*optional:\s*true", open(p, encoding="utf-8").read())]
+            wanted = []
+            for n, p in queries:
+                with open(p, encoding="utf-8") as fh:
+                    if not re.search(r"(?m)^--\s*optional:\s*true", fh.read()):
+                        wanted.append(n)
         else:
             wanted = args.names
         plan = []

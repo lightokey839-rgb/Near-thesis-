@@ -74,6 +74,7 @@ class BuybackWalletTest(unittest.TestCase):
                 self.assertEqual(float(row["wnear"]), 5.0)
         finally:
             srv.shutdown()
+            srv.server_close()
 
 
 if __name__ == "__main__":

@@ -67,6 +67,7 @@ class FetchMarketTest(unittest.TestCase):
             fm.run(out, "2026-11-01", llama=base, coins=base, gecko=base, rpc=base)
         finally:
             srv.shutdown()
+            srv.server_close()
         with open(os.path.join(out, "defillama_intents_daily.csv")) as f:
             rows = list(csv.DictReader(f))
         self.assertEqual([r["day"] for r in rows], ["2026-11-05", "2026-11-06"])
