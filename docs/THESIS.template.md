@@ -61,11 +61,14 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
 
 ## 5. What would change my mind (scorecard, checked on every build)
 
-Each signal below has a numeric bullish and bearish condition in [`thesis.yaml`](thesis.yaml), set on 11 Nov 2026 from the ranges in this data. `python build.py` looks up today's value and marks it green (bullish condition holds), red (bearish condition holds) or yellow (neither).
+Each signal below has a numeric bullish and bearish condition in [`thesis.yaml`](thesis.yaml), set on 11 Nov 2026 after looking at this data (so they are not pre-registered; one signal was changed on 12 Nov, see below). `python build.py` looks up today's value and marks it green (bullish condition holds), red (bearish condition holds) or yellow (neither).
 
 <!-- SCORECARD -->
 
-Disclosure for `buyback_outflows`: it uses a rolling 90-day window. The wallet's last outflow was 12,000 NEAR on 10 Jul 2026, about 2.3% of its balance then. That is outside the window, but it is not explained publicly (multisig request, 9-10 Jul).
+**Correction to `buyback_outflows` (12 Nov 2026).**
+- **What changed:** the first version measured the largest outflow in a rolling 90-day window. That window left out the wallet's only outflow (12,000 NEAR on 10 Jul 2026, about 2.3% of its balance then), so the signal scored green. Over the full daily record the same measure is red, and the scorecard verdict would have read "bearish". A verdict that one window choice can flip is not evidence.
+- **Now:** the signal is all NEAR that ever left the wallet divided by all NEAR that came in, over every day of daily data. There is no window to choose. It is **{wallet_outflow_share_of_inflows|pct2}**, or **{wallet_outflow_share_of_inflows_ex_sep09|pct2}** without the 9 Sep treasury transfer. Both are under the 1% bearish line, so the signal is yellow, not green.
+- **Still open:** the 10 Jul move is not explained publicly (multisig request, 9-10 Jul). The full log is in [docs/RED_TEAM_2026-11-11.md](docs/RED_TEAM_2026-11-11.md) section 6.
 
 ## 6. HSP-029 sensitivity: what it takes for buybacks to outweigh issuance
 

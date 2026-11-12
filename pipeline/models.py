@@ -87,7 +87,19 @@ def extra(m):
     worst = max((-float(r["largest_single_outflow_near"] or 0) / float(r["end_of_day_near"]) for r in recent), default=0.0)
     m.put("wallet_largest_outflow_share_90d", max(0.0, worst), "share of balance", "FACT",
           ["data/bq/q30_buyback_balance_daily.csv"],
-          "largest single balance decrease in the last 90 days of data / that day's closing balance")
+          "largest single balance decrease in the last 90 days of data / that day's closing balance "
+          "(first version of the outflow signal; replaced on 12 Nov 2026, kept for disclosure)")
+    # Scorecard signal since 12 Nov 2026: no window to choose - everything that left / everything that came in.
+    inflow = sum(float(r["inflow_near"] or 0) for r in q)
+    outflow = sum(float(r["outflow_near"] or 0) for r in q)
+    sep09 = sum(float(r["delta_near"]) for r in _csv(m, "bq", "q33_buyback_sep09_moves.csv"))
+    m.put("wallet_outflow_share_of_inflows", outflow / inflow, "share of inflows", "FACT",
+          ["data/bq/q30_buyback_balance_daily.csv"],
+          "all NEAR that left the wallet / all NEAR that came in, over every day of daily data (%s to %s)"
+          % (q[0]["block_date"], q[-1]["block_date"]))
+    m.put("wallet_outflow_share_of_inflows_ex_sep09", outflow / (inflow - sep09), "share of inflows", "FACT",
+          ["data/bq/q30_buyback_balance_daily.csv", "data/bq/q33_buyback_sep09_moves.csv"],
+          "same, with the 9 Sep treasury transfer removed from inflows (fee flow only)")
 
     ll = [r for r in _csv(m, "market", "defillama_intents_daily.csv") if r["intents_volume_usd"]]
     vol = [float(r["intents_volume_usd"]) for r in ll][:-2]   # drop the 2 newest (often incomplete) days

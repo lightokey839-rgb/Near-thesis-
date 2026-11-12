@@ -55,8 +55,9 @@ class PinnedDataTest(unittest.TestCase):
         # dashboard 'leadlag' chart + THESIS section 7: "Intents volume does not lead or lag NEAR's price"
         self.assertFalse(any(r[9] for r in rows))
         self.assertTrue(all(abs(r[4]) < self.m["leadlag_weekly_critical_r"] for r in rows))
-        # THESIS section 2: "bought-back NEAR is held" - no outflow in the last 90 days, never staked
-        self.assertEqual(self.m["wallet_largest_outflow_share_90d"], 0.0)
+        # THESIS section 2/5: "bought-back NEAR is held" - under 1% of everything received has ever left, never staked
+        self.assertLess(self.m["wallet_outflow_share_of_inflows"], 0.01)
+        self.assertLess(self.m["wallet_outflow_share_of_inflows_ex_sep09"], 0.01)
         self.assertEqual(self.m["wallet_max_staked_near"], 0)
         # THESIS section 3: "organic usage fell" from January to August
         self.assertLess(self.m["organic_change_jan_to_aug"], 0)

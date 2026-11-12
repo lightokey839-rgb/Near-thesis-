@@ -5,8 +5,10 @@
 #   red    = the bearish condition holds
 #   yellow = neither (the thesis is undecided on this signal)
 # A condition is an operator and a number, or another metric: "< metric:strict_weekly_active_aug".
-# Thresholds were set on 11 Nov 2026 from the ranges seen in this data, before seeing how they
-# would score. Change them here, rebuild, and the scorecard in THESIS.md and the dashboard follows.
+# Thresholds were set on 11 Nov 2026 after looking at this data, so they are not pre-registered.
+# On 12 Nov 2026 the buyback_outflows metric was changed from a 90-day window (which left out the
+# only outflow and scored green) to a measure with no window; see docs/RED_TEAM_2026-11-11.md section 6.
+# Change thresholds here, rebuild, and the scorecard in THESIS.md and the dashboard follows.
 
 claim: "NEAR is a call option on NEAR Intents: the demand is real and some of it is bought back and held, but not yet enough to outweigh issuance or justify the valuation."
 verdict_if_more_red: "bearish - the option is losing value"
@@ -19,14 +21,14 @@ signals:
     metric: wallet_inflow_share_of_issuance
     bullish_if: ">= 0.25"
     bearish_if: "< 0.05"
-    why: "Measured in NEAR, so price does not matter. 25% would mean buybacks soak up a quarter of dilution."
+    why: "Measured in NEAR. 25% would mean buybacks soak up a quarter of dilution. Going forward it moves against price: the same dollar fees buy fewer NEAR when NEAR rises."
 
   - id: buyback_outflows
     question: "Is bought-back NEAR still being held (not sold or moved)?"
-    metric: wallet_largest_outflow_share_90d
+    metric: wallet_outflow_share_of_inflows
     bullish_if: "<= 0.001"
     bearish_if: "> 0.01"
-    why: "Holding is the only thing that makes buybacks reduce float. Rolling 90-day window; the 12,000 NEAR move on 10 Jul (2.3% of the balance then) is disclosed in THESIS.md."
+    why: "Holding is the only thing that makes buybacks reduce float. All NEAR that ever left / all NEAR that came in, over the whole daily record, so no window choice can hide an outflow. The 12,000 NEAR move on 10 Jul is included."
 
   - id: intents_momentum
     question: "Is Intents volume growing?"

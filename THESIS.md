@@ -62,21 +62,24 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
 
 ## 5. What would change my mind (scorecard, checked on every build)
 
-Each signal below has a numeric bullish and bearish condition in [`thesis.yaml`](thesis.yaml), set on 11 Nov 2026 from the ranges in this data. `python build.py` looks up today's value and marks it green (bullish condition holds), red (bearish condition holds) or yellow (neither).
+Each signal below has a numeric bullish and bearish condition in [`thesis.yaml`](thesis.yaml), set on 11 Nov 2026 after looking at this data (so they are not pre-registered; one signal was changed on 12 Nov, see below). `python build.py` looks up today's value and marks it green (bullish condition holds), red (bearish condition holds) or yellow (neither).
 
 | Signal | Question | Today | Bullish if | Bearish if | Status |
 |---|---|---|---|---|---|
 | `buyback_vs_issuance` | Does the buyback flow offset a meaningful share of new NEAR? | 11.0% | >= 0.25 | < 0.05 | **YELLOW** |
-| `buyback_outflows` | Is bought-back NEAR still being held (not sold or moved)? | 0.0% | <= 0.001 | > 0.01 | **GREEN** |
+| `buyback_outflows` | Is bought-back NEAR still being held (not sold or moved)? | 0.7% | <= 0.001 | > 0.01 | **YELLOW** |
 | `intents_momentum` | Is Intents volume growing? | 1.04 | >= 1.5 | <= 0.6 | **YELLOW** |
 | `take_rate` | Is NEAR's cut of Intents volume high enough? | 5.0 bps | >= 8 | <= 3 | **YELLOW** |
 | `revenue_vs_dilution` | Does captured revenue cover the dollar value of new issuance? | 0.18 | >= 0.5 | <= 0.1 | **YELLOW** |
 | `real_usage` | Is real on-chain usage back to where it started the year? | 6,862 | > metric:strict_weekly_active_jan (11,706) | < metric:strict_weekly_active_aug (4,801) | **YELLOW** |
 | `valuation` | Is the valuation within reach of the captured cash flow? | 217x | < 50 | > 400 | **YELLOW** |
 
-**1 green, 6 yellow, 0 red -> verdict: working but not yet sufficient.** Thresholds and rules live in `thesis.yaml`; each signal's metric, source and method are in `data/derived/metrics.json`.
+**0 green, 7 yellow, 0 red -> verdict: working but not yet sufficient.** Thresholds and rules live in `thesis.yaml`; each signal's metric, source and method are in `data/derived/metrics.json`.
 
-Disclosure for `buyback_outflows`: it uses a rolling 90-day window. The wallet's last outflow was 12,000 NEAR on 10 Jul 2026, about 2.3% of its balance then. That is outside the window, but it is not explained publicly (multisig request, 9-10 Jul).
+**Correction to `buyback_outflows` (12 Nov 2026).**
+- **What changed:** the first version measured the largest outflow in a rolling 90-day window. That window left out the wallet's only outflow (12,000 NEAR on 10 Jul 2026, about 2.3% of its balance then), so the signal scored green. Over the full daily record the same measure is red, and the scorecard verdict would have read "bearish". A verdict that one window choice can flip is not evidence.
+- **Now:** the signal is all NEAR that ever left the wallet divided by all NEAR that came in, over every day of daily data. There is no window to choose. It is **0.68%**, or **0.96%** without the 9 Sep treasury transfer. Both are under the 1% bearish line, so the signal is yellow, not green.
+- **Still open:** the 10 Jul move is not explained publicly (multisig request, 9-10 Jul). The full log is in [docs/RED_TEAM_2026-11-11.md](docs/RED_TEAM_2026-11-11.md) section 6.
 
 ## 6. HSP-029 sensitivity: what it takes for buybacks to outweigh issuance
 

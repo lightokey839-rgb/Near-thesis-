@@ -1041,7 +1041,26 @@
       "sources": [
         "data/bq/q30_buyback_balance_daily.csv"
       ],
-      "method": "largest single balance decrease in the last 90 days of data / that day's closing balance"
+      "method": "largest single balance decrease in the last 90 days of data / that day's closing balance (first version of the outflow signal; replaced on 12 Nov 2026, kept for disclosure)"
+    },
+    "wallet_outflow_share_of_inflows": {
+      "value": 0.006841,
+      "unit": "share of inflows",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "all NEAR that left the wallet / all NEAR that came in, over every day of daily data (2026-07-01 to 2026-11-09)"
+    },
+    "wallet_outflow_share_of_inflows_ex_sep09": {
+      "value": 0.009589,
+      "unit": "share of inflows",
+      "kind": "FACT",
+      "sources": [
+        "data/bq/q30_buyback_balance_daily.csv",
+        "data/bq/q33_buyback_sep09_moves.csv"
+      ],
+      "method": "same, with the 9 Sep treasury transfer removed from inflows (fee flow only)"
     },
     "intents_volume_4w_vs_prior_12w": {
       "value": 1.040027,
@@ -3883,7 +3902,7 @@
           "metric": "wallet_inflow_share_of_issuance",
           "bullish_if": ">= 0.25",
           "bearish_if": "< 0.05",
-          "why": "Measured in NEAR, so price does not matter. 25% would mean buybacks soak up a quarter of dilution.",
+          "why": "Measured in NEAR. 25% would mean buybacks soak up a quarter of dilution. Going forward it moves against price: the same dollar fees buy fewer NEAR when NEAR rises.",
           "value": 0.109664,
           "bullish_threshold": 0.25,
           "bearish_threshold": 0.05,
@@ -3893,14 +3912,14 @@
         {
           "id": "buyback_outflows",
           "question": "Is bought-back NEAR still being held (not sold or moved)?",
-          "metric": "wallet_largest_outflow_share_90d",
+          "metric": "wallet_outflow_share_of_inflows",
           "bullish_if": "<= 0.001",
           "bearish_if": "> 0.01",
-          "why": "Holding is the only thing that makes buybacks reduce float. Rolling 90-day window; the 12,000 NEAR move on 10 Jul (2.3% of the balance then) is disclosed in THESIS.md.",
-          "value": 0.0,
+          "why": "Holding is the only thing that makes buybacks reduce float. All NEAR that ever left / all NEAR that came in, over the whole daily record, so no window choice can hide an outflow. The 12,000 NEAR move on 10 Jul is included.",
+          "value": 0.006841,
           "bullish_threshold": 0.001,
           "bearish_threshold": 0.01,
-          "status": "green",
+          "status": "yellow",
           "kind": "FACT"
         },
         {
@@ -3979,8 +3998,8 @@
     },
     "scorecard_counts": {
       "value": [
-        1,
-        6,
+        0,
+        7,
         0
       ],
       "unit": "signals",

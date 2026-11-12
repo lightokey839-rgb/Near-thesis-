@@ -290,7 +290,7 @@ CHARTS = [
 
 
 FORMATS = {
-    "pct0": lambda v: "%.0f%%" % (100 * v), "pct1": lambda v: "%.1f%%" % (100 * v),
+    "pct0": lambda v: "%.0f%%" % (100 * v), "pct1": lambda v: "%.1f%%" % (100 * v), "pct2": lambda v: "%.2f%%" % (100 * v),
     "pctsigned": lambda v: "%+.0f%%" % (100 * v), "pctabs": lambda v: "%.0f%%" % abs(100 * v), "int": lambda v: "{:,.0f}".format(v), "r2": lambda v: "%.2f" % v,
     "d1": lambda v: "%.1f" % v, "musd": lambda v: "$%.1fM" % (v / 1e6), "busd": lambda v: "$%.2fB" % (v / 1e9),
     "mnear": lambda v: "%.1fM" % (v / 1e6), "x0": lambda v: "%.0fx" % v, "usd2": lambda v: "$%.2f" % v,
