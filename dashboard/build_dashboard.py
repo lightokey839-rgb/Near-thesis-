@@ -142,6 +142,29 @@ def s_capture(data):
         ["data/derived/metrics.json"]
 
 
+def _short(code):
+    return code[:8] + "..." if len(code) > 20 else code
+
+
+def s_channels(data):
+    met = _metrics(data)
+    rows = met["channel_table"]["value"]
+    return bar([_short(r[0]) for r in rows], [("% of 1Click volume", [round(100 * r[1], 2) for r in rows]),
+                                             ("% of buyback fees", [round(100 * r[2], 2) for r in rows])], "%", horizontal=True), \
+        ["data/audit/buyback_by_referral.csv", "data/derived/metrics.json (channel_table)"]
+
+
+def s_channels_weekly(data):
+    met = _metrics(data)
+    s = met["top_volume_channel_weekly"]["value"]
+    top = met["top_volume_channel"]["value"]
+    return line([r[0] for r in s], [(top + ": % of 1Click volume", [round(100 * r[1], 2) for r in s]),
+                                    (top + ": % of buyback fees", [round(100 * r[2], 2) for r in s]),
+                                    ("all 1Click: buyback bps", [r[3] for r in s])], "%",
+                y2={"all 1Click: buyback bps": "bps"}), \
+        ["data/audit/buyback_by_week_referral.csv", "data/derived/metrics.json (top_volume_channel_weekly)"]
+
+
 def s_signers(data):
     q = rd(data, "bq", "q10_daily_signers_by_segment.csv")
     return line([r["block_date"] for r in q], [("HOT game signers", [int(r["game_signers"]) for r in q]),
@@ -264,6 +287,12 @@ CHARTS = [
     ("capture", "Value capture", s_capture, "INFERENCE", "Buybacks vs new NEAR issued",
      "At October's pace the buyback wallet takes in about {wallet_inflow_share_of_issuance|pct0} of the NEAR issued each year today, and would take in about {wallet_inflow_share_of_issuance_hsp029|pct0} at HSP-029's lower 1.6% rate.",
      None, "Issuance = total supply x inflation ceiling (assumes full validator uptime). Held NEAR could be sold later; this is not a burn."),
+    ("channels", "Value capture", s_channels, "INFERENCE", "Volume is not value: who pays for the buyback",
+     "{top_volume_channel} sends {top_volume_channel_usd_share|pct0} of 1Click volume but only {top_volume_channel_buyback_share|pct1} of the buyback fees; swaps with no referral code are {no_referral_usd_share|pct0} of volume and {no_referral_buyback_share|pct0} of the buyback.",
+     None, "Buyback fees = appFees fee to buybacks.multisignature.near (bps) x amountInUsd. 1Click only. A referral code is an app, not a user. Codes over 20 characters are shortened."),
+    ("channels_weekly", "Value capture", s_channels_weekly, "INFERENCE", "Volume is not value, week by week",
+     "Every week, {top_volume_channel} carried {top_volume_channel_weekly_usd_share_min|pct0}-{top_volume_channel_weekly_usd_share_max|pct0} of 1Click volume while its share of the buyback stayed at or below {top_volume_channel_weekly_buyback_share_max|pct1}.",
+     None, "First and last weeks are partial (download 28 Sep 06:45 to 10 Nov 12:48 UTC)."),
     ("signers", "Usage", s_signers, "FACT", "Daily signing accounts by type (log scale)",
      None, "q10_daily_signers_by_segment", "Spikes in the self-transaction line are account factories ({burst_feb_implicit_self_only|int} accounts in Feb, {burst_oct_kaiching_self_only|int} kaiching accounts in Oct)."),
     ("weekly", "Usage", s_weekly, "FACT", "Weekly real active accounts, four strictness levels",
@@ -342,6 +371,7 @@ def build(data, out):
         tile(met, "intents_volume_usd_per_day", lambda v: musd(v) + "/day", "All NEAR Intents volume (DefiLlama, 30 days)"),
         tile(met, "near_captured_revenue_usd_per_year", lambda v: musd(v) + "/yr", "NEAR's captured Intents revenue (DefiLlama, annualised)"),
         tile(met, "wallet_inflow_share_of_issuance", pct, "Buyback inflow as a share of new NEAR issued"),
+        tile(met, "top_volume_channel_buyback_share", pct, "Share of 1Click buyback fees from the app with the most volume"),
         tile(met, "organic_signers_per_day_latest", lambda v: "%.0f/day" % v, "Organic NEAR signers, latest month"),
         tile(met, "organic_change_jan_to_aug", pct, "Organic signers, Jan to Aug 2026"),
         tile(met, "strict_weekly_active_latest", lambda v: "%.0f/wk" % v, "Strict weekly active accounts (L4), last 2 weeks"),

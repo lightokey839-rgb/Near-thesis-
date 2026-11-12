@@ -1,7 +1,9 @@
 {
   "files": {
-    "data/audit/audit.json": "80269f611fb97eced74ecc8f8facacf2b83ab92b2b4e7a3358647b5fc5c6e200",
+    "data/audit/audit.json": "41a39f118e95a49bba6f2fce3f6eb180d005e6015bb791ac7a0c46eb6cfc1164",
     "data/audit/aurora_referrals_by_day.csv": "776dcf85430f93d77861c45e27b1b7a0387d9f4f7b581358c3f510c753a1e9b1",
+    "data/audit/buyback_by_referral.csv": "a001e6c30dc265524baba6e5608522be9fe6f074c2a5d6f3d76607e4d28f2271",
+    "data/audit/buyback_by_week_referral.csv": "d19416aa60cd6828988f4e2e2f38cd8a20bf49515cc7d99ab926b40fdcf0f38f",
     "data/audit/buyback_fee_value_by_week.csv": "afd6bb48723480190fefbe2da299a0b2ac229171ce55fdd719d8a3a9fbeb9277",
     "data/audit/buyback_fee_values_by_referral.csv": "5a2210c0864a0155e8ccd025fd8a1a6c045e0581d4481f8af6d13f3c81c976d2",
     "data/audit/buyback_usd_est_by_day_if_bps.csv": "45f599e1282d1bd3ae32caa203d0429cdc3bf9173b4efbf32e92fc61cfd0a998",

@@ -1,6 +1,6 @@
 """
 render.py - turn model outputs in metrics.json into Markdown tables for THESIS.md.
-build.py replaces the markers <!-- SCORECARD -->, <!-- SENSITIVITY --> and <!-- LEADLAG -->
+build.py replaces the markers <!-- SCORECARD -->, <!-- SENSITIVITY -->, <!-- LEADLAG --> and <!-- CHANNELS -->
 in docs/THESIS.template.md with these tables.
 """
 
@@ -92,9 +92,19 @@ def leadlag_md(met):
     return "\n".join(out)
 
 
+def channels_md(met):
+    out = ["| Referral code (app that sent the swap) | Share of 1Click volume | Share of buyback fees | Buyback fee (bps) |",
+           "|---|---|---|---|"]
+    for name, vol_share, bb_share, bps in met["channel_table"]["value"]:
+        out.append("| `%s` | %.1f%% | %.1f%% | %.2f |" % (name, 100 * vol_share, 100 * bb_share, bps))
+    out += ["", "*The 6 biggest referral codes by volume plus the 6 biggest by buyback fees. `(none)` = swaps with no "
+            "referral code. Every code: `data/audit/buyback_by_referral.csv`.*"]
+    return "\n".join(out)
+
+
 def render_thesis(text, met):
     for marker, fn in (("<!-- SCORECARD -->", scorecard_md), ("<!-- SENSITIVITY -->", sensitivity_md),
-                       ("<!-- LEADLAG -->", leadlag_md)):
+                       ("<!-- LEADLAG -->", leadlag_md), ("<!-- CHANNELS -->", channels_md)):
         if marker in text:
             text = text.replace(marker, fn(met))
     return text

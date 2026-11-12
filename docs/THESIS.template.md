@@ -46,6 +46,34 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
   - **Holding is not burning:** held NEAR can be sold later.
 - **FACT - price has not tracked usage.** NEAR is {near_price_change_ytd|pctsigned} since 1 Jan 2026 (from {near_price_2026_01_01|usd2}) while organic usage fell. Whatever drives the price, this data does not show it is on-chain usage.
 
+## 3b. Volume is not value: who actually pays for NEAR's buyback
+
+Every 1Click swap records the app that sent it (its referral code) and the fee it paid to `buybacks.multisignature.near`. Adding these up by app shows that **the volume and the buyback come from different places**. The data covers {channels_total} referral codes; {channels_paying_buyback} of them paid at least one cent in buyback fees over the six weeks.
+
+- **The biggest source of volume pays almost nothing to NEAR.**
+  - `{top_volume_channel}` sends **{top_volume_channel_usd_share|pct0} of 1Click volume** but only **{top_volume_channel_buyback_share|pct1} of the buyback fees**.
+  - That is {top_volume_channel_buyback_bps|d1} bps on its volume, against {rest_buyback_bps|d1} bps for all other apps together.
+  - Week by week its volume share ranged from {top_volume_channel_weekly_usd_share_min|pct0} to {top_volume_channel_weekly_usd_share_max|pct0}; its share of the buyback never went above {top_volume_channel_weekly_buyback_share_max|pct1}.
+- **Small channels fund most of it.**
+  - Swaps with no referral code are {no_referral_usd_share|pct0} of volume but **{no_referral_buyback_share|pct0} of the buyback**.
+  - The 5 apps that pay the most fund {buyback_top5_channels_share|pct0} of the buyback while carrying {buyback_top5_channels_usd_share|pct0} of the volume.
+  - {usd_share_paying_no_buyback|pct0} of volume comes from apps that paid less than one cent in buyback fees over the whole six weeks.
+- **On average,** every $1M swapped through 1Click paid about ${oneclick_buyback_usd_per_million|int} into the buyback ({oneclick_buyback_bps|d1} bps).
+
+<!-- CHANNELS -->
+
+**INFERENCE - what this means for the option.** Section 1 calls NEAR an option on Intents volume × take-rate. This section shows the take-rate is not one number: it depends on *which apps* grow.
+- Growth through a large aggregator paying {top_volume_channel_buyback_bps|d1} bps barely moves the buyback.
+- Growth through wallets and direct users moves it many times faster per dollar.
+- So "Intents volume is up" is weak evidence for NEAR holders on its own. The question to ask is *whose* volume grew.
+- **A hypothetical, not a forecast:** if `{top_volume_channel}` paid the same average rate as everyone else, 1Click buyback fees would be about **{buyback_uplift_if_top_channel_paid_rest_rate|pct0} higher**. This is the bull case's lever: one fee arrangement moves NEAR's take a lot. It is equally the bear case's risk: the buyback rests on a few small channels.
+
+**Caveats.**
+- 1Click only, which is about {oneclick_share_of_intents_volume_median|pct0} of all Intents volume.
+- Buyback fees = fee in basis points (settled in section 2) × the swap's USD value at swap time.
+- A referral code is an app or integration, not a user.
+- DefiLlama's captured revenue also counts other revenue wallets, so this is the 1Click part of the buyback, not all of NEAR's capture.
+
 ## 4. Staking and issuance (context for the option)
 
 **FACT** (RPC, {snapshot_block_time_utc}):

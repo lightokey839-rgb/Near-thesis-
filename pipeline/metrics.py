@@ -183,6 +183,64 @@ def audit(m):
           "mean daily (fee/10,000 x amountInUsd) to buybacks.multisignature.near on clean days x 365; 1Click only")
 
 
+# ----------------------------------------------------------------------------- who funds the buyback (1Click)
+def channels(m):
+    """Volume vs buyback fees by referral code (the app that sent the swap). Buyback USD = fee bps x amountInUsd."""
+    rows = m.csv("audit", "buyback_by_referral.csv")
+    src = ["data/audit/buyback_by_referral.csv"]
+    usd = {r["referral"]: f(r["usd_in_success"]) for r in rows}
+    bb = {r["referral"]: f(r["buyback_usd_if_bps"]) for r in rows}
+    tu, tb = sum(usd.values()), sum(bb.values())
+    by_usd = sorted(usd, key=lambda k: (-usd[k], k))
+    by_bb = sorted(bb, key=lambda k: (-bb[k], -usd[k], k))
+    top = by_usd[0]
+    rest_bps = (tb - bb[top]) / (tu - usd[top]) * 1e4
+    m.put("channels_total", len(rows), "referral codes", "FACT", src, "distinct referral codes on SUCCESS 1Click swaps ('(none)' = no code)")
+    m.put("channels_paying_buyback", sum(1 for k in bb if bb[k] >= 0.01), "referral codes", "FACT", src,
+          "referral codes whose swaps paid at least $0.01 in total to buybacks.multisignature.near (the table is rounded to cents)")
+    m.put("oneclick_buyback_bps", tb / tu * 1e4, "bps", "INFERENCE", src,
+          "all buyback fees / all SUCCESS volume, 1Click download window (fee bps x amountInUsd at swap time)")
+    m.put("oneclick_buyback_usd_per_million", tb / tu * 1e6, "USD per $1M", "INFERENCE", src,
+          "buyback fees per $1M of 1Click volume")
+    m.put("top_volume_channel", top, "", "FACT", src, "referral code with the most SUCCESS volume")
+    m.put("top_volume_channel_usd_share", usd[top] / tu, "share", "FACT", src, "its share of 1Click volume")
+    m.put("top_volume_channel_buyback_share", bb[top] / tb, "share", "INFERENCE", src, "its share of 1Click buyback fees")
+    m.put("top_volume_channel_buyback_bps", bb[top] / usd[top] * 1e4, "bps", "INFERENCE", src, "its buyback fees / its volume")
+    m.put("rest_buyback_bps", rest_bps, "bps", "INFERENCE", src, "buyback fees / volume for all other referral codes together")
+    m.put("buyback_uplift_if_top_channel_paid_rest_rate", (usd[top] * rest_bps / 1e4 - bb[top]) / tb, "share", "INFERENCE", src,
+          "HYPOTHETICAL: extra 1Click buyback fees if the top-volume code paid the other codes' average rate, as a share of today's")
+    if "(none)" in usd:
+        m.put("no_referral_usd_share", usd["(none)"] / tu, "share", "FACT", src, "share of 1Click volume with no referral code")
+        m.put("no_referral_buyback_share", bb["(none)"] / tb, "share", "INFERENCE", src, "their share of 1Click buyback fees")
+    m.put("buyback_top5_channels_share", sum(bb[k] for k in by_bb[:5]) / tb, "share", "INFERENCE", src,
+          "share of buyback fees paid through the 5 referral codes that pay the most")
+    m.put("buyback_top5_channels_usd_share", sum(usd[k] for k in by_bb[:5]) / tu, "share", "FACT", src,
+          "share of volume those same 5 codes carry")
+    m.put("usd_share_paying_no_buyback", sum(usd[k] for k in usd if bb[k] < 0.01) / tu, "share", "FACT", src,
+          "share of volume from referral codes that paid less than $0.01 in buyback fees over the whole download")
+    keys = sorted(set(by_usd[:6]) | set(by_bb[:6]), key=lambda k: (-usd[k], k))
+    m.put("channel_table", [[k, round(usd[k] / tu, 4), round(bb[k] / tb, 4), round(bb[k] / usd[k] * 1e4, 2) if usd[k] else 0]
+                            for k in keys], "", "INFERENCE", src,
+          "referral code, share of volume, share of buyback fees, buyback bps (top 6 by volume and top 6 by buyback)")
+
+    wk = m.csv("audit", "buyback_by_week_referral.csv")
+    src = ["data/audit/buyback_by_week_referral.csv"]
+    weeks = sorted({r["week_start_monday"] for r in wk})
+    series = []
+    for w in weeks:
+        rs = [r for r in wk if r["week_start_monday"] == w]
+        wu, wb = sum(f(r["usd_in_success"]) for r in rs), sum(f(r["buyback_usd_if_bps"]) for r in rs)
+        t = [r for r in rs if r["referral"] == top]
+        tu_w, tb_w = (f(t[0]["usd_in_success"]), f(t[0]["buyback_usd_if_bps"])) if t else (0.0, 0.0)
+        series.append([w, round(tu_w / wu, 4) if wu else 0, round(tb_w / wb, 4) if wb else 0, round(wb / wu * 1e4, 3) if wu else 0])
+    m.put("top_volume_channel_weekly", series, "", "INFERENCE", src,
+          "per week: top-volume code's share of volume, its share of buyback fees, all-1Click buyback bps")
+    m.put("top_volume_channel_weekly_usd_share_min", min(s[1] for s in series), "share", "FACT", src, "lowest weekly volume share of the top code")
+    m.put("top_volume_channel_weekly_usd_share_max", max(s[1] for s in series), "share", "FACT", src, "highest weekly volume share of the top code")
+    m.put("top_volume_channel_weekly_buyback_share_max", max(s[2] for s in series), "share", "INFERENCE", src,
+          "highest weekly buyback share of the top code")
+
+
 # ----------------------------------------------------------------------------- market and chain
 def market(m):
     snap = m.json("market", "near_chain_snapshot.json")
@@ -363,7 +421,7 @@ def run(data):
     import models
     m = Metrics(data)
     yaml_path = os.path.join(os.path.dirname(os.path.abspath(data)), "thesis.yaml")
-    for name, fn in (("swaps", swaps), ("audit", audit), ("market", market), ("wallet", wallet), ("accounts", accounts),
+    for name, fn in (("swaps", swaps), ("audit", audit), ("channels", channels), ("market", market), ("wallet", wallet), ("accounts", accounts),
                      ("extra", models.extra), ("sensitivity", models.sensitivity), ("leadlag", models.leadlag),
                      ("scorecard", lambda mm: models.scorecard(mm, yaml_path))):
         m.section(name, fn)

@@ -61,6 +61,14 @@ class PinnedDataTest(unittest.TestCase):
         self.assertEqual(self.m["wallet_max_staked_near"], 0)
         # THESIS section 3: "organic usage fell" from January to August
         self.assertLess(self.m["organic_change_jan_to_aug"], 0)
+        # THESIS section 3b + dashboard 'channels': "the biggest source of volume pays almost nothing to NEAR"
+        self.assertLess(self.m["top_volume_channel_buyback_share"], self.m["top_volume_channel_usd_share"] / 10)
+        self.assertLess(self.m["top_volume_channel_buyback_bps"], self.m["rest_buyback_bps"] / 10)
+        # "small channels fund most of it": no-referral swaps fund more of the buyback than their share of volume
+        self.assertGreater(self.m["no_referral_buyback_share"], self.m["no_referral_usd_share"])
+        # the per-channel table adds up to the whole
+        ch = self.m["channel_table"]
+        self.assertTrue(all(0 <= r[1] <= 1 and 0 <= r[2] <= 1 for r in ch))
 
 
 class BuildTest(unittest.TestCase):

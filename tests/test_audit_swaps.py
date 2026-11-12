@@ -71,8 +71,16 @@ class AuditTest(unittest.TestCase):
             rows = {r["day"]: r for r in csv.DictReader(f)}
         self.assertEqual(rows["2026-11-05"]["reason_NO_LIQUIDITY"], "50")
         self.assertEqual(rows["2026-11-05"]["refund_rate"], "1.0")
-        for name in ("price_ratio_bins.csv", "largest_swaps.csv", "buyback_usd_est_by_day_if_bps.csv"):
+        for name in ("price_ratio_bins.csv", "largest_swaps.csv", "buyback_usd_est_by_day_if_bps.csv",
+                     "buyback_by_referral.csv", "buyback_by_week_referral.csv"):
             self.assertTrue(os.path.exists(os.path.join(out, name)), name)
+        # who funds the buyback: 60 swaps x $100 x 20 bps + 60 x $100 x 1 bp = $12.60 from 'lifi', 10.5 bps
+        with open(os.path.join(out, "buyback_by_referral.csv"), encoding="utf-8") as f:
+            ch = {r["referral"]: r for r in csv.DictReader(f)}
+        self.assertEqual(ch["lifi"]["success_swaps"], "120")
+        self.assertAlmostEqual(float(ch["lifi"]["buyback_usd_if_bps"]), 12.6, places=2)
+        self.assertAlmostEqual(float(ch["lifi"]["buyback_bps"]), 10.5, places=2)
+        self.assertEqual(ch["lifi"]["share_of_buyback"], "1.0")
 
 
 if __name__ == "__main__":

@@ -47,6 +47,46 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
   - **Holding is not burning:** held NEAR can be sold later.
 - **FACT - price has not tracked usage.** NEAR is +137% since 1 Jan 2026 (from $1.51) while organic usage fell. Whatever drives the price, this data does not show it is on-chain usage.
 
+## 3b. Volume is not value: who actually pays for NEAR's buyback
+
+Every 1Click swap records the app that sent it (its referral code) and the fee it paid to `buybacks.multisignature.near`. Adding these up by app shows that **the volume and the buyback come from different places**. The data covers 475 referral codes; 252 of them paid at least one cent in buyback fees over the six weeks.
+
+- **The biggest source of volume pays almost nothing to NEAR.**
+  - `swapkit` sends **40% of 1Click volume** but only **1.0% of the buyback fees**.
+  - That is 0.1 bps on its volume, against 6.5 bps for all other apps together.
+  - Week by week its volume share ranged from 32% to 50%; its share of the buyback never went above 5.3%.
+- **Small channels fund most of it.**
+  - Swaps with no referral code are 19% of volume but **46% of the buyback**.
+  - The 5 apps that pay the most fund 78% of the buyback while carrying 36% of the volume.
+  - 11% of volume comes from apps that paid less than one cent in buyback fees over the whole six weeks.
+- **On average,** every $1M swapped through 1Click paid about $398 into the buyback (4.0 bps).
+
+| Referral code (app that sent the swap) | Share of 1Click volume | Share of buyback fees | Buyback fee (bps) |
+|---|---|---|---|
+| `swapkit` | 39.7% | 1.0% | 0.10 |
+| `(none)` | 19.2% | 46.1% | 9.58 |
+| `lifi` | 9.3% | 6.2% | 2.63 |
+| `zodl` | 6.6% | 0.0% | 0.00 |
+| `rango` | 5.7% | 6.5% | 4.54 |
+| `stableflow` | 1.7% | 0.4% | 1.05 |
+| `trustwallet` | 1.7% | 8.4% | 20.00 |
+| `arbie` | 1.0% | 4.9% | 19.99 |
+| `e1a72603-64b3-4be1-8265-8bae5970d396` | 0.6% | 11.0% | 72.09 |
+
+*The 6 biggest referral codes by volume plus the 6 biggest by buyback fees. `(none)` = swaps with no referral code. Every code: `data/audit/buyback_by_referral.csv`.*
+
+**INFERENCE - what this means for the option.** Section 1 calls NEAR an option on Intents volume × take-rate. This section shows the take-rate is not one number: it depends on *which apps* grow.
+- Growth through a large aggregator paying 0.1 bps barely moves the buyback.
+- Growth through wallets and direct users moves it many times faster per dollar.
+- So "Intents volume is up" is weak evidence for NEAR holders on its own. The question to ask is *whose* volume grew.
+- **A hypothetical, not a forecast:** if `swapkit` paid the same average rate as everyone else, 1Click buyback fees would be about **64% higher**. This is the bull case's lever: one fee arrangement moves NEAR's take a lot. It is equally the bear case's risk: the buyback rests on a few small channels.
+
+**Caveats.**
+- 1Click only, which is about 29% of all Intents volume.
+- Buyback fees = fee in basis points (settled in section 2) × the swap's USD value at swap time.
+- A referral code is an app or integration, not a user.
+- DefiLlama's captured revenue also counts other revenue wallets, so this is the 1Click part of the buyback, not all of NEAR's capture.
+
 ## 4. Staking and issuance (context for the option)
 
 **FACT** (RPC, 2026-11-11T14:46:34+00:00):

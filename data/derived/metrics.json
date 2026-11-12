@@ -361,6 +361,284 @@
       ],
       "method": "mean daily (fee/10,000 x amountInUsd) to buybacks.multisignature.near on clean days x 365; 1Click only"
     },
+    "channels_total": {
+      "value": 475,
+      "unit": "referral codes",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "distinct referral codes on SUCCESS 1Click swaps ('(none)' = no code)"
+    },
+    "channels_paying_buyback": {
+      "value": 252,
+      "unit": "referral codes",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "referral codes whose swaps paid at least $0.01 in total to buybacks.multisignature.near (the table is rounded to cents)"
+    },
+    "oneclick_buyback_bps": {
+      "value": 3.976587,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "all buyback fees / all SUCCESS volume, 1Click download window (fee bps x amountInUsd at swap time)"
+    },
+    "oneclick_buyback_usd_per_million": {
+      "value": 397.658657,
+      "unit": "USD per $1M",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "buyback fees per $1M of 1Click volume"
+    },
+    "top_volume_channel": {
+      "value": "swapkit",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "referral code with the most SUCCESS volume"
+    },
+    "top_volume_channel_usd_share": {
+      "value": 0.396796,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "its share of 1Click volume"
+    },
+    "top_volume_channel_buyback_share": {
+      "value": 0.009649,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "its share of 1Click buyback fees"
+    },
+    "top_volume_channel_buyback_bps": {
+      "value": 0.0967,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "its buyback fees / its volume"
+    },
+    "rest_buyback_bps": {
+      "value": 6.528831,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "buyback fees / volume for all other referral codes together"
+    },
+    "buyback_uplift_if_top_channel_paid_rest_rate": {
+      "value": 0.641818,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "HYPOTHETICAL: extra 1Click buyback fees if the top-volume code paid the other codes' average rate, as a share of today's"
+    },
+    "no_referral_usd_share": {
+      "value": 0.191568,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "share of 1Click volume with no referral code"
+    },
+    "no_referral_buyback_share": {
+      "value": 0.461279,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "their share of 1Click buyback fees"
+    },
+    "buyback_top5_channels_share": {
+      "value": 0.781706,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "share of buyback fees paid through the 5 referral codes that pay the most"
+    },
+    "buyback_top5_channels_usd_share": {
+      "value": 0.36431,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "share of volume those same 5 codes carry"
+    },
+    "usd_share_paying_no_buyback": {
+      "value": 0.110053,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "share of volume from referral codes that paid less than $0.01 in buyback fees over the whole download"
+    },
+    "channel_table": {
+      "value": [
+        [
+          "swapkit",
+          0.3968,
+          0.0096,
+          0.1
+        ],
+        [
+          "(none)",
+          0.1916,
+          0.4613,
+          9.58
+        ],
+        [
+          "lifi",
+          0.093,
+          0.0615,
+          2.63
+        ],
+        [
+          "zodl",
+          0.0663,
+          0.0,
+          0.0
+        ],
+        [
+          "rango",
+          0.057,
+          0.0651,
+          4.54
+        ],
+        [
+          "stableflow",
+          0.0172,
+          0.0045,
+          1.05
+        ],
+        [
+          "trustwallet",
+          0.0167,
+          0.0838,
+          20.0
+        ],
+        [
+          "arbie",
+          0.0097,
+          0.0486,
+          19.99
+        ],
+        [
+          "e1a72603-64b3-4be1-8265-8bae5970d396",
+          0.0061,
+          0.1101,
+          72.09
+        ]
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_referral.csv"
+      ],
+      "method": "referral code, share of volume, share of buyback fees, buyback bps (top 6 by volume and top 6 by buyback)"
+    },
+    "top_volume_channel_weekly": {
+      "value": [
+        [
+          "2026-09-28",
+          0.4113,
+          0.0528,
+          4.044
+        ],
+        [
+          "2026-10-05",
+          0.3951,
+          0.0011,
+          4.649
+        ],
+        [
+          "2026-10-12",
+          0.5007,
+          0.0,
+          2.725
+        ],
+        [
+          "2026-10-19",
+          0.3559,
+          0.0,
+          5.131
+        ],
+        [
+          "2026-10-26",
+          0.32,
+          0.0,
+          4.896
+        ],
+        [
+          "2026-11-02",
+          0.3829,
+          0.0,
+          2.911
+        ],
+        [
+          "2026-11-09",
+          0.4399,
+          0.0,
+          2.24
+        ]
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_week_referral.csv"
+      ],
+      "method": "per week: top-volume code's share of volume, its share of buyback fees, all-1Click buyback bps"
+    },
+    "top_volume_channel_weekly_usd_share_min": {
+      "value": 0.32,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_week_referral.csv"
+      ],
+      "method": "lowest weekly volume share of the top code"
+    },
+    "top_volume_channel_weekly_usd_share_max": {
+      "value": 0.5007,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/buyback_by_week_referral.csv"
+      ],
+      "method": "highest weekly volume share of the top code"
+    },
+    "top_volume_channel_weekly_buyback_share_max": {
+      "value": 0.0528,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/buyback_by_week_referral.csv"
+      ],
+      "method": "highest weekly buyback share of the top code"
+    },
     "snapshot_block_time_utc": {
       "value": "2026-11-11T14:46:34+00:00",
       "unit": "",

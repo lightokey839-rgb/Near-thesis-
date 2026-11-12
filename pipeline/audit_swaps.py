@@ -17,6 +17,8 @@ Checks
      and how concentrated refunds were among refund addresses on spike days.
   5. Buyback fee: share of SUCCESS swaps that pay buybacks.multisignature.near,
      fee values per referral, USD estimate under the basis-point assumption.
+  6. Who funds the buyback: SUCCESS volume and buyback fees (fee bps x amountInUsd)
+     per referral code (the app that sent the swap), in total and by week.
 
 Standard library only (Python 3.8+). Streams the file, so size is not a problem.
 
@@ -139,6 +141,10 @@ def run(input_path, out_dir):
     bb_usd_est_by_day = Counter()
     fee_sum_by_ref = defaultdict(Counter)
 
+    # who funds the buyback: per referral code (channel), in total and by week
+    ch_swaps, ch_usd, ch_bb = Counter(), Counter(), Counter()
+    ch_week_usd, ch_week_bb = Counter(), Counter()
+
     with open(input_path, "r", encoding="utf-8", errors="replace") as f:
         for line in f:
             line = line.strip()
@@ -216,6 +222,7 @@ def run(input_path, out_dir):
                 big.append((usd_in, usd_out, day, origin, dest, referral))
 
             total_fee = 0.0
+            bb_bps = 0.0
             has_bb = False
             combo = []
             for fe in fees:
@@ -225,6 +232,7 @@ def run(input_path, out_dir):
                 combo.append("%s=%g" % ("buybacks" if rec == BUYBACK else "app", v))
                 if rec == BUYBACK:
                     has_bb = True
+                    bb_bps += v
                     bb_value_by_ref[referral][fe.get("fee")] += 1
                     bb_usd_est_by_day[day] += v / 10000.0 * usd_in
                     wk = week_of(day)
@@ -233,6 +241,13 @@ def run(input_path, out_dir):
             fee_sum_by_ref[referral][total_fee] += 1
             if has_bb:
                 succ_with_bb += 1
+            bb_usd = bb_bps / 10000.0 * usd_in
+            ch_swaps[referral] += 1
+            ch_usd[referral] += usd_in
+            ch_bb[referral] += bb_usd
+            swap_week = week_of(day)
+            ch_week_usd[(swap_week, referral)] += usd_in
+            ch_week_bb[(swap_week, referral)] += bb_usd
 
             if usd_in >= 50 and is_stable_pair(row):
                 ain, aout = num(row.get("amountInFormatted")), num(row.get("amountOutFormatted"))
@@ -349,6 +364,27 @@ def run(input_path, out_dir):
               [[d, r, st, c] for (d, r, st), c in sorted(aurora_day.items())])
     write_csv(os.path.join(out_dir, "buyback_usd_est_by_day_if_bps.csv"), ["day", "buyback_usd_if_bps"],
               [[d, round(bb_usd_est_by_day[d], 2)] for d in sorted(bb_usd_est_by_day)])
+
+    # ---- 6. who funds the buyback: volume vs buyback fees by referral code (channel)
+    tot_usd, tot_bb = sum(ch_usd.values()), sum(ch_bb.values())
+    by_bb = sorted(ch_usd, key=lambda r: (-ch_bb[r], -ch_usd[r], r))
+    write_csv(os.path.join(out_dir, "buyback_by_referral.csv"),
+              ["referral", "success_swaps", "usd_in_success", "buyback_usd_if_bps", "buyback_bps",
+               "share_of_usd", "share_of_buyback"],
+              [[r, ch_swaps[r], round(ch_usd[r], 2), round(ch_bb[r], 2),
+                round(ch_bb[r] / ch_usd[r] * 1e4, 3) if ch_usd[r] else 0,
+                round(ch_usd[r] / tot_usd, 6) if tot_usd else 0,
+                round(ch_bb[r] / tot_bb, 6) if tot_bb else 0] for r in by_bb])
+    # weekly: the 8 biggest channels by volume and the 8 biggest by buyback, everything else as "(other)"
+    named = sorted(set(sorted(ch_usd, key=lambda r: (-ch_usd[r], r))[:8]) | set(by_bb[:8]))
+    rows = []
+    for w in sorted({wk for wk, _ in ch_week_usd}):
+        other_u = sum(v for (wk, r), v in ch_week_usd.items() if wk == w and r not in named)
+        other_b = sum(v for (wk, r), v in ch_week_bb.items() if wk == w and r not in named)
+        rows += [[w, r, round(ch_week_usd[(w, r)], 2), round(ch_week_bb[(w, r)], 2)] for r in named]
+        rows.append([w, "(other)", round(other_u, 2), round(other_b, 2)])
+    write_csv(os.path.join(out_dir, "buyback_by_week_referral.csv"),
+              ["week_start_monday", "referral", "usd_in_success", "buyback_usd_if_bps"], rows)
 
     audit = {
         "input_file": input_path,
