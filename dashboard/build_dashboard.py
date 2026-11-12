@@ -389,7 +389,7 @@ def build(data, out):
             met.get("swaps_last_utc", {}).get("value", "?"), met.get("near_price_usd", {}).get("value", "?"),
             met.get("snapshot_block_time_utc", {}).get("value", "?"))))
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    with open(out, "w", encoding="utf-8") as f:
+    with open(out, "w", encoding="utf-8", newline="\n") as f:
         f.write(page)
     print("dashboard: %d charts -> %s" % (len(CHARTS), out))
 

@@ -370,7 +370,7 @@ def run(data):
     os.makedirs(os.path.join(data, "derived"), exist_ok=True)
     doc = {"generated_from": "pinned snapshot tables in data/ (see data/MANIFEST.json)",
            "metrics": m.out, "not_computed": m.missing}
-    with open(os.path.join(data, "derived", "metrics.json"), "w", encoding="utf-8") as fh:
+    with open(os.path.join(data, "derived", "metrics.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(doc, fh, indent=2)
     print("metrics: %d computed, %d sections not computed" % (len(m.out), len(m.missing)))
     return doc

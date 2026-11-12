@@ -167,7 +167,7 @@ def run(out, since, llama=LLAMA, coins=COINS, gecko=GECKO, rpc=RPC):
 
     snap = fetch_chain(rpc)
     snap["fetched_utc"] = now
-    with open(os.path.join(out, "near_chain_snapshot.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "near_chain_snapshot.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(snap, f, indent=2)
     log["near_chain_snapshot.json"] = {"fetched_utc": now, "source": rpc + " (block, validators, EXPERIMENTAL_protocol_config)"}
     print("Chain: supply %.0f NEAR, stake %.0f NEAR, max inflation %.4f"
@@ -181,7 +181,7 @@ def run(out, since, llama=LLAMA, coins=COINS, gecko=GECKO, rpc=RPC):
                         "note": "chain fees/revenue are DefiLlama's L1 gas-fee figures; NEAR Intents revenue is separate"}
     print("Peers: %d chains" % len(peers))
 
-    with open(os.path.join(out, "_fetched.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "_fetched.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(log, f, indent=2)
     return log
 

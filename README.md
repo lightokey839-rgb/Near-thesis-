@@ -1,5 +1,7 @@
 # NEAR Intents Thesis Engine
 
+[![build](https://github.com/lightokey839-rgb/Near-thesis-/actions/workflows/build.yml/badge.svg)](https://github.com/lightokey839-rgb/Near-thesis-/actions/workflows/build.yml)
+
 An evidence-first investment thesis on NEAR: **is NEAR Intents demand real, and how much of it does the NEAR token capture?** It is built from 818,000 NEAR Intents (1Click) swaps, the NEAR BigQuery public dataset, the NEAR RPC, DefiLlama and CoinGecko. One command rebuilds every number, the thesis text and the dashboard from pinned data tables.
 
 - **Thesis:** [THESIS.md](THESIS.md) covers the claim, evidence for, evidence against, and what would change my mind.
@@ -9,12 +11,12 @@ An evidence-first investment thesis on NEAR: **is NEAR Intents demand real, and 
 
 NEAR Hackathon, track **Investment Thesis** (`thesis`). Not investment advice; no price targets.
 
-## Reproduce in 1 minute (no keys, no internet needed for the build)
+## Reproduce in about 2 minutes (no keys, no internet needed for the build)
 
-Needs Python 3.8+ (tested on 3.15, Windows and Linux). No packages to install.
+Needs Python 3.8+. No packages to install. Tested on Python 3.15 (Windows). On every push, [GitHub Actions](.github/workflows/build.yml) rebuilds on Ubuntu and Windows (Python 3.12), runs the tests, and fails if the rebuild changes any committed file.
 
 ```bash
-git clone <this repo> near-thesis
+git clone https://github.com/lightokey839-rgb/Near-thesis-.git near-thesis
 cd near-thesis
 python build.py --test
 ```
@@ -88,6 +90,7 @@ After a refresh, `build.py` re-pins the tables (rewrites `data/MANIFEST.json`), 
 
 - **When it was built:** all code and analysis in this repo were written during the NEAR Hackathon window (November 2026). There is no pre-hackathon baseline.
 - **AI tools:** Claude (Claude Code) helped write the code, run checks and draft text. The author ran the data downloads with their own credentials and reviewed the results.
+- **Other project by the same author (rule Q-015):** the author also entered **CommonCircle** (https://github.com/lightokey839-rgb/commoncircle), private lending circles on NEAR. It is a separate, independent project: the two share no code, data or contracts.
 
 ## License
 

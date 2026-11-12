@@ -1,0 +1,35 @@
+# Rebuilds every number, THESIS.md and the dashboard from the pinned tables on Linux and Windows,
+# runs the tests, then fails if the rebuild changed any committed file (byte-for-byte determinism).
+# No keys, no network access needed by the build itself.
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rebuild:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild from pinned tables and run the tests
+        run: python build.py --test
+
+      - name: Fail if the rebuild changed any committed file
+        shell: bash
+        run: |
+          git status --short
+          git diff --exit-code

@@ -374,7 +374,7 @@ def run(input_path, out_dir):
         "refund_spike_top_origin_assets": [[d, o, c] for (d, o), c in ref_spike_origin.most_common(10)],
         "seconds": round(time.time() - t0, 1),
     }
-    with open(os.path.join(out_dir, "audit.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out_dir, "audit.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(audit, f, indent=2)
     print("Done in %.0fs. Wrote %s" % (time.time() - t0, out_dir))
     return audit

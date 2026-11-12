@@ -172,7 +172,7 @@ def append_log(out_dir, records):
         with open(path, encoding="utf-8") as f:
             log = json.load(f)
     log.extend(records)
-    with open(path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(log, f, indent=2)
 
 

@@ -364,7 +364,7 @@ def main():
             "chain_guess columns are a heuristic from asset ids."],
         "seconds": round(time.time() - t0, 1),
     }
-    with open(os.path.join(out, "summary.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "summary.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump(summary, f, indent=2)
 
     # ---- zip
