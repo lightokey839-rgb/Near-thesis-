@@ -23,6 +23,13 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(ROOT, "pipeline"))
 from render import fmt_value  # noqa: E402  (same number style as THESIS.md)
+import explain  # noqa: E402  (plain-English panel, claims.json, optional bring-your-own-key AI)
+
+
+def yaml_claim(yaml_text):
+    """The one-line claim from thesis.yaml (standard library only, so no YAML parser)."""
+    m = re.search(r'^claim:\s*"(.*)"\s*$', yaml_text, flags=re.M)
+    return m.group(1) if m else ""
 GAP_DAYS = {"2026-10-01", "2026-10-20", "2026-11-02"}
 PARTIAL = {"2026-09-28", "2026-11-10"}
 COLORS = ["#2f6fde", "#e07b28", "#1a9e8f", "#8a5cd1", "#d64545", "#8a8f98"]
@@ -307,6 +314,40 @@ def s_oct27(data):
         ["data/bq/q21_oct27_target_balance.csv"]
 
 
+def s_trend(data):
+    met = _metrics(data)
+    rows = met["trend_weekly"]["value"]
+    labels = [r[0] + (" (partial)" if r[1] < 7 else "") for r in rows]
+    cfg = line(labels, [("captured take-rate (bps of all-Intents volume)", [r[4] for r in rows]),
+                        ("gross fees users paid (bps)", [r[3] for r in rows]),
+                        ("NEAR price (USD, weekly mean)", [r[7] for r in rows])],
+               "basis points", y2={"NEAR price (USD, weekly mean)": "USD"})
+    cfg["data"]["datasets"].append({"type": "line", "label": "take_rate bearish line (3 bps)", "data": [3] * len(rows),
+                                    "borderColor": COLORS[4], "borderDash": [5, 4], "pointRadius": 0, "borderWidth": 1})
+    return cfg, ["data/derived/metrics.json (trend_weekly)", "pipeline/metrics.py :: trend"]
+
+
+def s_crosschain(data):
+    met = _metrics(data)
+    rows = met["crosschain_weekly"]["value"]
+    cfg = bar([r[0] for r in rows], [("NEAR Intents", [round(r[1] / 1e6, 1) for r in rows]),
+                                     ("THORChain", [round(r[2] / 1e6, 1) for r in rows]),
+                                     ("Chainflip", [round(r[3] / 1e6, 1) for r in rows])], "USD millions per day", stacked=True)
+    return cfg, ["data/market/crosschain_peers_daily.csv", "data/derived/metrics.json (crosschain_weekly)", "pipeline/metrics.py :: crosschain"]
+
+
+def s_recon(data):
+    met = _metrics(data)
+    v = lambda k: round(met[k]["value"] / 1e6, 1)
+    labels = ["(3) gross fees, all Intents", "(4) 1Click app fees", "(5) kept by integrators", "(6) to the buyback wallet",
+              "(7) captured revenue, 3 wallets", "(8) captured, not attributable"]
+    vals = [v("recon_gross_usd_per_year"), v("recon_appfees_usd_per_year"),
+            round((met["recon_appfees_usd_per_year"]["value"] - met["recon_buyback_usd_per_year"]["value"]) / 1e6, 1),
+            v("recon_buyback_usd_per_year"), v("recon_captured_usd_per_year"), v("recon_other_captured_usd_per_year")]
+    cfg = bar(labels, [("USD millions per year (annualised from %s)" % met["recon_window"]["value"], vals)], "", horizontal=True)
+    return cfg, ["data/derived/metrics.json (recon_*)", "pipeline/metrics.py :: reconcile"]
+
+
 # ----------------------------------------------------------------------------- page
 CHARTS = [
     # (id, section, series fn, kind, title, sentence, sql file or None, extra note)
@@ -315,6 +356,9 @@ CHARTS = [
      None, "Days 1 Oct, 20 Oct and 2 Nov contain multi-hour gaps in the source API ({source_gap_hours|int} hours, {source_gap_share_of_window|pct1} of the window)."),
     ("sizes", "Demand", s_sizes, "FACT", "Who carries the volume: swap size",
      "{swaps_under_100_share_of_swaps|pct0} of swaps are under $100, but swaps of $10k or more ({swaps_10k_plus_share_of_swaps|pct1} of swaps) carry {swaps_10k_plus_share_of_usd|pct0} of the dollars.", None, ""),
+    ("crosschain", "Demand", s_crosschain, "FACT", "NEAR Intents vs THORChain and Chainflip, weekly",
+     "Over {crosschain_window} NEAR Intents carried {crosschain_near_intents_share_of_three|pct0} of the volume of these three native cross-chain swap venues, and it led in {crosschain_weeks_intents_largest} of {crosschain_weeks_total} full weeks of 2026; in the newest 7 days ({crosschain_latest7_window}) {crosschain_latest7_leader} led.",
+     None, "DefiLlama DEX-volume adapters; each venue counts volume its own way. Bridges and aggregators are not included, so this is not a share of the cross-chain market."),
     ("referrals", "Demand", s_referrals, "FACT", "Which apps send the volume",
      "A handful of aggregators and wallets bring most of the 1Click volume: the top 5 referral codes carry {top5_referrals_usd_share|pct0}, {top_referral} alone {top_referral_usd_share|pct0}.", None,
      "'(none)' = swaps with no referral code."),
@@ -332,6 +376,12 @@ CHARTS = [
     ("capture", "Value capture", s_capture, "INFERENCE", "Buybacks vs new NEAR issued",
      "At October's pace the buyback wallet takes in about {wallet_inflow_share_of_issuance|pct0} of the NEAR issued each year today, and would take in about {wallet_inflow_share_of_issuance_hsp029|pct0} at HSP-029's lower 1.6% rate.",
      None, "Issuance = total supply x inflation ceiling (assumes full validator uptime). Held NEAR could be sold later; this is not a burn."),
+    ("trend", "Value capture", s_trend, "FACT", "The take-rate week by week, and the NEAR price",
+     "NEAR's cut of all Intents volume peaked at {trend_take_bps_peak_week|d1} bps (week of {trend_take_bps_peak_week_label}) and was {trend_take_bps_latest_full_week|d1} bps in the latest full week; the {captured_revenue_take_bps|d1} bps headline averages this falling series. NEAR's price fell {trend_price_change|pctabs} from the 12 Oct week.",
+     None, "The last week is partial and DefiLlama often revises its newest days. Above 3 bps the take_rate signal is not red."),
+    ("recon", "Value capture", s_recon, "INFERENCE", "Every fee layer on the same four weeks",
+     "1Click's app fees ({recon_appfees_share_of_gross|pct0} of DefiLlama's gross fees) mostly stay with integrators; {recon_buyback_share_of_appfees|pct1} reaches the buyback wallet, and {recon_other_captured_share|pct0} of NEAR's captured revenue cannot be traced to a swap. OPEN: the layers do not reconcile.",
+     None, "Gross fees and captured revenue from DefiLlama; app fees estimated as fee (bps) x swap value from our 1Click download. Different scopes: read with THESIS.md section 3c."),
     ("channels", "Value capture", s_channels, "INFERENCE", "Volume is not value: who pays for the buyback",
      "{top_volume_channel} sends {top_volume_channel_usd_share|pct0} of 1Click volume but only {top_volume_channel_buyback_share|pct1} of the buyback fees; swaps with no referral code are {no_referral_usd_share|pct0} of volume and {no_referral_buyback_share|pct0} of the buyback.",
      None, "Buyback fees = appFees fee to buybacks.multisignature.near (bps) x amountInUsd. 1Click only. A referral code is an app, not a user. Codes over 20 characters are shortened."),
@@ -450,6 +500,13 @@ def build(data, out):
     g, y, rd_ = met["scorecard_counts"]["value"]
     scorecard = SCORECARD % (html.escape(met["scorecard_verdict"]["value"]), g, y, rd_, srows, html.escape(yaml_text))
     scorecard += scenario_panel(met)
+    claims = explain.build_claims(met, fill)
+    with open(os.path.join(data, "derived", "claims.json"), "w", encoding="utf-8", newline="\n") as f:
+        json.dump({"note": "Every sentence on the dashboard's 'Explain this dashboard' panel, with the metrics behind it. "
+                           "Generated by dashboard/explain.py from data/derived/metrics.json; edit the templates, not this file.",
+                   "claim_tested": yaml_claim(yaml_text), "claims": claims}, f, indent=2)
+    brief = explain.brief_markdown(claims, yaml_claim(yaml_text), met)
+    explain_html = explain.panel_html(claims, brief, html.escape)
     sections, data_js = {}, {}
     for cid, section, fn, kind, title, sentence, sqlname, note in CHARTS:
         cfg, sources = fn(data)
@@ -473,8 +530,11 @@ def build(data, out):
                  ", ".join("<code>%s</code>" % html.escape(s) for s in sources),
                  (" &middot; " + html.escape(note)) if note else "", html.escape(query))
         sections.setdefault(section, []).append(card)
-    body = "".join('<h2>%s</h2><div class="grid">%s</div>' % (html.escape(s), "".join(c)) for s, c in sections.items())
-    page = PAGE.replace("{{CHARTJS}}", chartjs_tag()).replace("{{TILES}}", tiles).replace("{{BODY}}", scorecard + body).replace(
+    slug = lambda s: re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
+    body = "".join('<h2 id="%s">%s</h2><div class="grid">%s</div>' % (slug(s), html.escape(s), "".join(c)) for s, c in sections.items())
+    nav = '<nav class="toc">' + " ".join('<a href="#%s">%s</a>' % (a, html.escape(t)) for a, t in (
+        [("explain", "Explain"), ("scorecard", "Scorecard"), ("scenarios", "Scenarios")] + [(slug(s), s) for s in sections])) + "</nav>"
+    page = PAGE.replace("{{CHARTJS}}", chartjs_tag()).replace("{{TILES}}", nav + tiles).replace("{{BODY}}", explain_html + scorecard + body).replace(
         "{{DATA}}", json.dumps(data_js).replace("</", "<\\/")).replace(
         "{{STAMP}}", html.escape("%s; NEAR price %s at %s" % (
             met.get("swaps_last_utc", {}).get("value", "?"), met.get("near_price_usd", {}).get("value", "?"),
@@ -585,7 +645,7 @@ SCENARIO_HTML = r"""<h2>Scenarios: what would it take?</h2><section class="card"
 </script>"""
 
 
-SCORECARD = """<h2>Scorecard</h2><section class="card"><h3>Verdict: %s</h3>
+SCORECARD = """<h2 id="scorecard">Scorecard</h2><section class="card"><h3>Verdict: %s</h3>
 <p class="sentence">%d green, %d yellow, %d red. Each signal is a measured or derived metric with a bullish and a bearish threshold set in <code>thesis.yaml</code>; it is re-scored on every build.</p>
 <div class="tablewrap"><table><thead><tr><th>Signal</th><th>Today</th><th>Bullish if</th><th>Bearish if</th><th>Status</th></tr></thead><tbody>%s</tbody></table></div>
 <p class="meta"><span class="kind inference">INFERENCE</span> Source: <code>thesis.yaml</code>, <code>data/derived/metrics.json</code> (scorecard)</p>
@@ -594,6 +654,8 @@ SCORECARD = """<h2>Scorecard</h2><section class="card"><h3>Verdict: %s</h3>
 
 PAGE = r"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src data:; connect-src https://api.anthropic.com https://cloud-api.near.ai; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <title>NEAR Intents Thesis</title>
 <style>
 :root{--bg:#f7f7f5;--card:#fff;--ink:#1b1d21;--muted:#5d636e;--line:#e3e3df;--fact:#1a7f5a;--inf:#a35b00;--code:#f1f1ee}
@@ -618,6 +680,12 @@ footer{color:var(--muted);font-size:12px;margin-top:40px}
 .ctl input[type=range]{width:100%}.presets{display:flex;flex-wrap:wrap;gap:6px}
 .presets button{font:inherit;font-size:13px;padding:5px 12px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
 .presets button:hover{border-color:var(--muted)}#sc-reset{margin-left:auto}
+.toc{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 14px;font-size:13px}.toc a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--muted)}
+.explain h4{margin:14px 0 4px;font-size:14px}.claim{margin:4px 0 8px}.claim .ids{font-size:11px;color:var(--muted)}.claim .ids code{font-size:11px;margin-right:4px;cursor:help}
+.kind.open{color:#c23b3b}ul.open{margin:4px 0 8px;padding-left:20px}
+.ctl select,.ctl textarea,.ctl input[type=text],.ctl input[type=password]{font:inherit;font-size:14px;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:100%}
+.aiout{white-space:pre-wrap;background:var(--code);border-radius:6px;padding:10px;min-height:2em;font-size:14px}
+button:disabled{opacity:.5;cursor:wait}
 </style></head><body><main>
 <h1>NEAR Intents: is the demand real, and does NEAR capture it?</h1>
 <p class="lead">Every number comes from pinned tables in this repo (<code>data/</code>) and is rebuilt by <code>python build.py</code>. Each chart shows its query. FACT = measured; INFERENCE = derived by arithmetic or modelling. Data as of {{STAMP}}.</p>

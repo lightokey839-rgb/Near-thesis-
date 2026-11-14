@@ -1,7 +1,7 @@
 """
 render.py - turn model outputs in metrics.json into Markdown tables for THESIS.md.
-build.py replaces the markers <!-- SCORECARD -->, <!-- SENSITIVITY -->, <!-- LEADLAG --> and <!-- CHANNELS -->
-in docs/THESIS.template.md with these tables.
+build.py replaces markers such as <!-- SCORECARD --> and <!-- CHANNELS --> in docs/THESIS.template.md with these
+tables. The full list is in render_thesis at the bottom.
 """
 
 PAIR_LABELS = {
@@ -158,11 +158,83 @@ def scenarios_md(met):
     return "\n".join(out)
 
 
+def _n(v, pattern="{:,.0f}"):
+    return "n/a" if v is None else pattern.format(v)
+
+
+def weekly_trend_md(met):
+    out = ["| Week from (Monday) | Days | Volume / day | Gross fees (bps) | Captured take-rate (bps) | Captured revenue / day | "
+           "Buyback inflow (NEAR / day) | NEAR price (mean) | Buyback inflow (USD / day) |", "|---|---|---|---|---|---|---|---|---|"]
+    for w, days, vol, gross, cap, cap_usd, in_near, px, in_usd in met["trend_weekly"]["value"]:
+        out.append("| %s%s | %d | $%.1fM | %.1f | %.2f | $%s | %s | %s | %s |" % (
+            w, " (partial)" if days < 7 else "", days, vol / 1e6, gross, cap, _n(cap_usd), _n(in_near), _n(px, "${:.2f}"), _n(in_usd, "${:,.0f}")))
+    out += ["", "*All Intents, from DefiLlama's daily series; NEAR price and the buyback wallet's daily inflow from the pinned tables "
+            "(`trend_weekly` in `data/derived/metrics.json`). The last row is a partial week, and DefiLlama often revises its newest "
+            "1-2 days. Buyback inflow is shown from the week of 14 Sep, because the one-off transfer of {:,.0f} NEAR on 9 Sep "
+            "falls before it.*".format(met["wallet_sep09_treasury_transfer_near"]["value"])]
+    return "\n".join(out)
+
+
+def recon_md(met):
+    v = lambda k: met[k]["value"]
+    musd = lambda x: "$%.1fM" % (x / 1e6)
+    pct = lambda x: "%.0f%%" % (100 * x)
+    partner = v("recon_appfees_usd_per_year") - v("recon_buyback_usd_per_year")
+    rows = [
+        ("(1) All-Intents volume", "DefiLlama, FACT", musd(v("recon_allintents_usd_per_day")) + " / day", ""),
+        ("(2) 1Click volume", "our download, SUCCESS swaps, FACT", musd(v("recon_oneclick_usd_per_day")) + " / day",
+         pct(v("recon_oneclick_share_of_volume")) + " of (1)"),
+        ("(3) Gross fees", "DefiLlama \"fees\", FACT", musd(v("recon_gross_usd_per_year")) + " / yr", "%.1f bps of (1)" % v("recon_gross_bps")),
+        ("(4) 1Click app fees", "our download: fee (bps) x swap value, every recipient, INFERENCE", musd(v("recon_appfees_usd_per_year")) + " / yr",
+         "%.1f bps of (2); %s of (3)" % (v("recon_appfees_bps_on_oneclick"), pct(v("recon_appfees_share_of_gross")))),
+        ("(5) of which kept by integrators and partners", "(4) - (6), INFERENCE", musd(partner) + " / yr",
+         pct(1 - v("recon_buyback_share_of_appfees")) + " of (4)"),
+        ("(6) of which paid to the buyback wallet", "our download, INFERENCE", musd(v("recon_buyback_usd_per_year")) + " / yr",
+         "%.1f%% of (4)" % (100 * v("recon_buyback_share_of_appfees"))),
+        ("(7) Captured revenue, three wallets", "DefiLlama \"revenue\", INFERENCE (annualised)", musd(v("recon_captured_usd_per_year")) + " / yr",
+         pct(v("recon_captured_share_of_gross")) + " of (3)"),
+        ("(8) Captured revenue we cannot attribute to a swap", "(7) - (6), INFERENCE", musd(v("recon_other_captured_usd_per_year")) + " / yr",
+         pct(v("recon_other_captured_share")) + " of (7)"),
+    ]
+    out = ["| Layer | Basis | Amount | Relative to |", "|---|---|---|---|"]
+    out += ["| %s | %s | %s | %s |" % r for r in rows]
+    out += ["", "*Window: %s. Monday-Sunday weeks, because the 1Click app-fee table is weekly; annualised by x 365 / 28. Every row is a `recon_*` "
+            "metric in `data/derived/metrics.json`.*" % v("recon_window")]
+    return "\n".join(out)
+
+
+def extra_gaps_md(met):
+    out = ["| Run of thin hours (UTC) | Hours | Swaps seen | Swaps expected | Status |", "|---|---|---|---|---|"]
+    for a, b, hours, seen, expected, status in met["hourly_anomaly_table"]["value"]:
+        out.append("| %s to %s | %d | %s | %s | %s |" % (a, b[-5:], hours, "{:,}".format(seen), "{:,}".format(expected), status))
+    out += ["", "| Gap between two consecutive swaps, start (UTC) | Minutes | Swaps expected at the usual rate | Status |", "|---|---|---|---|"]
+    for start, minutes, status, expected in met["extra_gap_table"]["value"]:
+        out.append("| %s | %.1f | %s | %s |" % (start, minutes, "{:,}".format(expected), status))
+    out += ["", "*Rule for the first table: %s. The second table is every gap of 10 minutes or more in `data/audit/integrity_largest_gaps.csv`, "
+            "which keeps only the 15 largest gaps, so shorter ones are not visible (floor: %.1f minutes). \"Expected\" is the median count "
+            "for that hour of day: an estimate, not a count.*" % (met["hourly_anomaly_rule"]["value"], met["extra_gap_listed_floor_minutes"]["value"])]
+    return "\n".join(out)
+
+
+def crosschain_md(met):
+    v = lambda k: met[k]["value"]
+    out = ["| Venue | Volume / day, %s | Share of the three | All-time volume (DefiLlama) |" % v("crosschain_window"), "|---|---|---|---|"]
+    for key, label in (("near_intents", "NEAR Intents"), ("thorchain", "THORChain"), ("chainflip", "Chainflip")):
+        out.append("| %s | $%.1fM | %.0f%% | $%.1fB |" % (label, v("crosschain_%s_usd_per_day" % key) / 1e6,
+                                                         100 * v("crosschain_%s_share_of_three" % key), v("crosschain_alltime_%s_usd" % key) / 1e9))
+    out += ["", "*DefiLlama DEX-volume adapters, read %s by `pipeline/fetch_crosschain.py` and pinned in "
+            "`data/market/crosschain_peers_daily.csv`. Each venue's adapter counts volume its own way. Weekly values: `crosschain_weekly` "
+            "in `data/derived/metrics.json`.*" % v("crosschain_fetched_utc")[:10]]
+    return "\n".join(out)
+
+
 def render_thesis(text, met):
     for marker, fn in (("<!-- SCORECARD -->", scorecard_md), ("<!-- SENSITIVITY -->", sensitivity_md),
                        ("<!-- LEADLAG -->", leadlag_md), ("<!-- CHANNELS -->", channels_md),
                        ("<!-- FAMILIES -->", families_md), ("<!-- BRIDGE_MONTHLY -->", bridge_monthly_md),
-                       ("<!-- WINDOWS -->", windows_md), ("<!-- AGENTS -->", agents_md), ("<!-- REVENUE_WALLETS -->", revenue_wallets_md), ("<!-- SCENARIOS -->", scenarios_md)):
+                       ("<!-- WINDOWS -->", windows_md), ("<!-- AGENTS -->", agents_md), ("<!-- REVENUE_WALLETS -->", revenue_wallets_md), ("<!-- SCENARIOS -->", scenarios_md),
+                       ("<!-- WEEKLY_TREND -->", weekly_trend_md), ("<!-- RECON -->", recon_md),
+                       ("<!-- EXTRA_GAPS -->", extra_gaps_md), ("<!-- CROSSCHAIN -->", crosschain_md)):
         if marker in text:
             text = text.replace(marker, fn(met))
     return text

@@ -29,6 +29,7 @@ Usage:
 
 import argparse
 import csv
+import hashlib
 import json
 import os
 import re
@@ -101,6 +102,16 @@ def user_of(row):
         return u
     senders = row.get("senders") or []
     return senders[0] if senders else None
+
+
+def pseudonym(user):
+    """Replace a user's refund address with a stable label before it is written to a published table.
+
+    This is pseudonymization, not anonymization: anyone holding the raw swap file can recompute the label, and the
+    swaps themselves are public on the NEAR Intents Explorer. Fee-recipient wallets (integrators, the buyback wallet)
+    in app_fees_weekly.csv are deliberately kept, because the fee analysis is about them.
+    """
+    return "u_" + hashlib.sha256(("near-thesis-engine/user/v1|" + user).encode("utf-8")).hexdigest()[:16]
 
 
 def write_csv(path, header, rows):
@@ -309,7 +320,7 @@ def main():
     chosen = {}
     for u, st in by_usd + by_cnt:
         chosen[u] = st
-    rows = [[u, st[0], round(st[1], 2),
+    rows = [[pseudonym(u), st[0], round(st[1], 2),
              day_of(st[2] * 86400), day_of(st[3] * 86400), bin(st[4]).count("1")]
             for u, st in sorted(chosen.items(), key=lambda kv: kv[1][1], reverse=True)]
     write_csv(os.path.join(sdir, "top_users.csv"),

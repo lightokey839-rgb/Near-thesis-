@@ -9,7 +9,7 @@
 
 | Stage | Question | What the data says | Key numbers |
 |---|---|---|---|
-| **1. Demand** | Is Intents activity real and lasting? | **Yes, but concentrated.** Higher since September. | All Intents $123.8M/day (2026-10-10 to 2026-11-08). The top 5 apps send 80% of 1Click volume; $10k+ swaps are 76% of the dollars. |
+| **1. Demand** | Is Intents activity real and lasting? | **Real, and over 30 days the largest of three native cross-chain swap venues, but concentrated and off its peak.** All of the rise since January is one August step whose cause is unidentified. | All Intents $123.8M/day (2026-10-10 to 2026-11-08), +41% on January; the last 4 weeks are 0.76x the 4 before. 52% of the volume of three native cross-chain swap venues (section 2b). The top 5 apps send 80% of 1Click volume; $10k+ swaps are 76% of the dollars. |
 | **2. Capture** | How much does NEAR keep? | **A thin slice, and it depends on which app sends the swap.** | NEAR keeps 32% of gross fees (5.0 of 15.6 bps). The app with the most volume pays 1.0% of the buyback. |
 | **3. Accrual** | Does it outweigh dilution? | **No, not yet.** It is held in custody, not burned. | The buyback wallet absorbs 11% of new NEAR. Even 100% of today's gross fees would cover only 58% of issuance at today's price. Supply actually grew 2.5% last year. The three revenue wallets hold 4.2M NEAR, in custody. |
 | **4. Future demand: AI agents** | Could agents add demand that reaches the token? | **Real but small. Today it settles outside NEAR.** | NEAR AI Agent Market: 806 live agents, 745 delivered jobs all-time. 0 catalogue agents accept NEAR (section 3d). |
@@ -18,17 +18,22 @@
 - **This depends on the window.** Measured over the whole buyback era, the same rules read "bearish" (section 5).
 - **Strongest evidence for:** only 0.7% of everything the buyback wallet received has ever left it, and the take-rate rose from about 1-3 bps early in 2026 to 5.0 bps in the latest 30 days.
 - **Strongest evidence against:** the arithmetic of section 3c. Break-even needs about 27.1 bps of all Intents volume, more than the 15.6 bps users pay in total today.
+- **The newest data leans the bearish way** (section 5b). The weekly take-rate peaked at 5.7 bps (week of 2026-09-28) and was 3.8 bps in the latest full week (2026-11-02). The 5.0 bps headline is a 30-day average of that falling series. The buyback wallet still takes in about the same NEAR per day, but at a NEAR price 39% lower its dollar value fell 19%.
 - **What would change our mind:** buyback inflow above 25% of issuance, a take-rate above 8 bps for a quarter, or a full reversal of organic usage back to January levels (bullish). Any sale from the buyback wallet, a take-rate at or below 3 bps, or market cap above 400x captured revenue (bearish). All of these are in `thesis.yaml`.
 - **What we do not know:**
-  - how much volume now settles through Confidential Intents and so may be missing from public series;
+  - how much volume now settles through Confidential Intents and so may be missing from public series (1Click swaps have settled confidentially since 27 Oct; section 8);
+  - what caused the August step in volume, which accounts for all of the rise since January (section 2);
   - who controls the release of held NEAR;
-  - whether HSP-029 activates.
+  - whether HSP-029 activates;
+  - what the treasury cut really is: the chain reads 0%, while HSP-029 coverage says 90/10 (section 4).
+
+- **Outside cross-check (section 3e):** the one independent analyst report we could read (Blockworks, 30 Oct 2026; only its key takeaways are public) also puts the buyback offset of issuance near 18%, and reads the same facts as valuation upside. This thesis reports the accounting and gives no price view. Every difference between our numbers and outside numbers that we could trace comes from a different window or a different measure. The one we could not trace, the treasury cut (0% on-chain, 90/10 in HSP-029 coverage), is listed as open in section 4.
 
 **Confidence (GUESS): medium.** The measurements are solid and reproducible. The conclusion's sensitivity to the window is shown, not hidden.
 
 ## 1. Claim
 
-NEAR Intents is a **real cross-chain demand source, higher since September**, and since spring 2026 it has created a **measurable on-chain buy-and-hold flow into NEAR**. But that flow absorbs only about **11% of the new NEAR issued each year**.
+NEAR Intents is a **real cross-chain demand source, above January's level since an August step-up**, and since spring 2026 it has created a **measurable on-chain buy-and-hold flow into NEAR**. But that flow absorbs only about **11% of the new NEAR issued each year**.
 - **Organic activity on the NEAR chain itself fell 58% from January to the latest month** (66% peak-to-trough, January to August). 60% of that fall is Telegram (`.tg`) wallet accounts.
 - **The token trades at about 217x its captured Intents revenue,** annualised from the latest 30 days. That window is near the best of the year; section 5 shows the others.
 
@@ -36,8 +41,10 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
 
 ## 2. Evidence for (the demand is real, and some of it reaches NEAR)
 
-- **FACT - large, higher-since-September volume.** 1Click swaps averaged **$36.9M/day** over 39 clean full days (2026-09-28T06:45:43+00:00 to 2026-11-10T12:48:46+00:00; 818,000 swaps, 0 duplicates).
-  - All NEAR Intents averaged **$123.8M/day** on DefiLlama (2026-10-10 to 2026-11-08).
+- **FACT - large volume, above January's level since one August step.** 1Click swaps averaged **$36.9M/day** over 39 clean full days (2026-09-28T06:45:43+00:00 to 2026-11-10T12:48:46+00:00; 818,000 swaps, 0 duplicates).
+  - All NEAR Intents averaged **$123.8M/day** on DefiLlama (2026-10-10 to 2026-11-08), +41% on January's $87.9M/day.
+  - **That whole rise is one step.** In the two weeks before it (2026-08-01 to 2026-08-14) volume averaged $66.1M/day, -25% on January. In the week after (2026-08-19 to 2026-08-25) it averaged $140.0M/day ($134.2M on 19 Aug, $165.4M on 21 Aug). Gross fees rose faster than volume, from 11.9 to 16.4 bps.
+  - **The cause of the August step-up is unidentified.** Our 1Click download starts on 28 Sep, so it cannot say which apps or routes made the step.
   - Momentum depends on the window: the last 4 weeks are 1.04x the 12 weeks before, 1.48x for 8 weeks vs 8, and 0.76x for 4 vs 4.
   - 1Click is a median **29%** of that, with daily correlation **0.91**.
   - **INFERENCE:** this is consistent with 1Click being a stable slice of the whole. Both series come from NEAR-run sources (the Explorer API, and a NEAR-maintained Dune table behind DefiLlama), so this is only a partly independent check.
@@ -56,6 +63,23 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
   - FACT: 42,330 refunds, 98% of them `INTENT_SUBMIT_FAILED` and 98% from Aurora referral codes.
   - FACT: Aurora's successful swaps stayed normal (960, 1,068 on 4 and 5 Nov). The normal refund rate is 2.2%.
   - The reading that these were extra retries is an inference.
+
+### 2b. Market position: NEAR Intents against two other native cross-chain swap venues
+
+THORChain and Chainflip also swap native assets across chains, and DefiLlama tracks all three with the same kind of adapter. Over the same 30 days as every other DefiLlama figure here:
+
+| Venue | Volume / day, 2026-10-10 to 2026-11-08 (30 days) | Share of the three | All-time volume (DefiLlama) |
+|---|---|---|---|
+| NEAR Intents | $123.8M | 52% | $37.8B |
+| THORChain | $84.3M | 36% | $131.0B |
+| Chainflip | $29.1M | 12% | $10.3B |
+
+*DefiLlama DEX-volume adapters, read 2026-11-14 by `pipeline/fetch_crosschain.py` and pinned in `data/market/crosschain_peers_daily.csv`. Each venue's adapter counts volume its own way. Weekly values: `crosschain_weekly` in `data/derived/metrics.json`.*
+
+- **FACT - Intents is the largest of the three on recent windows.** It had the most volume in 42 of 44 full weeks of 2026, and in 11 of the latest 12. Its share of the three was 65% in January and 63% over 2026-01-01 to 2026-11-08.
+- **FACT - but its lead is not secure.** In the newest 7 complete days (2026-11-05 to 2026-11-11) the leader was THORChain, and Intents' share fell to 33%. Over all time THORChain has processed 3.5x Intents' volume, mostly because its series starts in 2021.
+- **INFERENCE - what this changes.** "The demand is real" now has a reference point: on these three venues, Intents carries 1.47x THORChain's recent volume. It does not change the capture arithmetic in section 3c, because a bigger share of a market is worth little to NEAR at today's take-rate.
+- **Limits.** Three venues, not the cross-chain market: bridges and aggregators (Across, Relay, LayerZero/Stargate, deBridge, Wormhole) are not included, and each adapter counts volume its own way. The NEAR Intents series in this table matches the one pinned on 11 Nov to a ratio of 1.00 on the shared days.
 
 ## 3. Evidence against
 
@@ -90,7 +114,12 @@ So today NEAR is best described as an **option on Intents' volume × take-rate g
   - Week to week, NEAR's price and organic signers move together (same-week r 0.52, CI excludes 0), and both peaked in September-October.
   - This data cannot say which drives which, or whether both follow the incentive period and the wider market (section 7).
 
-## 3b. Volume is not value: who actually pays for NEAR's buyback
+## 3b. Volume is not value: what 1Click's swap-level data reveals, and what it cannot establish about all Intents revenue
+
+**Scope first.** Three different sources answer three different questions, and this section only uses the first:
+- **What the 1Click microdata establishes:** which app sent each 1Click swap and what fee it paid to the buyback wallet. That is about 29% of all Intents volume, from 28 Sep.
+- **What wallet balances show:** how much NEAR actually arrived in the three revenue wallets, from every channel (section 3c).
+- **What cannot be attributed:** about 78% of captured revenue has no swap-level record here (section 3c, row 8), so nothing below says *which apps* fund it.
 
 Every 1Click swap records the app that sent it (its referral code) and the fee it paid to `buybacks.multisignature.near`. Adding these up by app shows that **the volume and the buyback come from different places**. The data covers 475 referral codes; 252 of them paid at least one cent in buyback fees over the six weeks.
 
@@ -151,6 +180,29 @@ Every 1Click swap records the app that sent it (its referral code) and the fee i
 - **(a) is 32% of (b),** roughly in line with 1Click's 29% share of volume.
 - Counting only the buyback wallet's inflow, NEAR trades at **305x** instead of 217x.
 
+**Every fee layer on the same four weeks.** The table above compares three layers over 30 days. This one adds the layers in between, over four full weeks, because the 1Click fee table is weekly:
+
+| Layer | Basis | Amount | Relative to |
+|---|---|---|---|
+| (1) All-Intents volume | DefiLlama, FACT | $122.8M / day |  |
+| (2) 1Click volume | our download, SUCCESS swaps, FACT | $34.6M / day | 28% of (1) |
+| (3) Gross fees | DefiLlama "fees", FACT | $70.4M / yr | 15.7 bps of (1) |
+| (4) 1Click app fees | our download: fee (bps) x swap value, every recipient, INFERENCE | $57.7M / yr | 45.7 bps of (2); 82% of (3) |
+| (5) of which kept by integrators and partners | (4) - (6), INFERENCE | $52.8M / yr | 92% of (4) |
+| (6) of which paid to the buyback wallet | our download, INFERENCE | $4.9M / yr | 8.4% of (4) |
+| (7) Captured revenue, three wallets | DefiLlama "revenue", INFERENCE (annualised) | $22.1M / yr | 31% of (3) |
+| (8) Captured revenue we cannot attribute to a swap | (7) - (6), INFERENCE | $17.3M / yr | 78% of (7) |
+
+*Window: 2026-10-12 to 2026-11-08 (28 days, four full weeks). Monday-Sunday weeks, because the 1Click app-fee table is weekly; annualised by x 365 / 28. Every row is a `recon_*` metric in `data/derived/metrics.json`.*
+
+**Different ratios on different bases, which are easy to mix up:**
+- **8.4%** = buyback-wallet fees / all 1Click app fees, these four weeks (8.6% over the whole download). The top fee recipient, `ledgerswapkit.near`, alone took 42% of all 1Click app fees.
+- **32%** = DefiLlama captured revenue / DefiLlama gross fees, 30 days (31% on these four weeks).
+- **5.0 bps** = captured revenue / all-Intents volume, 30 days.
+- **3.9 bps** = the fee rate implied outside 1Click, if DefiLlama's gross fees include every 1Click app fee.
+
+**OPEN - the fee layers do not reconcile.** 1Click's app fees are 82% of DefiLlama's gross fees while 1Click is 28% of the volume, which would leave only 3.9 bps on the rest of Intents. We read DefiLlama's adapter (section 12): gross fees are "the protocol fee plus the affiliate (distribution) fee each frontend collects, summed across all integrators", from a NEAR-uploaded Dune table that mirrors revenue.near.org. That supports the assumption, but which swaps that table covers is not public, so the gap stays open. Possible explanations, none tested: the table covers mainly 1Click; our fee estimate (fee in bps x swap value at swap time) overstates what was collected; or fees outside 1Click are genuinely low.
+
 **The take-rate has a ceiling.**
 - Users paid 15.6 bps of volume in gross fees over the latest 30 days. NEAR kept 32% of that (5.0 bps); the rest went to integrators and solvers.
 - **If NEAR captured 100% of today's gross fees**, that would cover 58% of issuance at 2.5%, or 90% at HSP-029's 1.6%, at today's price.
@@ -168,6 +220,7 @@ Every 1Click swap records the app that sent it (its referral code) and the fee i
 - Together they hold **4.2M NEAR (0.32% of supply)**.
 - The front-end fund `fefundsadmin.sputnik-dao.near` holds 2.0M NEAR. It has accumulated since before the buyback program began; weeks in which its balance fell by more than 1 NEAR: 0.
 - It is a Sputnik DAO treasury, so its members can vote to move funds. Its release rules are not published.
+- The 1Click fee docs name this wallet as the destination of the 0.2% fee on swaps made on near-intents.org (section 3e). So part of what DefiLlama counts as captured revenue is a fee on one distribution channel, not a take on all Intents volume.
 
 **Custody is not burn.** In this thesis:
 - only tokens with on-chain burn evidence count as removed from supply;
@@ -213,6 +266,27 @@ This hackathon is built around AI agents, so the thesis has to ask whether agent
 - **Bear case:** agent commerce grows in USDC on rails where NEAR is optional.
 - **What would change our mind:** Agent Market or another agent platform settling in NEAR or through Intents with published volumes, or agent-labelled channels showing up in the fee data.
 
+## 3e. Outside cross-checks: where other sources agree, differ or cannot be compared
+
+*Read 11-12 Nov 2026. Outside figures are typed, not computed here; each source is in section 12. Most are press reports of dashboards, not the dashboards themselves. We call two numbers conflicting only when their window and measure match.*
+
+| What is compared | This thesis | Outside source | Same window and measure? | Reading |
+|---|---|---|---|---|
+| **Share of gross fees NEAR keeps** | 32%, 30 days to 8 Nov | 16.4% over the lifetime as of 6 Oct, and 28.4% over a recent 30-day period whose dates are not given (Tokenpost, 21 Oct). About 31% over 30 days to 19 Oct (DefiLlama, via Altcoin Buzz). "Nearly 40%" in October (Blockworks; window not shown) | Partly. The 30-day figures end on different dates. The lifetime figure is a different measure | **Agrees for recent 30-day windows (28-32%).** The lifetime share is lower because capture was lower earlier in the year (Blockworks puts it near 10% in February). Always read this figure with its window. |
+| **Captured revenue against issuance** | 18% (captured revenue in USD, annualised from 30 days). The buyback wallet alone: 11% (in NEAR) | Buybacks offset about 18% of issuance (Blockworks, 30 Oct) | Unknown: the report body is paywalled, so its window and method are not visible | **Same size as our captured-revenue figure, but not independent**, because both likely start from NEAR-run revenue data. It is not the 11% buyback-wallet figure. |
+| **Buyback-wallet balance on 19 Oct** | On-chain: 2,015,496 NEAR (NearBlocks, block 220621578). Our daily series: 2,014,526 at the end of 18 Oct and 2,022,180 at the end of 19 Oct | NEAR's revenue dashboard: 1,510,411 NEAR on the same day (both read by Altcoin Buzz, 19 Oct) | Same wallet, same day | **The gap is explained.** 505,086 NEAR = the 502,793 NEAR treasury transfer of 9 Sep (section 2) + 2,293 NEAR, about 6 hours of average inflow (9,850 NEAR/day). INFERENCE (medium): the dashboard counts fee flow only, as this thesis does. We did not open the dashboard. |
+| **The other part of captured revenue** | DefiLlama revenue minus buyback-wallet inflow: $6.6M a year (section 3c) | The fee docs: the 0.2% near-intents.org fee is paid to `fefundsadmin.sputnik-dao.near` (primary source) | Same wallets; weekly balances 7 Oct to 4 Nov | **Consistent.** That wallet gained about 120K NEAR in those 28 days, about $5.8M a year at today's price. INFERENCE (medium): most of the gap is website-fee revenue, a distribution-channel fee. |
+| **Fee schedule against observed buyback fees** | Many stablecoin swaps pay a 1 bp buyback fee; some apps pay about 20 bps (section 3b) | The docs, read 12 Nov (primary): with an API key, 1Click's share has a 20 bps floor, but 1 bp for USDC, USDT and DAI pairs and same-asset multichain routes. Without a key, 25 bps is added | Same measure. The pages are undated, so we cannot show the rule applied in Sep-Nov | **Resolves most of the earlier "20 bps minimum" puzzle.** Our fee-unit sample is stablecoin-to-stablecoin swaps, largely the exempt class (a few combinations at 20 bps remain), and its most common buyback fee is 1 bp (`data/audit/fee_unit_test_by_fee_combo.csv`). INFERENCE (medium-high). Not explained: why most swaps pay the buyback wallet nothing (only 36% of successful swaps do) and where 1Click's share goes on the rest. |
+| **HSP-029 yield figures** | Gross staking-yield ceiling 5.6% now and 3.6% at 1.6%: all issuance to stakers, the 11 Nov stake of 44.4% | 5.268% now and 3.372% at 1.6%, on September participation, with a 90/10 staker/treasury split (proposal coverage, 3-4 Nov) | No: different date and split | **Consistent with a 90/10 split at a staked share of about 43%. Not proven.** Our RPC read gives a treasury cut of 0%. Dilution does not depend on the split (section 4). |
+| **Valuation multiple** | 217x captured revenue (market cap over annualised 30-day revenue, at $3.73) | About 181x revenue (Blockworks, 30 Oct; basis not shown) | No | **Same order of magnitude.** The sources agree on the level and differ on what it means: Blockworks calls it near NEAR's historical low and gives a base-case upside, while our scorecard marks the valuation signal yellow (between 50x and 400x) and gives no price view. |
+| **Capture by collection channel** | 32% of gross fees, 30 days to 8 Nov, one number | NEAR's revenue dashboard (revenue.near.org, read 14 Nov): 30-day capture rates of 18.4% from front-end fees, 3.1% from quote improvement and 10.1% from B2B partners | Close: 30 days, but ending 14 Nov | **Agrees: the three add up to 31.6%.** It also shows that more than half of capture comes from front-end fees, which matches our finding that the front-end fund is a large part of captured revenue (the "other part of captured revenue" row). FACT for the figures; the dashboard's window end is our reading of "last 30 days". |
+| **Are buybacks removed from supply?** | No. Held in custody: the buyback wallet's largest staked balance ever is 0 NEAR, and 0.7% of what it received has left (section 2) | revenue.near.org: buybacks "permanently remove NEAR from circulation". NEAR's own tokenomics post (24 Feb 2026) describes NEAR that is "staked, locked, or otherwise removed from liquid circulation while remaining part of the total supply", and says governance "retains full discretion" | Same wallets | **The dashboard's wording overstates it.** The primary policy text says bought NEAR stays part of total supply and that nothing is committed. We keep calling it custody, not burn. |
+| **All-Intents volume** | $123.8M/day, 10 Oct to 8 Nov | About $150M/day over 30 days to 19 Oct (DefiLlama, via Altcoin Buzz: $4.50B). About $142M/day over the trailing 30 days (Blockworks, 30 Oct: $4.26B) | No: earlier windows that include the October peak | **Consistent with a fall since the peak.** The last 4 weeks are 0.76x the 4 weeks before (section 2). |
+
+**What we could not check, and what the docs add.**
+- **Not opened:** the Blockworks report body (paywalled) and NEAR's revenue dashboard itself. Where this section quotes either, it quotes a public summary or a press report of it.
+- **Other fee lines in the docs.** The protocol fee is 0.0001% of volume, well under $0.1M a year at today's volume (INFERENCE: arithmetic), paid to a separate fee collector account. The quote-improvement fee (a 50/50 split of price improvement) and a 0.1% withdrawal fee on NEAR, ZEC and STRK sent to Solana have no destination wallet named. Whether they reach the three wallets DefiLlama counts is not known.
+
 ## 4. Staking, issuance and the catalyst calendar
 
 **FACT** (RPC, 2026-11-11T14:46:34+00:00):
@@ -226,7 +300,7 @@ This hackathon is built around AI agents, so the thesis has to ask whether agent
 
 **INFERENCE:** the gross staking-yield ceiling is **5.6%** now and **3.6%** at 1.6%.
 - Issuance goes to stakers. So a holder who stakes roughly keeps their share of supply, while one who does not is diluted by about the inflation rate each year.
-- The protocol treasury cut above is read from the RPC. Some press coverage of HSP-029 describes a 90/10 staker/treasury split; the on-chain parameter we read is the treasury cut shown here.
+- **OPEN - the treasury cut.** The treasury cut in the table is the on-chain parameter we read (0%). HSP-029 coverage, and the yield figures in it, describe a 90/10 staker/treasury split. We could not reconcile the two (section 3e). It changes who receives new NEAR, not how much is issued: the dilution figures here use total supply growth from block headers. If 10% goes to the treasury, the yield ceilings above would be about a tenth lower, and the treasury would hold NEAR that this thesis does not model.
 - Issuance in this thesis is the protocol's **maximum** (supply × inflation ceiling), which assumes full validator uptime.
 
 **FACT - what actually happened to supply** (block-header `total_supply`, weekly samples, 2025-11-12 to 2026-11-11 (364 days)):
@@ -239,12 +313,16 @@ This hackathon is built around AI agents, so the thesis has to ask whether agent
 | Date | Event | Status | Why it matters here |
 |---|---|---|---|
 | 23 Feb 2026 | Captured Intents revenue starts funding NEAR buybacks (DefiLlama methodology) | in force | Start of the "since buybacks began" window in section 5 |
+| 24 Feb 2026 | Confidential Intents first live on near.com (transfers, deposits, withdrawals; swaps later) | in force | Start of private settlement (section 8) |
 | 7 Jul 2026 | Confidential Intents generally available | in force | Swaps routed privately may be missing from public volume series (section 8) |
 | Jun-Jul 2026 | HSP-027: the 30% developer gas rebate goes to 0%, so all gas is burned | **in force** (`burnt_gas_reward` = 0.00 on mainnet, read 2026-11-12T14:43:23+00:00) | The only verified *burn* channel. It is small next to issuance (section 4). |
 | 1 Oct 2026 | NEAR Intents exploit (~$3.8M, Omni deposit/withdraw bug); services paused, funds returned in full | resolved | Explains the 1 Oct hole in our swap data (section 9); a security risk (section 10) |
+| 27 Oct 2026 | 1Click swaps settle confidentially; the API and the Explorer's swap data are unchanged (docs changelog) | in force | Our 1Click data still sees these swaps; on-chain hashes no longer show them (section 8) |
 | 2 Nov 2026 | HSP-029 approved by House of Stake: inflation ceiling 2.5% → 1.6% over 24 months | approved, **not in force** | Section 6 |
 | to 16 Nov 2026 | HSP-029 Security Council veto window | open | First of three remaining steps |
 | + ~90 days | HSP-029 grace period, then a validator upgrade | pending | Earliest effect around mid-February 2027 (INFERENCE) |
+
+The 16 Nov veto window closes on the first day of judging, so the HSP-029 rows may have changed by the time this is read. Press accounts word the order of the last two steps slightly differently. We use the reading in which the 90-day grace period starts at ratification, which gives the earliest effect.
 
 ## 5. What would change my mind (scorecard, checked on every build)
 
@@ -269,6 +347,31 @@ Each signal below has a numeric bullish and bearish condition in [`thesis.yaml`]
 
 ### 5b. Does the verdict survive other windows?
 
+**Week by week first.** The 30-day headline averages a series that moved a lot inside the window:
+
+| Week from (Monday) | Days | Volume / day | Gross fees (bps) | Captured take-rate (bps) | Captured revenue / day | Buyback inflow (NEAR / day) | NEAR price (mean) | Buyback inflow (USD / day) |
+|---|---|---|---|---|---|---|---|---|
+| 2026-08-10 | 7 | $65.3M | 11.1 | 1.93 | $12,589 | n/a | $1.62 | n/a |
+| 2026-08-17 | 7 | $122.9M | 16.2 | 3.30 | $40,538 | n/a | $1.74 | n/a |
+| 2026-08-24 | 7 | $112.2M | 14.4 | 2.63 | $29,481 | n/a | $1.91 | n/a |
+| 2026-08-31 | 7 | $145.6M | 10.7 | 3.42 | $49,839 | n/a | $1.98 | n/a |
+| 2026-09-07 | 7 | $130.0M | 12.8 | 2.40 | $31,130 | n/a | $2.39 | n/a |
+| 2026-09-14 | 7 | $166.2M | 17.4 | 3.84 | $63,755 | 14,445 | $2.89 | $41,508 |
+| 2026-09-21 | 7 | $182.8M | 17.6 | 4.74 | $86,672 | 12,652 | $4.54 | $55,953 |
+| 2026-09-28 | 7 | $135.0M | 18.2 | 5.73 | $77,339 | 8,784 | $4.97 | $43,948 |
+| 2026-10-05 | 7 | $164.4M | 15.6 | 4.96 | $81,461 | 11,062 | $5.03 | $55,312 |
+| 2026-10-12 | 7 | $125.1M | 16.1 | 5.59 | $69,946 | 8,946 | $5.15 | $45,708 |
+| 2026-10-19 | 7 | $110.5M | 15.3 | 5.19 | $57,357 | 8,447 | $4.88 | $41,141 |
+| 2026-10-26 | 7 | $125.3M | 15.4 | 5.24 | $65,618 | 10,934 | $4.47 | $49,014 |
+| 2026-11-02 | 7 | $130.3M | 15.9 | 3.81 | $49,709 | 9,636 | $3.87 | $37,100 |
+| 2026-11-09 (partial) | 2 | $159.5M | 17.6 | 3.73 | $59,577 | 11,791 | $3.60 | $42,220 |
+
+*All Intents, from DefiLlama's daily series; NEAR price and the buyback wallet's daily inflow from the pinned tables (`trend_weekly` in `data/derived/metrics.json`). The last row is a partial week, and DefiLlama often revises its newest 1-2 days. Buyback inflow is shown from the week of 14 Sep, because the one-off transfer of 502,793 NEAR on 9 Sep falls before it.*
+
+- **Take-rate:** 5.6 bps in the week of 2026-10-12, 3.8 bps in the latest full week (2026-11-02). The two days of the partial week (last row) read about the same, but DefiLlama often revises its newest days. 3.8 bps is still above the 3 bps bearish line, so `take_rate` stays yellow.
+- **Price against NEAR bought.** NEAR fell 39% from $5.89 (2026-10-12) to $3.58 (2026-11-11). The buyback wallet took in 8,946 NEAR/day then and 9,636 NEAR/day in the latest full week, so in NEAR the flow held up. In dollars it fell 19%, from $45,708 to $37,100 a day.
+- **INFERENCE:** a lower price buys more NEAR with the same fees, which props up `buyback_vs_issuance` (measured in NEAR) while the dollar revenue behind it shrinks. The two moved in opposite directions this month, so read them together.
+
 Three signals depend on how revenue is averaged: `take_rate`, `revenue_vs_dilution` and `valuation`. We re-score the whole scorecard with those three measured over different windows, all ending on the same day, with the same thresholds.
 
 | Revenue window | Days | Take-rate | Captured revenue / yr | Revenue / issuance (USD) | Market cap / revenue | Scorecard (green / yellow / red) | Verdict |
@@ -281,8 +384,22 @@ Three signals depend on how revenue is averaged: `take_rate`, `revenue_vs_diluti
 **Reading, stated plainly.**
 - Over the last 30, 90 and 180 days the verdict stays "working but not yet sufficient".
 - Measured over the **whole buyback era** (since 23 Feb), revenue was lower. Valuation and revenue-vs-dilution both turn red, and the same rules read **bearish**.
-- The difference is the September step-up in volume and take-rate. If it holds, the recent windows describe NEAR today. If it fades, the long window does.
+- The difference is the step-up in volume (from 19 Aug) and in take-rate (from September). If it holds, the recent windows describe NEAR today. If it fades, the long window does. The weekly table shows the take-rate part already fading.
 - We report both, and do not pick the convenient one.
+
+### 5c. What else would change my mind (not in the scorecard because the repo cannot measure it yet)
+
+These conditions can be checked in future data. They have no thresholds, because there is no baseline to set one from.
+
+| Observable | Where to check | Moves the verdict toward |
+|---|---|---|
+| Bought-back NEAR is burned, or its release is restricted by a published rule or contract | On-chain burn evidence; the wallet's contract or DAO rules | **Bullish.** It turns custody into removal (release sensitivity in section 6b) |
+| Any release or sale from the three revenue wallets, including the 2.0M NEAR front-end fund | Weekly balances in `data/onchain/chain_history.csv` | **Bearish.** The `buyback_outflows` signal covers the buyback wallet only |
+| The top volume channel starts paying an ordinary buyback fee, or the top 5 apps fall below their 80% share of 1Click volume | `data/audit/buyback_by_referral.csv`, after a refresh | **Bullish.** Section 3b: buyback fees would be about 64% higher if `swapkit` paid the average rate |
+| The fee schedule changes: the 1 bp stablecoin tier, the 20 bps floor, or partner shares | The fee pages on docs.near-intents.org | **Either.** Section 3b: take-rate is policy |
+| Agent payments are routed through Intents with published volumes, or settle in NEAR | NEAR AI Agent Market data; agent-labelled referral codes | **Bullish.** Today 0 catalogue agents accept NEAR (section 3d) |
+| HSP-029 clears the Security Council and validators adopt the upgrade | The House of Stake forum; `max_inflation_rate` on the RPC | **Bullish.** Issuance falls (section 6) |
+| Confidential Intents volume becomes visible | Public data from NEAR Intents | **Unknown.** Measured take-rates may be overstated (section 8) |
 
 ## 6. HSP-029 sensitivity: what it takes for buybacks to outweigh issuance
 
@@ -342,6 +459,14 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
 - **Bear:** buybacks fade to 6% of issuance.
 - **Scenarios where buybacks reach issuance by year 5:** bull.
 
+**What drives the differences, and what the scenarios do not say.**
+- **The base case's 25% growth is a judgement, not an estimate (GUESS).** The data supports very different numbers depending on the window: volume is +41% on January, but it was -25% on January just before the August step, and the last 4 weeks are 0.76x the 4 before. We kept 25% rather than tune it after seeing these.
+- **Levers.** Base changes two things from today: volume growth and HSP-029. Bull adds a higher take-rate. Bear shrinks volume, lowers the take-rate and releases a quarter of custody a year. Stress pairs fast growth with a low take-rate and releases half of custody a year.
+- **The price is an input, not a forecast.** $3.73 is NEAR's price when it was fetched, held fixed in every scenario so that revenue converts to NEAR at one rate. At a higher price the same dollars buy fewer NEAR, and the buyback share of issuance is lower.
+- **Four different quantities, not one.** Total supply grows with issuance and never shrinks here. Buybacks relative to issuance counts purchases. Custody-adjusted float is supply minus NEAR held in the revenue wallets. Permanent supply reduction is zero in every scenario, because nothing is burned.
+- **Release is the swing factor for the float.** The float falls only while bought NEAR stays held. In an ad-hoc run of the same model with only the release rate changed (`docs/AUDIT_2026-11-12.md`), the bull case's float still falls at 25% and 50% release a year and stops falling at 100%. The buyback share of issuance does not change with release, because it counts purchases only. Move the release slider on the dashboard to see it.
+- **Not modelled:** a competitor taking share, one large app changing its fee, Confidential Intents, and the treasury's 10% under a 90/10 split (section 4).
+
 **Reverse valuation: what has to be true** (at today's price, HSP-029 active):
 - **To fully offset issuance in year 5** (22.1M NEAR, or $82.6M of captured revenue a year), Intents volume must grow **30% a year** at today's take-rate. That falls to 18% a year at 8 bps, or 3% a year if NEAR kept every basis point of today's gross fees.
 - **For NEAR to trade at 50x its captured revenue at today's market cap,** captured revenue would have to be **4.3x today's** ($97.9M/yr). At today's take-rate, that means about $536.4M of Intents volume per day.
@@ -397,19 +522,58 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
 - **Who runs the 27 Oct wallet:** not found. The 9 Sep transfer is very likely from the 1Click fund (section 2), but the Trezu proposal's signer set is not checked.
 - **Cause of the HOT game's summer decline and its 3-4 Nov jump:** not found.
 - **A causal link between Intents activity and NEAR's price:** not testable here. Section 7 finds no lead-lag, but with low power. It uses DefiLlama's all-Intents series (from January 2026), because our own 1Click download covers only six weeks.
-- **The documented 20 bps minimum for 1Click's fee share vs observed 1-5 bps buyback fees:** unresolved.
+- **The documented 20 bps floor against observed 1-5 bps buyback fees:** mostly explained, not fully. The docs (read 12 Nov) give a 1 bp tier for USDC, USDT and DAI pairs and same-asset multichain routes (section 3e). Open: whether that rule applied in Sep-Nov, since the pages are undated; why most swaps pay the buyback wallet nothing; and where 1Click's share goes on those.
+- **The treasury cut, 0% on-chain against 90/10 in HSP-029 coverage:** not reconciled (section 4).
+- **How Blockworks measured its capture rate, buyback offset and revenue multiple:** only its key takeaways are public, so its windows and definitions are not visible (section 3e). We compare levels, not methods.
+- **Fee lines that may not reach the three revenue wallets:** the quote-improvement fee and the withdrawal fee have no destination named in the docs (section 3e).
 - **Why the buyback wallet's 12,000 NEAR left on 10 Jul:** not found.
 - **Confidential Intents volume:** not measured.
-  - Since 7 Jul 2026, swaps can settle privately. Press reports put that at a large share of near.com's volume (section 12); not verified here.
-  - Our 1Click download and DefiLlama's series may miss part of it, while its fees may still reach NEAR's revenue wallets. If so, measured take-rates would be biased upward. The direction and size are **unknown**.
+  - **Dates (primary sources, section 12):** first live on near.com on 24 Feb 2026 for transfers, with swaps to follow; a `confidentiality` quote parameter from 1 Jul; generally available on 7 Jul; B2B partners from 13 Jul. **From 27 Oct, 1Click swaps settle confidentially.** The docs say the API is unchanged and swap data stays on the NEAR Intents Explorer, which is where our download comes from, but the swap itself no longer has a public NEAR transaction hash.
+  - **What our data shows around 27 Oct:** 1Click averaged 15,468 successful swaps a day in the 14 days before and 18,267 from 27 Oct (1.18x), and $32.1M against $36.5M a day (1.14x), counting clean days only (13 before, 13 after). That is consistent with the docs: the Explorer kept reporting these swaps.
+  - **What it does not settle:** confidential swaps made outside 1Click. NEAR's revenue dashboard puts confidential pools at $135.09M of TVL, up 382.3% over 90 days (read 14 Nov; typed, not computed here). Volume settled privately may be missing from DefiLlama's series while its fees still reach NEAR's revenue wallets; if so, measured take-rates would be biased upward. The direction and size are **unknown**, and there is no adjustment factor in this thesis.
+  - Press reports put private settlement at a large share of near.com's volume (section 12); not verified here.
 - **What the other two revenue wallets will do with their NEAR:** `fefundsadmin.sputnik-dao.near` and `1csfundsadmin.sputnik-dao.near` are DAO treasuries. Weekly balances are in section 3c; daily flows and release rules are not measured.
-- **Market share against other cross-chain routes** (Across, Relay, LayerZero/Stargate, deBridge, THORChain, Wormhole): not measured. Their methodologies differ from Intents', so we do not state a share.
+- **Market share against bridges and aggregators** (Across, Relay, LayerZero/Stargate, deBridge, Wormhole): not measured. Section 2b compares Intents only with THORChain and Chainflip, which DefiLlama tracks the same way; we state no share of the whole cross-chain market.
+- **The cause of the August volume step-up** (section 2): unidentified. Our 1Click data starts on 28 Sep, and DefiLlama's series has no breakdown by app.
+- **Fee layers that do not reconcile** (section 3c): 1Click app fees are 82% of DefiLlama's gross fees on 28% of the volume. OPEN until the scope of the Dune table behind DefiLlama's gross fees is public.
 
 ## 9. Data caveats
 
 - **Gaps:** the swap file has gaps in the source API itself: 12.3 hours, 1.2% of the window, on 1 Oct, 20 Oct and 2 Nov. These days are excluded from averages.
   - The 1 Oct hole (08:34-12:16 UTC) coincides with the service pause after the NEAR Intents exploit that day (section 4), so it is most likely a real pause, not missing data.
   - An early estimate in the red-team log (about 14.4 h) came before the gaps were re-checked with the API.
+- **Smaller gaps we have not confirmed.** A second pass flags hours that hold under a quarter of the usual count for that hour of day, and every gap of 10+ minutes between consecutive swaps:
+
+| Run of thin hours (UTC) | Hours | Swaps seen | Swaps expected | Status |
+|---|---|---|---|---|
+| 2026-10-01 09:00 to 12:00 | 3 | 0 | 2,382 | confirmed: the API has no rows here |
+| 2026-10-15 08:00 to 10:00 | 2 | 67 | 1,516 | UNCONFIRMED: not re-queried |
+| 2026-10-20 04:00 to 05:00 | 1 | 0 | 415 | UNCONFIRMED: not re-queried |
+| 2026-10-20 06:00 to 09:00 | 3 | 9 | 1,993 | confirmed: the API has no rows here |
+| 2026-11-02 12:00 to 17:00 | 5 | 48 | 4,841 | confirmed: the API has no rows here |
+
+| Gap between two consecutive swaps, start (UTC) | Minutes | Swaps expected at the usual rate | Status |
+|---|---|---|---|
+| 2026-11-02 12:03 | 316.3 | 4,654 | confirmed: the API has no rows here |
+| 2026-10-01 08:34 | 221.4 | 2,713 | confirmed: the API has no rows here |
+| 2026-10-20 06:01 | 201.5 | 2,048 | confirmed: the API has no rows here |
+| 2026-10-20 03:59 | 99.8 | 721 | UNCONFIRMED: not re-queried |
+| 2026-10-29 23:05 | 42.5 | 373 | UNCONFIRMED: not re-queried |
+| 2026-11-08 01:50 | 40.2 | 332 | UNCONFIRMED: not re-queried |
+| 2026-10-30 10:50 | 30.4 | 387 | UNCONFIRMED: not re-queried |
+| 2026-11-08 01:21 | 29.8 | 246 | UNCONFIRMED: not re-queried |
+| 2026-10-15 08:08 | 26.1 | 320 | UNCONFIRMED: not re-queried |
+| 2026-10-01 19:12 | 23.4 | 343 | UNCONFIRMED: not re-queried |
+| 2026-10-15 08:34 | 18.6 | 228 | UNCONFIRMED: not re-queried |
+| 2026-10-31 09:26 | 13.2 | 172 | UNCONFIRMED: not re-queried |
+| 2026-10-20 09:24 | 12.8 | 167 | UNCONFIRMED: not re-queried |
+| 2026-10-15 09:09 | 11.7 | 152 | UNCONFIRMED: not re-queried |
+| 2026-11-05 20:48 | 11.3 | 148 | UNCONFIRMED: not re-queried |
+
+*Rule for the first table: an hour is flagged when it holds fewer than 25% of the median count for the same UTC hour of day across the download; hours with no rows count as zero; the first and last (partial) hours are not tested. The second table is every gap of 10 minutes or more in `data/audit/integrity_largest_gaps.csv`, which keeps only the 15 largest gaps, so shorter ones are not visible (floor: 11.3 minutes). "Expected" is the median count for that hour of day: an estimate, not a count.*
+
+  - Besides the three confirmed outages, 2 runs of thin hours and 12 gaps of 10+ minutes (6.0 hours in total) are **unconfirmed**: we did not re-query the API for them.
+  - If they are missing data, about 3,589 swaps are missing, 0.44% of the swaps tested. That is too small to move any figure here. Nothing was excluded or changed because of them.
 - "User" = refund address, a proxy: one person can control many addresses, and one address can be a service.
 - DefiLlama's Intents volume comes from a Dune table maintained by NEAR, so it is only partly independent of our source.
 - Peer multiples use base-layer gas fees, whose methodology differs by chain.
@@ -417,6 +581,7 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
   - Valuation and issuance in USD use the NEAR price at fetch time ($3.73).
   - The bridge in section 3c values each day's buyback inflow at that day's price.
   - The year-to-date change uses DefiLlama's daily close.
+  - NEAR traded lower on 12 Nov (a press headline reports about $3.40). The figures here keep the price fetched on 11 Nov and were not re-pinned. A lower price would lower the market-cap multiple and raise revenue against the dollar value of issuance. Both stay inside their yellow bands, so the verdict does not change.
 
 ## 10. Risk matrix
 
@@ -429,7 +594,28 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
 | **Measurement blind spots** | Confidential Intents; refund-address proxy; 1Click-only microdata (sections 8-9) | Private settlement growing | Unknown |
 | **Incentive-driven demand** | Volume, take-rate, organic usage and price all peaked in Sep-Oct (sections 3, 5b) | Activity falling back to pre-September levels | Bearish |
 | **Governance** | HSP-029 approved but not in force (section 4) | Veto, delay or non-adoption by validators | Bearish (keeps 2.5% issuance) |
-| **Competition** | Not measured (section 8) | Share loss to other cross-chain routes | Bearish |
+| **Part of captured revenue is a front-end fee** | The docs send the 0.2% near-intents.org fee to the front-end fund, and that wallet's growth is about the size of the gap between buyback-wallet inflow and DefiLlama revenue (section 3e) | The website's share of volume falling, or the fee being cut | Bearish for the captured-revenue headline; the buyback-wallet measure is unaffected |
+| **Agent payments settle outside NEAR** | 0 catalogue agents accept NEAR; jobs settle in USD and USDC (section 3d) | Agent commerce growing on rails where NEAR is optional | Bearish for the agent catalyst |
+| **Scenario and valuation assumptions** | A constant price, hypothetical take-rates and a five-year extrapolation (section 6b) | A NEAR price move changes every dollar ratio at once | Unknown: a sensitivity, not a forecast |
+| **Competition** | Largest of three native cross-chain venues on 30 days (52%), but THORChain led the newest 7 days (section 2b) | A lasting loss of the lead; bridges and aggregators are not measured | Bearish |
+
+### 10b. The strongest case against this thesis, from both sides
+
+**The best argument that we are too bearish.**
+- The fee switch is young. It started on 23 Feb, and capture has risen since: the 30-day window shows a higher take-rate than the 90-day, 180-day and whole-era windows (section 5b), and outside sources report a 30-day fee share of 28-31% against 16.4% over the lifetime (section 3e). The whole-era "bearish" reading leans on months before the ramp.
+- Custody has behaved like removal so far: 29 of 29 weekly samples rose, and 0.7% of everything received ever left. A holder who treats that as close to a burn would see the bull case's float effect sooner (section 6b).
+- HSP-029 would cut issuance by about a third and has passed the vote. Only the process remains (section 4).
+- On the three most recent windows, no signal is red.
+
+**The best argument that we are too bullish.**
+- The latest window is near the best of the year. Volume, take-rate, organic usage and price all peaked in Sep-Oct, and the last 4 weeks are 0.76x the 4 weeks before. Over the whole buyback era the same rules read bearish (section 5b).
+- The take-rate rests on a few channels and on fee policy. Swaps with no referral code are 19% of volume and fund 46% of the buyback. One fee change at one app moves the total (section 3b).
+- Custody is not a lock. 4.2M NEAR sits in a multisig and two DAO treasuries whose release rules are not published, and the 12,000 NEAR that left on 10 Jul is unexplained.
+- Even 100% of today's gross fees covers only 58% of issuance at the 2.5% ceiling, and part of captured revenue is a website fee (section 3e).
+- The headline take-rate is already stale on the way down: 3.8 bps in the latest full week against 5.0 bps over 30 days (section 5b).
+- Confidential settlement may hide volume while its fees still reach NEAR's wallets, which would make measured capture look better than it is. Pools hold $135.09M (revenue.near.org, 14 Nov), and 1Click swaps settle confidentially since 27 Oct. We have no adjustment factor (section 8).
+
+**What would settle it (GUESS).** The recent windows and the whole-era window disagree, which is why the verdict is "working but not yet sufficient" at medium confidence. Three things would separate the two readings within a quarter: whether the take-rate holds once the incentive period is out of the window; whether any of the three revenue wallets moves NEAR; and whether the top volume channel's fee changes (section 5c).
 
 ## 11. Methodology appendix: every hand-picked choice
 
@@ -443,15 +629,33 @@ So that anyone can attack them, these are all the windows and thresholds we chos
 - **Lead-lag:** weekly means, lags -4..+4. Moving-block bootstrap with blocks of 4 weeks and 2,000 draws (daily: blocks of 14 days, 400 draws), seed 20261111.
 - **Momentum:** 4 weeks vs the 12 before (8 vs 8 and 4 vs 4 are shown in section 2).
 - **HSP-029 end state:** 1.6% (from the approved proposal).
-- **Scorecard thresholds:** `thesis.yaml`, set after seeing the data. These are monitoring thresholds, not pre-registered tests.
+- **Fee-layer reconciliation (section 3c):** the four full weeks 12 Oct-8 Nov, because the 1Click fee table is weekly.
+- **Weekly trend (section 5b):** Monday-Sunday weeks from 10 Aug; buyback inflow from 14 Sep; "reference week" = 12 Oct, the week of the autumn price high.
+- **August step-up (section 2):** 1-14 Aug against 19-25 Aug.
+- **Cross-chain comparison (section 2b):** the same 30-day DefiLlama window; three venues chosen because DefiLlama tracks them with the same kind of adapter.
+- **Confidential switch (section 8):** 14 days either side of 27 Oct, clean days only.
+- **Extra gap rule (section 9):** under 25% of the same-hour-of-day median; gaps of 10+ minutes.
+- **Scorecard thresholds:** `thesis.yaml`, set on 11 Nov 2026 after seeing the data, and not changed since (only the `buyback_outflows` measure was redefined on 12 Nov, section 5). These are monitoring thresholds, not pre-registered tests.
 
-## 12. Sources for typed facts (all read 11-12 Nov 2026)
+## 12. Sources for typed facts (read 11-12 Nov 2026 unless marked 14 Nov)
 
 - DefiLlama NEAR Intents fee adapter: the three revenue wallets, and buybacks from 23 Feb 2026. https://github.com/DefiLlama/dimension-adapters/blob/master/fees/near-intents/index.ts
 - NEAR JSON-RPC `EXPERIMENTAL_protocol_config` (`max_inflation_rate`, `protocol_reward_rate`, `burnt_gas_reward`) and block-header `total_supply`: public archival RPC, pinned in `data/onchain/` by `pipeline/chain_history.py`.
-- 1Click fee configuration (fee in basis points): https://docs.near-intents.org/integration/distribution-channels/1click-api/fee-config
+- 1Click fee configuration (fee in basis points; 50/50 split; 20 bps floor with a 1 bp stablecoin tier; 25 bps without an API key; read 12 Nov): https://docs.near-intents.org/integration/distribution-channels/1click-api/fee-config.md
+- NEAR Intents fee overview (protocol fee 0.0001%; the 0.2% near-intents.org fee paid to `fefundsadmin.sputnik-dao.near`; the quote-improvement and withdrawal fees; read 12 Nov): https://docs.near-intents.org/resources/fees.md
 - HSP-029 approval, 24-month schedule, grace period and validator upgrade: https://www.theblock.co/news/defi/2026-11-03-near-governance-approves-token-issuance-432378 ; veto window to 16 Nov: https://www.altcoinbuzz.io/near-issuance-cut-to-1-6-passes-vote-staking-yield-set-to-fall
+- HSP-029 90/10 split and the 5.268% to 3.372% yield figures (secondary coverage, 3 Nov): https://coincentral.com/near-protocol-voters-approve-gradual-token-issuance-cut ; https://cryptoticker.io/en/near-issuance-cut-approved-staking-yield/
+- Blockworks Intel, "NEAR: Priced for Intents, Built for AI", 30 Oct 2026 (key takeaways only; body paywalled): https://app.blockworks.com/report/near-priced-for-intents-built-for-ai
+- Buyback-wallet balances on NearBlocks and on NEAR's revenue dashboard, 30-day DefiLlama fees and revenue, 19 Oct (as reported): https://www.altcoinbuzz.io/near-intents-has-bought-back-6-68m-of-near-using-fees
+- Lifetime and 30-day fee share as of 6 Oct (as reported, 21 Oct): https://pluang.com/en/news-feed/naiknya-pangsa-biaya-intents-near-protocol
+- NEAR price move on 12 Nov (headline only): https://pluang.com/en/news-feed/harga-near-turun-ke-level-terendah-8-minggu-akibat-liquidasi-panjang
 - HSP-027 (developer gas rebate removed, all gas burned): https://cryptobriefing.com/near-protocol-governance-eliminates-developer-gas-rebate/
 - 1 Oct exploit, pause and return of funds: https://www.theblock.co/news/ecosystems/2026-10-01-near-intents-halts-services-after-3-8-million-exploit-promises-full-compensation-417404 ; https://cointelegraph.com/news/near-intents-recovers-entire-stolen-38m-after-ultimatum-to-exploiter
 - NEAR AI Agent Market: payments in USD or USDC, a third-party wallet provider, no gas, 5% fee. https://docs.market.near.ai/concepts/payments-and-disputes.md ; https://docs.market.near.ai/builders/faq.md ; public data: https://market.near.ai/v1/platform/stats and https://market.near.ai/v1/agents (snapshot by `pipeline/agent_market.py`)
+- **Read 14 Nov 2026:**
+  - DefiLlama NEAR Intents fee adapter, blob `a8a8e4f4513f1398c1e8a25aba74ff74be26f107` (last changed 21 Oct 2026): the gross-fee and revenue definitions quoted in section 3c; gross fees from the Dune tables `dune.near.dataset_near_intents_fees` and `dune.near.dataset_near_intents_protocol_fees`. Same URL as above.
+  - DefiLlama DEX-volume adapters for NEAR Intents, THORChain (`thorchain-dex`) and Chainflip (`chainflip`), section 2b: https://api.llama.fi/summary/dexs/near-intents , https://api.llama.fi/summary/dexs/thorchain-dex , https://api.llama.fi/summary/dexs/chainflip (pinned by `pipeline/fetch_crosschain.py`)
+  - NEAR Intents docs changelog (1 Jul confidentiality parameter; 13 Jul B2B launch; 27 Oct 1Click swaps settle confidentially): https://docs.near-intents.org/changelog/overview.md
+  - NEAR revenue dashboard (30-day capture by channel; confidential TVL $135.09M, +382.3% over 90 days; "permanently remove NEAR from circulation"): https://revenue.near.org
+  - "Evolving NEAR Tokenomics", 24 Feb 2026 ("governance retains full discretion"; bought NEAR "remaining part of the total supply"; Confidential Intents first live): https://near.org/blog/evolving-near-tokenomics
 - Confidential Intents general availability (7 Jul 2026) and share reports: https://glitchwire.com/news/nears-confidential-intents-reaches-general-availability-bringing-privacy-infrast/ ; https://nansen.ai/post/nansen-near-quarterly-report-q2-2026

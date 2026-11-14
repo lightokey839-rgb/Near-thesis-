@@ -585,11 +585,317 @@ def chain(m):
           "NEAR added to the revenue wallets / net new NEAR supply, same days: the part of dilution parked in custody, if it stays there")
 
 
+# ----------------------------------------------------------------------------- recent weekly trend and the August step-up
+TREND_FROM = "2026-08-10"       # first Monday shown in the weekly table
+INFLOW_FROM = "2026-09-14"      # buyback-wallet inflow is shown from this Monday on (the 9 Sep one-off transfer falls before it)
+REFERENCE_WEEK = "2026-10-12"   # the week the NEAR price was near its autumn high
+STEP_BEFORE = ("2026-08-01", "2026-08-14")   # the two weeks before the August volume step-up
+STEP_AFTER = ("2026-08-19", "2026-08-25")    # the first week after it
+
+
+def _monday(day):
+    d = date.fromisoformat(day)
+    return (d - timedelta(days=d.weekday())).isoformat()
+
+
+def trend(m):
+    ll = m.csv("market", "defillama_intents_daily.csv")
+    px = {r["day"]: f(r["near_usd"]) for r in m.csv("market", "near_price_daily.csv")}
+    inflow = {r["block_date"]: f(r["inflow_near"]) for r in m.csv("bq", "q30_buyback_balance_daily.csv")}
+    src = ["data/market/defillama_intents_daily.csv", "data/market/near_price_daily.csv", "data/bq/q30_buyback_balance_daily.csv"]
+    weeks = {}
+    for r in ll:
+        w = _monday(r["day"])
+        if w < TREND_FROM:
+            continue
+        a = weeks.setdefault(w, {"days": 0, "vol": 0.0, "gross": 0.0, "cap": 0.0, "in_near": 0.0, "in_usd": 0.0, "in_days": 0, "px": []})
+        a["days"] += 1
+        a["vol"] += f(r["intents_volume_usd"])
+        a["gross"] += f(r["intents_gross_fees_usd"]) or 0
+        a["cap"] += f(r["near_captured_revenue_usd"]) or 0
+        if r["day"] in px:
+            a["px"].append(px[r["day"]])
+        if w >= INFLOW_FROM and r["day"] in inflow and r["day"] in px:
+            a["in_near"] += inflow[r["day"]]
+            a["in_usd"] += inflow[r["day"]] * px[r["day"]]
+            a["in_days"] += 1
+    rows = []
+    for w in sorted(weeks):
+        a = weeks[w]
+        rows.append([w, a["days"], round(a["vol"] / a["days"], 2), round(a["gross"] / a["vol"] * 1e4, 3),
+                     round(a["cap"] / a["vol"] * 1e4, 3), round(a["cap"] / a["days"], 2),
+                     round(a["in_near"] / a["in_days"], 2) if a["in_days"] else None,
+                     round(st.mean(a["px"]), 4) if a["px"] else None,
+                     round(a["in_usd"] / a["in_days"], 2) if a["in_days"] else None])
+    m.put("trend_weekly", rows, "", "FACT", src,
+          "per Monday-Sunday week: days in DefiLlama's data, all-Intents volume/day, gross-fee bps, captured take-rate bps, captured revenue/day, "
+          "buyback-wallet inflow NEAR/day, mean NEAR price, inflow USD/day (inflow only from %s, because the 9 Sep one-off transfer is before it)" % INFLOW_FROM)
+    full = [r for r in rows if r[1] == 7]
+    by = {r[0]: r for r in rows}
+    ref, last_full = by[REFERENCE_WEEK], full[-1]
+    since = [r for r in full if r[0] >= INFLOW_FROM]
+    peak = max(since, key=lambda r: r[4])
+    m.put("trend_reference_week", REFERENCE_WEEK, "", "FACT", src, "week used as the 'autumn high' reference (the week of the NEAR price peak)")
+    m.put("trend_latest_full_week", last_full[0], "", "FACT", src, "latest week with all seven days in DefiLlama's data")
+    m.put("trend_take_bps_reference_week", ref[4], "bps", "FACT", src, "captured revenue / all-Intents volume in the reference week")
+    m.put("trend_take_bps_latest_full_week", last_full[4], "bps", "FACT", src, "same in the latest full week")
+    m.put("trend_take_bps_peak_week", peak[4], "bps", "FACT", src, "highest weekly take-rate among full weeks from %s" % INFLOW_FROM)
+    m.put("trend_take_bps_peak_week_label", peak[0], "", "FACT", src, "its week")
+    partial = [r for r in rows if r[1] < 7]
+    if partial:
+        m.put("trend_partial_week", [partial[-1][0], partial[-1][1], partial[-1][4]], "", "FACT", src,
+              "the newest, incomplete week: start, days, take-rate bps (DefiLlama's last 1-2 days are often revised)")
+    last_day = max(px)
+    m.put("trend_price_reference_day", px[REFERENCE_WEEK], "USD", "FACT", src, "NEAR price on the reference Monday")
+    m.put("trend_price_last", px[last_day], "USD", "FACT", src, "newest NEAR price in the daily table")
+    m.put("trend_price_last_day", last_day, "", "FACT", src, "its date")
+    m.put("trend_price_change", px[last_day] / px[REFERENCE_WEEK] - 1, "share", "FACT", src, "newest price / reference-Monday price - 1")
+    m.put("trend_inflow_near_reference_week", ref[6], "NEAR/day", "FACT", src, "buyback-wallet inflow, reference week")
+    m.put("trend_inflow_near_latest_full_week", last_full[6], "NEAR/day", "FACT", src, "same, latest full week")
+    m.put("trend_inflow_usd_reference_week", ref[8], "USD/day", "FACT", src, "inflow x each day's price, reference week")
+    m.put("trend_inflow_usd_latest_full_week", last_full[8], "USD/day", "FACT", src, "same, latest full week")
+    m.put("trend_inflow_usd_change", last_full[8] / ref[8] - 1, "share", "FACT", src, "latest full week / reference week - 1")
+    m.put("trend_captured_usd_per_day_reference_week", ref[5], "USD/day", "FACT", src, "DefiLlama captured revenue/day, reference week")
+    m.put("trend_captured_usd_per_day_latest_full_week", last_full[5], "USD/day", "FACT", src, "same, latest full week")
+
+    # the August step-up: what the daily series shows, and nothing about its cause
+    vol = {r["day"]: f(r["intents_volume_usd"]) for r in ll}
+    gross = {r["day"]: f(r["intents_gross_fees_usd"]) or 0 for r in ll}
+    span = lambda a, b: [d for d in sorted(vol) if a <= d <= b]
+    pre, post = span(*STEP_BEFORE), span(*STEP_AFTER)
+    m.put("stepup_before_window", "%s to %s" % STEP_BEFORE, "", "FACT", src[:1], "window before the step-up")
+    m.put("stepup_after_window", "%s to %s" % STEP_AFTER, "", "FACT", src[:1], "window after the step-up")
+    m.put("stepup_before_usd_per_day", st.mean(vol[d] for d in pre), "USD/day", "FACT", src[:1], "mean all-Intents volume before")
+    m.put("stepup_after_usd_per_day", st.mean(vol[d] for d in post), "USD/day", "FACT", src[:1], "mean all-Intents volume after")
+    m.put("stepup_before_gross_bps", sum(gross[d] for d in pre) / sum(vol[d] for d in pre) * 1e4, "bps", "FACT", src[:1], "gross fees / volume before")
+    m.put("stepup_after_gross_bps", sum(gross[d] for d in post) / sum(vol[d] for d in post) * 1e4, "bps", "FACT", src[:1], "gross fees / volume after")
+    m.put("stepup_aug19_usd", vol["2026-08-19"], "USD", "FACT", src[:1], "volume on 19 Aug")
+    m.put("stepup_aug21_usd", vol["2026-08-21"], "USD", "FACT", src[:1], "volume on 21 Aug")
+    jan = [vol[d] for d in span("2026-01-01", "2026-01-31")]
+    m.put("jan_avg_usd_per_day", st.mean(jan), "USD/day", "FACT", src[:1], "mean all-Intents volume in January 2026")
+    m.put("before_step_vs_jan", st.mean(vol[d] for d in pre) / st.mean(jan) - 1, "share", "FACT", src[:1], "pre-step mean / January mean - 1")
+    if "intents_volume_usd_per_day" in m.out:
+        m.put("recent_vs_jan", m.out["intents_volume_usd_per_day"]["value"] / st.mean(jan) - 1, "share", "FACT", src[:1],
+              "latest 30-day mean / January mean - 1")
+
+
+# ----------------------------------------------------------------------------- fee-layer reconciliation (four full weeks)
+RECON_WEEKS = ("2026-10-12", "2026-10-19", "2026-10-26", "2026-11-02")   # Monday-Sunday weeks, 12 Oct - 8 Nov
+BUYBACK_RECIPIENT = "buybacks.multisignature.near"
+
+
+def reconcile(m):
+    ll = m.csv("market", "defillama_intents_daily.csv")
+    oc = m.csv("summary", "daily.csv")
+    af = m.csv("summary", "app_fees_weekly.csv")
+    src = ["data/market/defillama_intents_daily.csv", "data/summary/daily.csv", "data/summary/app_fees_weekly.csv"]
+    days = [d for w in RECON_WEEKS for d in [(date.fromisoformat(w) + timedelta(days=i)).isoformat() for i in range(7)]]
+    dayset = set(days)
+    n = len(days)
+    pick = lambda rows, key, col: sum(f(r[col]) or 0 for r in rows if r[key] in dayset)
+    allv = pick(ll, "day", "intents_volume_usd")
+    gross = pick(ll, "day", "intents_gross_fees_usd")
+    cap = pick(ll, "day", "near_captured_revenue_usd")
+    ocv = pick(oc, "day", "usd_in_success")
+    wk_af = [r for r in af if r["week_start_monday"] in RECON_WEEKS]
+    appfees = sum(f(r["est_fee_usd_if_fee_is_basis_points"]) or 0 for r in wk_af)
+    bb = sum(f(r["est_fee_usd_if_fee_is_basis_points"]) or 0 for r in wk_af if r["fee_recipient"] == BUYBACK_RECIPIENT)
+    yr = 365.0 / n
+    m.put("recon_window", "%s to %s (%d days, four full weeks)" % (days[0], days[-1], n), "", "FACT", src,
+          "Monday-Sunday weeks, because the 1Click app-fee table is weekly")
+    m.put("recon_allintents_usd_per_day", allv / n, "USD/day", "FACT", src[:1], "(1) DefiLlama all-Intents volume")
+    m.put("recon_oneclick_usd_per_day", ocv / n, "USD/day", "FACT", src[1:2], "(2) 1Click SUCCESS volume, same days (source-API gap hours are not added back)")
+    m.put("recon_oneclick_share_of_volume", ocv / allv, "share", "FACT", src[:2], "(2) / (1)")
+    m.put("recon_gross_usd_per_year", gross * yr, "USD/yr", "FACT", src[:1], "(3) DefiLlama gross fees, annualised from this window")
+    m.put("recon_gross_bps", gross / allv * 1e4, "bps", "FACT", src[:1], "(3) / (1)")
+    m.put("recon_appfees_usd_per_year", appfees * yr, "USD/yr", "INFERENCE", src[2:], "(4) 1Click partner-set appFees: sum of fee x amountInUsd, annualised (assumes the fee field is in basis points)")
+    m.put("recon_appfees_bps_on_oneclick", appfees / ocv * 1e4, "bps", "INFERENCE", src[1:], "(4) / (2)")
+    m.put("recon_appfees_share_of_gross", appfees / gross, "share", "INFERENCE", src, "(4) / (3): different scopes, see THESIS.md")
+    m.put("recon_gross_bps_outside_oneclick", (gross - appfees) / (allv - ocv) * 1e4, "bps", "INFERENCE", src,
+          "((3) - (4)) / ((1) - (2)); assumes DefiLlama's gross fees include all 1Click app fees, which is not verified")
+    m.put("recon_buyback_usd_per_year", bb * yr, "USD/yr", "INFERENCE", src[2:], "(6) appFees paid to the buyback wallet, annualised")
+    m.put("recon_buyback_share_of_appfees", bb / appfees, "share", "INFERENCE", src[2:], "(6) / (4), this window")
+    m.put("recon_captured_usd_per_year", cap * yr, "USD/yr", "INFERENCE", src[:1], "(8c) DefiLlama captured revenue, annualised from this window")
+    m.put("recon_captured_share_of_gross", cap / gross, "share", "INFERENCE", src[:1], "(8c) / (3)")
+    m.put("recon_buyback_share_of_captured", bb / cap, "share", "INFERENCE", src, "(6) / (8c)")
+    m.put("recon_other_captured_usd_per_year", (cap - bb) * yr, "USD/yr", "INFERENCE", src, "(8c) - (6): captured revenue with no swap-level attribution here")
+    m.put("recon_other_captured_share", (cap - bb) / cap, "share", "INFERENCE", src, "1 - (6)/(8c)")
+    tot = {}
+    for r in af:
+        tot[r["fee_recipient"]] = tot.get(r["fee_recipient"], 0.0) + (f(r["est_fee_usd_if_fee_is_basis_points"]) or 0)
+    grand = sum(tot.values())
+    top = sorted(tot.items(), key=lambda kv: -kv[1])
+    m.put("recon_allfile_appfees_usd", grand, "USD", "INFERENCE", src[2:], "all weeks in the 1Click download (from 28 Sep), est. appFees")
+    m.put("recon_allfile_buyback_share_of_appfees", tot.get(BUYBACK_RECIPIENT, 0.0) / grand, "share", "INFERENCE", src[2:],
+          "buyback-wallet share of all est. appFees over the whole download")
+    m.put("recon_allfile_top_recipient", top[0][0], "", "FACT", src[2:], "recipient with the most est. appFees over the whole download")
+    m.put("recon_allfile_top_recipient_share", top[0][1] / grand, "share", "INFERENCE", src[2:], "its share")
+    m.put("recon_allfile_top3_recipient_share", sum(v for _, v in top[:3]) / grand, "share", "INFERENCE", src[2:], "share of the top three recipients")
+
+
+# ----------------------------------------------------------------------------- additional source-gap candidates
+ANOMALY_SHARE = 0.25        # an hour is flagged when it holds less than this share of its hour-of-day median
+SUBHOUR_MIN_SECONDS = 600   # list gaps between consecutive swaps of 10 minutes or more
+
+
+def gaps_extra(m):
+    cnt = {r["hour_utc"]: int(r["swaps_all_status"]) for r in m.csv("audit", "hourly_counts.csv")}
+    confirmed = m.csv("audit", "gap_check.csv")
+    largest = m.csv("audit", "integrity_largest_gaps.csv")
+    src = ["data/audit/hourly_counts.csv", "data/audit/gap_check.csv", "data/audit/integrity_largest_gaps.csv"]
+    first, last = datetime.fromisoformat(min(cnt)), datetime.fromisoformat(max(cnt))
+    grid, t = [], first + timedelta(hours=1)          # the first and last hours of the download are partial: dropped
+    while t < last:
+        grid.append(t)
+        t += timedelta(hours=1)
+    key = lambda x: x.strftime("%Y-%m-%d %H:%M")
+    by_hour = {}
+    for t in grid:
+        by_hour.setdefault(t.hour, []).append(cnt.get(key(t), 0))    # an hour with no rows at all counts as zero
+    med = {h: st.median(v) for h, v in by_hour.items()}
+    flagged = [t for t in grid if cnt.get(key(t), 0) < ANOMALY_SHARE * med[t.hour]]
+    win = [(datetime.fromisoformat(g["gap_start_utc"]), datetime.fromisoformat(g["gap_end_utc"])) for g in confirmed]
+    in_confirmed = lambda a, b: any(s.replace(tzinfo=None) < b and e.replace(tzinfo=None) > a for s, e in win)
+    groups, cur = [], []
+    for t in flagged:
+        if cur and t - cur[-1] == timedelta(hours=1):
+            cur.append(t)
+        else:
+            if cur:
+                groups.append(cur)
+            cur = [t]
+    if cur:
+        groups.append(cur)
+    hourly = []
+    for g in groups:
+        a, b = g[0], g[-1] + timedelta(hours=1)
+        hourly.append([key(a), key(b), len(g), sum(cnt.get(key(x), 0) for x in g), int(sum(med[x.hour] for x in g)),
+                       "confirmed: the API has no rows here" if in_confirmed(a, b) else "UNCONFIRMED: not re-queried"])
+    m.put("hourly_anomaly_rule", "an hour is flagged when it holds fewer than %d%% of the median count for the same UTC hour of day across the download; "
+          "hours with no rows count as zero; the first and last (partial) hours are not tested" % int(ANOMALY_SHARE * 100), "", "FACT", src[:1], "rule")
+    m.put("hourly_anomaly_table", hourly, "", "INFERENCE", src, "flagged runs of hours: start, end, hours, swaps seen, swaps expected, status")
+    m.put("hourly_anomaly_unconfirmed", sum(1 for r in hourly if r[5].startswith("UNCONFIRMED")), "runs", "INFERENCE", src, "flagged runs not confirmed as API gaps")
+    conf_starts = {datetime.fromisoformat(g["gap_start_utc"]).replace(tzinfo=None) for g in confirmed}
+    sub = []
+    for r in largest:
+        secs = int(r["gap_seconds"])
+        if secs < SUBHOUR_MIN_SECONDS:
+            continue
+        start = datetime.fromisoformat(r["gap_starts_utc"]).replace(tzinfo=None)
+        is_conf = any(abs((start - c).total_seconds()) < 2 for c in conf_starts)
+        exp = secs / 3600.0 * med.get(start.hour, 0)
+        sub.append([start.strftime("%Y-%m-%d %H:%M"), round(secs / 60.0, 1), "confirmed: the API has no rows here" if is_conf else "UNCONFIRMED: not re-queried",
+                    int(round(exp))])
+    m.put("extra_gap_table", sub, "", "INFERENCE", src, "gaps of 10+ minutes between consecutive swaps: start (UTC), minutes, status, swaps expected at the typical rate")
+    un = [r for r in sub if r[2].startswith("UNCONFIRMED")]
+    m.put("extra_gap_count", len(un), "gaps", "INFERENCE", src[1:], "unconfirmed gaps of 10+ minutes in the largest-gaps file")
+    m.put("extra_gap_hours", sum(r[1] for r in un) / 60.0, "hours", "INFERENCE", src[1:], "their total length")
+    total_swaps = sum(cnt.get(key(t), 0) for t in grid)
+    m.put("extra_gap_expected_missing_swaps", sum(r[3] for r in un), "swaps", "INFERENCE", src,
+          "swaps expected inside those gaps at the median rate for their hour of day (an estimate, not a count)")
+    m.put("extra_gap_expected_missing_share", sum(r[3] for r in un) / total_swaps, "share", "INFERENCE", src,
+          "that estimate / swaps in the hours tested")
+    m.put("extra_gap_listed_floor_minutes", min(r[1] for r in sub) if sub else 0.0, "minutes", "FACT", src[2:],
+          "the largest-gaps file keeps only the 15 largest gaps, so gaps shorter than this are not visible")
+
+
+# ----------------------------------------------------------------------------- other native cross-chain swap venues
+CROSSCHAIN = [("near_intents_usd", "NEAR Intents"), ("thorchain_usd", "THORChain"), ("chainflip_usd", "Chainflip")]
+
+
+def crosschain(m):
+    rows = m.csv("market", "crosschain_peers_daily.csv")
+    meta = m.json("market", "_fetched_crosschain.json")
+    src = ["data/market/crosschain_peers_daily.csv", "data/market/_fetched_crosschain.json", "pipeline/fetch_crosschain.py"]
+    cols = [c for c, _ in CROSSCHAIN]
+    full = [r for r in rows if all(f(r[c]) is not None for c in cols)]     # days on which all three venues have a value
+    a, b = m.out["defillama_window"]["value"].split(" to ")                 # the same 30 days as every other DefiLlama figure
+    how = "DefiLlama DEX-volume adapters, one per venue; each counts volume its own way, so this is a share of these three venues, not of a market"
+
+    def span(lo, hi):
+        sel = [r for r in full if lo <= r["day"] <= hi]
+        return sel, {c: sum(f(r[c]) for r in sel) for c in cols}
+
+    win, tot = span(a, b)
+    three = sum(tot.values())
+    m.put("crosschain_window", "%s to %s (%d days)" % (a, b, len(win)), "", "FACT", src[:1], "the 30-day DefiLlama window used throughout")
+    m.put("crosschain_fetched_utc", meta["fetched_utc"], "", "FACT", src[1:2], "when the three series were read")
+    for c, label in CROSSCHAIN:
+        short = c[:-4]
+        m.put("crosschain_%s_usd_per_day" % short, tot[c] / len(win), "USD/day", "FACT", src[:1], "%s mean daily volume in the window" % label)
+        m.put("crosschain_%s_share_of_three" % short, tot[c] / three, "share", "INFERENCE", src[:1], "%s / sum of the three, in the window; %s" % (label, how))
+        m.put("crosschain_alltime_%s_usd" % short, meta["venues"][c]["all_time_usd"], "USD", "FACT", src[1:2],
+              "DefiLlama's all-time total for %s at fetch time (its series starts %s)" % (label, meta["venues"][c]["first_day"]))
+    m.put("crosschain_intents_vs_thorchain", tot["near_intents_usd"] / tot["thorchain_usd"], "ratio", "INFERENCE", src[:1], "NEAR Intents / THORChain volume in the window")
+    m.put("crosschain_alltime_thorchain_vs_intents", meta["venues"]["thorchain_usd"]["all_time_usd"] / meta["venues"]["near_intents_usd"]["all_time_usd"],
+          "ratio", "INFERENCE", src[1:2], "THORChain all-time volume / NEAR Intents all-time volume (THORChain's series is older)")
+    pinned = {r["day"]: f(r["intents_volume_usd"]) for r in m.csv("market", "defillama_intents_daily.csv")}
+    m.put("crosschain_intents_vs_pinned", tot["near_intents_usd"] / sum(pinned[r["day"]] for r in win), "ratio", "FACT",
+          src[:1] + ["data/market/defillama_intents_daily.csv"],
+          "NEAR Intents volume in this table (read 14 Nov) / the same days in the table pinned on 11 Nov; 1.00 means DefiLlama did not revise them")
+    jan, jtot = span("2026-01-01", "2026-01-31")
+    m.put("crosschain_jan_near_intents_share_of_three", jtot["near_intents_usd"] / sum(jtot.values()), "share", "INFERENCE", src[:1],
+          "NEAR Intents / sum of the three, January 2026")
+    ytd, ytot = span("2026-01-01", b)
+    m.put("crosschain_ytd_window", "2026-01-01 to %s" % b, "", "FACT", src[:1], "year to the end of the 30-day window")
+    m.put("crosschain_ytd_near_intents_share_of_three", ytot["near_intents_usd"] / sum(ytot.values()), "share", "INFERENCE", src[:1],
+          "NEAR Intents / sum of the three, 1 Jan 2026 to the end of the window")
+    # the newest 7 complete days (DefiLlama's last 1-2 days are often revised, so stop 2 days before the newest full row)
+    last_ok = (date.fromisoformat(full[-1]["day"]) - timedelta(days=2)).isoformat()
+    l7, ltot = span((date.fromisoformat(last_ok) - timedelta(days=6)).isoformat(), last_ok)
+    lead = max(CROSSCHAIN, key=lambda cl: ltot[cl[0]])[1]
+    m.put("crosschain_latest7_window", "%s to %s" % (l7[0]["day"], l7[-1]["day"]), "", "FACT", src[:1], "newest 7 days, ending 2 days before the newest full row")
+    m.put("crosschain_latest7_near_intents_share_of_three", ltot["near_intents_usd"] / sum(ltot.values()), "share", "INFERENCE", src[:1],
+          "NEAR Intents / sum of the three in those 7 days")
+    m.put("crosschain_latest7_leader", lead, "", "FACT", src[:1], "venue with the most volume in those 7 days")
+    weeks = {}
+    for r in full:
+        if r["day"] <= last_ok:
+            weeks.setdefault(_monday(r["day"]), []).append(r)
+    table = []
+    for w in sorted(weeks):
+        if len(weeks[w]) != 7:
+            continue
+        s = [sum(f(r[c]) for r in weeks[w]) for c in cols]
+        table.append([w] + [round(x / 7.0, 2) for x in s] + [round(s[0] / sum(s), 4)])
+    m.put("crosschain_weekly", table, "", "FACT", src[:1],
+          "full Monday-Sunday weeks of 2026: week, NEAR Intents, THORChain and Chainflip volume per day, NEAR Intents share of the three")
+    m.put("crosschain_weeks_total", len(table), "weeks", "FACT", src[:1], "full weeks in that table")
+    m.put("crosschain_weeks_intents_largest", sum(1 for r in table if r[1] > r[2] and r[1] > r[3]), "weeks", "FACT", src[:1],
+          "weeks in which NEAR Intents had the most volume of the three")
+    m.put("crosschain_weeks_intents_largest_last12", sum(1 for r in table[-12:] if r[1] > r[2] and r[1] > r[3]), "weeks", "FACT", src[:1],
+          "same, among the newest 12 full weeks")
+
+
+# ----------------------------------------------------------------------------- 1Click around the confidential-settlement switch
+CONFIDENTIAL_FROM = "2026-10-27"   # docs changelog: from this day 1Click swaps settle confidentially (typed fact, THESIS.md section 12)
+
+
+def confidential(m):
+    daily = [r for r in m.csv("summary", "daily.csv") if r["day"] not in PARTIAL_OR_GAP_DAYS]
+    src = ["data/summary/daily.csv"]
+    d0 = date.fromisoformat(CONFIDENTIAL_FROM)
+    before = [r for r in daily if d0 - timedelta(days=14) <= date.fromisoformat(r["day"]) < d0]
+    after = [r for r in daily if d0 <= date.fromisoformat(r["day"]) < d0 + timedelta(days=14)]
+    how = "clean full days only (days with source-API gaps are left out)"
+    m.put("confidential_switch_day", CONFIDENTIAL_FROM, "", "FACT", src, "first day on which 1Click swaps settle confidentially, per the docs changelog")
+    m.put("confidential_days_before", len(before), "days", "FACT", src, "clean days in the 14 days before the switch")
+    m.put("confidential_days_after", len(after), "days", "FACT", src, "clean days in the 14 days from the switch (the download ends 10 Nov)")
+    sb, sa = st.mean(f(r["swaps_success"]) for r in before), st.mean(f(r["swaps_success"]) for r in after)
+    ub, ua = st.mean(f(r["usd_in_success"]) for r in before), st.mean(f(r["usd_in_success"]) for r in after)
+    m.put("oneclick_swaps_per_day_before_switch", sb, "swaps/day", "FACT", src, "mean SUCCESS swaps per day, 14 days before the switch; " + how)
+    m.put("oneclick_swaps_per_day_after_switch", sa, "swaps/day", "FACT", src, "same, from the switch")
+    m.put("oneclick_swaps_after_vs_before_switch", sa / sb, "ratio", "FACT", src, "after / before")
+    m.put("oneclick_usd_per_day_before_switch", ub, "USD/day", "FACT", src, "mean SUCCESS amountInUsd per day, 14 days before the switch; " + how)
+    m.put("oneclick_usd_per_day_after_switch", ua, "USD/day", "FACT", src, "same, from the switch")
+    m.put("oneclick_usd_after_vs_before_switch", ua / ub, "ratio", "FACT", src, "after / before")
+
+
 def run(data):
     import models
     m = Metrics(data)
     yaml_path = os.path.join(os.path.dirname(os.path.abspath(data)), "thesis.yaml")
-    for name, fn in (("swaps", swaps), ("audit", audit), ("channels", channels), ("market", market), ("wallet", wallet), ("accounts", accounts), ("agents", agents), ("chain", chain),
+    for name, fn in (("swaps", swaps), ("audit", audit), ("channels", channels), ("market", market), ("wallet", wallet), ("trend", trend), ("reconcile", reconcile), ("gaps_extra", gaps_extra), ("crosschain", crosschain), ("confidential", confidential), ("accounts", accounts), ("agents", agents), ("chain", chain),
                      ("extra", models.extra), ("windows", models.windows), ("sensitivity", models.sensitivity),
                      ("leadlag", models.leadlag),
                      ("scenarios", lambda mm: models.scenarios(mm, os.path.join(os.path.dirname(os.path.abspath(data)), "scenarios.json"))),

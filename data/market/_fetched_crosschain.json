@@ -1,0 +1,28 @@
+{
+  "fetched_utc": "2026-11-14T12:35:02+00:00",
+  "venues": {
+    "near_intents_usd": {
+      "label": "NEAR Intents",
+      "source": "https://api.llama.fi/summary/dexs/near-intents?dataType=dailyVolume",
+      "all_time_usd": 37782828302,
+      "first_day": "2024-12-10",
+      "days": 704
+    },
+    "thorchain_usd": {
+      "label": "THORChain",
+      "source": "https://api.llama.fi/summary/dexs/thorchain-dex?dataType=dailyVolume",
+      "all_time_usd": 130962509924,
+      "first_day": "2021-04-12",
+      "days": 2042
+    },
+    "chainflip_usd": {
+      "label": "Chainflip",
+      "source": "https://api.llama.fi/summary/dexs/chainflip?dataType=dailyVolume",
+      "all_time_usd": 10290147634,
+      "first_day": "2024-06-01",
+      "days": 897
+    }
+  },
+  "rows": 318,
+  "note": "DefiLlama DEX-volume adapters; each protocol's adapter counts volume its own way, so compare levels with care. The newest 1-2 days are often revised."
+}

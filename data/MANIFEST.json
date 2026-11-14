@@ -41,6 +41,8 @@
     "data/bq/q32_buyback_counterparties.csv": "11c0aa3d8dcfde885d41e188c14c83c224a51cf358fa32f3eff34f00359f2183",
     "data/bq/q33_buyback_sep09_moves.csv": "ea411136ad9d3d77de1f4643fafd5958913a56ca246abb30a74d0b2044a43e41",
     "data/market/_fetched.json": "321fb27be0c752a651f1f4c48de9f30cbf08e27e5b72879312b766559351d801",
+    "data/market/_fetched_crosschain.json": "1c68898fe36490a2473b1979942d69a7409e28d4e0281e7165518c4d5980629d",
+    "data/market/crosschain_peers_daily.csv": "eca426b0fa98dd9a9da8c6804187f2fb7be275b4b372cbf404ba20f626bdf9d0",
     "data/market/defillama_intents_daily.csv": "9c55318920dc841bbce0859486fcf66b7b2b5d676f4ee7c0807a0179cc0f57a4",
     "data/market/near_chain_snapshot.json": "1f34643ea341af6a995970db001e059c37a1a237147a2ae568d3eadbd753707f",
     "data/market/near_price_daily.csv": "6bcef501105c430f1e7846b2321dfc389fa07c3b1454cf50057fdefb0a5e8eb1",
@@ -55,7 +57,7 @@
     "data/summary/referrals_weekly.csv": "835be3cbc5c58104e6bccb628be45c33ca0476ce1738c170b02fa152963a2112",
     "data/summary/routes_top.csv": "b2334325bec1f47f7d477d992c967410a4f51cb5a4acffe17065b807579dcfdc",
     "data/summary/size_buckets_daily.csv": "11194df26089acfc0e043122c44103d497f20854281ed936995fd203595baa92",
-    "data/summary/top_users.csv": "5c73f4f97338ecbe949584d4e7c272eadf4e06f7302d37751c93a0042af5fd2a",
+    "data/summary/top_users.csv": "8e5f05bc64e196e76c433883690be194f98e4c3fe8138c38a5786094f0dbd304",
     "data/summary/user_retention.csv": "1bb846676cdf48ec6ca48413e81292cc4ac7ebf53a6848c021511bcb09842fe0"
   },
   "note": "SHA-256 of every pinned input table. build.py refuses to build if one changes unexpectedly."

@@ -1096,6 +1096,1517 @@
       ],
       "method": "steady inflow x 365 x current price"
     },
+    "trend_weekly": {
+      "value": [
+        [
+          "2026-08-10",
+          7,
+          65325261.29,
+          11.128,
+          1.927,
+          12588.86,
+          null,
+          1.6219,
+          null
+        ],
+        [
+          "2026-08-17",
+          7,
+          122934923.29,
+          16.167,
+          3.298,
+          40538.14,
+          null,
+          1.7382,
+          null
+        ],
+        [
+          "2026-08-24",
+          7,
+          112222918.57,
+          14.419,
+          2.627,
+          29481.0,
+          null,
+          1.9068,
+          null
+        ],
+        [
+          "2026-08-31",
+          7,
+          145621540.43,
+          10.714,
+          3.423,
+          49839.43,
+          null,
+          1.9755,
+          null
+        ],
+        [
+          "2026-09-07",
+          7,
+          129982692.0,
+          12.81,
+          2.395,
+          31129.71,
+          null,
+          2.3892,
+          null
+        ],
+        [
+          "2026-09-14",
+          7,
+          166173776.57,
+          17.392,
+          3.837,
+          63755.29,
+          14445.11,
+          2.888,
+          41508.45
+        ],
+        [
+          "2026-09-21",
+          7,
+          182797077.0,
+          17.57,
+          4.741,
+          86671.71,
+          12652.02,
+          4.5358,
+          55952.65
+        ],
+        [
+          "2026-09-28",
+          7,
+          134984192.43,
+          18.216,
+          5.729,
+          77339.0,
+          8784.15,
+          4.9654,
+          43947.97
+        ],
+        [
+          "2026-10-05",
+          7,
+          164406718.71,
+          15.595,
+          4.955,
+          81461.29,
+          11061.96,
+          5.0341,
+          55311.59
+        ],
+        [
+          "2026-10-12",
+          7,
+          125132787.71,
+          16.136,
+          5.59,
+          69946.14,
+          8945.75,
+          5.1522,
+          45708.33
+        ],
+        [
+          "2026-10-19",
+          7,
+          110524191.43,
+          15.303,
+          5.19,
+          57357.43,
+          8447.16,
+          4.8788,
+          41140.77
+        ],
+        [
+          "2026-10-26",
+          7,
+          125280364.86,
+          15.432,
+          5.238,
+          65617.57,
+          10934.41,
+          4.4663,
+          49013.79
+        ],
+        [
+          "2026-11-02",
+          7,
+          130311781.86,
+          15.877,
+          3.815,
+          49709.43,
+          9635.86,
+          3.8697,
+          37099.95
+        ],
+        [
+          "2026-11-09",
+          2,
+          159494101.5,
+          17.614,
+          3.735,
+          59577.0,
+          11790.87,
+          3.6024,
+          42219.6
+        ]
+      ],
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "per Monday-Sunday week: days in DefiLlama's data, all-Intents volume/day, gross-fee bps, captured take-rate bps, captured revenue/day, buyback-wallet inflow NEAR/day, mean NEAR price, inflow USD/day (inflow only from 2026-09-14, because the 9 Sep one-off transfer is before it)"
+    },
+    "trend_reference_week": {
+      "value": "2026-10-12",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "week used as the 'autumn high' reference (the week of the NEAR price peak)"
+    },
+    "trend_latest_full_week": {
+      "value": "2026-11-02",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "latest week with all seven days in DefiLlama's data"
+    },
+    "trend_take_bps_reference_week": {
+      "value": 5.59,
+      "unit": "bps",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "captured revenue / all-Intents volume in the reference week"
+    },
+    "trend_take_bps_latest_full_week": {
+      "value": 3.815,
+      "unit": "bps",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "same in the latest full week"
+    },
+    "trend_take_bps_peak_week": {
+      "value": 5.729,
+      "unit": "bps",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "highest weekly take-rate among full weeks from 2026-09-14"
+    },
+    "trend_take_bps_peak_week_label": {
+      "value": "2026-09-28",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "its week"
+    },
+    "trend_partial_week": {
+      "value": [
+        "2026-11-09",
+        2,
+        3.735
+      ],
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "the newest, incomplete week: start, days, take-rate bps (DefiLlama's last 1-2 days are often revised)"
+    },
+    "trend_price_reference_day": {
+      "value": 5.887577,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "NEAR price on the reference Monday"
+    },
+    "trend_price_last": {
+      "value": 3.584136,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "newest NEAR price in the daily table"
+    },
+    "trend_price_last_day": {
+      "value": "2026-11-11",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "its date"
+    },
+    "trend_price_change": {
+      "value": -0.391238,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "newest price / reference-Monday price - 1"
+    },
+    "trend_inflow_near_reference_week": {
+      "value": 8945.75,
+      "unit": "NEAR/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "buyback-wallet inflow, reference week"
+    },
+    "trend_inflow_near_latest_full_week": {
+      "value": 9635.86,
+      "unit": "NEAR/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "same, latest full week"
+    },
+    "trend_inflow_usd_reference_week": {
+      "value": 45708.33,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "inflow x each day's price, reference week"
+    },
+    "trend_inflow_usd_latest_full_week": {
+      "value": 37099.95,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "same, latest full week"
+    },
+    "trend_inflow_usd_change": {
+      "value": -0.188333,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "latest full week / reference week - 1"
+    },
+    "trend_captured_usd_per_day_reference_week": {
+      "value": 69946.14,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "DefiLlama captured revenue/day, reference week"
+    },
+    "trend_captured_usd_per_day_latest_full_week": {
+      "value": 49709.43,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q30_buyback_balance_daily.csv"
+      ],
+      "method": "same, latest full week"
+    },
+    "stepup_before_window": {
+      "value": "2026-08-01 to 2026-08-14",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "window before the step-up"
+    },
+    "stepup_after_window": {
+      "value": "2026-08-19 to 2026-08-25",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "window after the step-up"
+    },
+    "stepup_before_usd_per_day": {
+      "value": 66119957.071429,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "mean all-Intents volume before"
+    },
+    "stepup_after_usd_per_day": {
+      "value": 140045835.142857,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "mean all-Intents volume after"
+    },
+    "stepup_before_gross_bps": {
+      "value": 11.88365,
+      "unit": "bps",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "gross fees / volume before"
+    },
+    "stepup_after_gross_bps": {
+      "value": 16.417717,
+      "unit": "bps",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "gross fees / volume after"
+    },
+    "stepup_aug19_usd": {
+      "value": 134181536.0,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "volume on 19 Aug"
+    },
+    "stepup_aug21_usd": {
+      "value": 165407797.0,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "volume on 21 Aug"
+    },
+    "jan_avg_usd_per_day": {
+      "value": 87886087.645161,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "mean all-Intents volume in January 2026"
+    },
+    "before_step_vs_jan": {
+      "value": -0.247663,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "pre-step mean / January mean - 1"
+    },
+    "recent_vs_jan": {
+      "value": 0.408908,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "latest 30-day mean / January mean - 1"
+    },
+    "recon_window": {
+      "value": "2026-10-12 to 2026-11-08 (28 days, four full weeks)",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/summary/daily.csv",
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "Monday-Sunday weeks, because the 1Click app-fee table is weekly"
+    },
+    "recon_allintents_usd_per_day": {
+      "value": 122812281.464286,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "(1) DefiLlama all-Intents volume"
+    },
+    "recon_oneclick_usd_per_day": {
+      "value": 34603338.574643,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "(2) 1Click SUCCESS volume, same days (source-API gap hours are not added back)"
+    },
+    "recon_oneclick_share_of_volume": {
+      "value": 0.281758,
+      "unit": "share",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/summary/daily.csv"
+      ],
+      "method": "(2) / (1)"
+    },
+    "recon_gross_usd_per_year": {
+      "value": 70378583.035714,
+      "unit": "USD/yr",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "(3) DefiLlama gross fees, annualised from this window"
+    },
+    "recon_gross_bps": {
+      "value": 15.700224,
+      "unit": "bps",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "(3) / (1)"
+    },
+    "recon_appfees_usd_per_year": {
+      "value": 57715299.628571,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "(4) 1Click partner-set appFees: sum of fee x amountInUsd, annualised (assumes the fee field is in basis points)"
+    },
+    "recon_appfees_bps_on_oneclick": {
+      "value": 45.6962,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/summary/daily.csv",
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "(4) / (2)"
+    },
+    "recon_appfees_share_of_gross": {
+      "value": 0.820069,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/summary/daily.csv",
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "(4) / (3): different scopes, see THESIS.md"
+    },
+    "recon_gross_bps_outside_oneclick": {
+      "value": 3.933153,
+      "unit": "bps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/summary/daily.csv",
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "((3) - (4)) / ((1) - (2)); assumes DefiLlama's gross fees include all 1Click app fees, which is not verified"
+    },
+    "recon_buyback_usd_per_year": {
+      "value": 4867945.426786,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "(6) appFees paid to the buyback wallet, annualised"
+    },
+    "recon_buyback_share_of_appfees": {
+      "value": 0.084344,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "(6) / (4), this window"
+    },
+    "recon_captured_usd_per_year": {
+      "value": 22140039.642857,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "(8c) DefiLlama captured revenue, annualised from this window"
+    },
+    "recon_captured_share_of_gross": {
+      "value": 0.314585,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "(8c) / (3)"
+    },
+    "recon_buyback_share_of_captured": {
+      "value": 0.219871,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/summary/daily.csv",
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "(6) / (8c)"
+    },
+    "recon_other_captured_usd_per_year": {
+      "value": 17272094.216071,
+      "unit": "USD/yr",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/summary/daily.csv",
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "(8c) - (6): captured revenue with no swap-level attribution here"
+    },
+    "recon_other_captured_share": {
+      "value": 0.780129,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/summary/daily.csv",
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "1 - (6)/(8c)"
+    },
+    "recon_allfile_appfees_usd": {
+      "value": 7489751.41,
+      "unit": "USD",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "all weeks in the 1Click download (from 28 Sep), est. appFees"
+    },
+    "recon_allfile_buyback_share_of_appfees": {
+      "value": 0.085858,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "buyback-wallet share of all est. appFees over the whole download"
+    },
+    "recon_allfile_top_recipient": {
+      "value": "ledgerswapkit.near",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "recipient with the most est. appFees over the whole download"
+    },
+    "recon_allfile_top_recipient_share": {
+      "value": 0.421333,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "its share"
+    },
+    "recon_allfile_top3_recipient_share": {
+      "value": 0.620266,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/summary/app_fees_weekly.csv"
+      ],
+      "method": "share of the top three recipients"
+    },
+    "hourly_anomaly_rule": {
+      "value": "an hour is flagged when it holds fewer than 25% of the median count for the same UTC hour of day across the download; hours with no rows count as zero; the first and last (partial) hours are not tested",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/hourly_counts.csv"
+      ],
+      "method": "rule"
+    },
+    "hourly_anomaly_table": {
+      "value": [
+        [
+          "2026-10-01 09:00",
+          "2026-10-01 12:00",
+          3,
+          0,
+          2382,
+          "confirmed: the API has no rows here"
+        ],
+        [
+          "2026-10-15 08:00",
+          "2026-10-15 10:00",
+          2,
+          67,
+          1516,
+          "UNCONFIRMED: not re-queried"
+        ],
+        [
+          "2026-10-20 04:00",
+          "2026-10-20 05:00",
+          1,
+          0,
+          415,
+          "UNCONFIRMED: not re-queried"
+        ],
+        [
+          "2026-10-20 06:00",
+          "2026-10-20 09:00",
+          3,
+          9,
+          1993,
+          "confirmed: the API has no rows here"
+        ],
+        [
+          "2026-11-02 12:00",
+          "2026-11-02 17:00",
+          5,
+          48,
+          4841,
+          "confirmed: the API has no rows here"
+        ]
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/hourly_counts.csv",
+        "data/audit/gap_check.csv",
+        "data/audit/integrity_largest_gaps.csv"
+      ],
+      "method": "flagged runs of hours: start, end, hours, swaps seen, swaps expected, status"
+    },
+    "hourly_anomaly_unconfirmed": {
+      "value": 2,
+      "unit": "runs",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/hourly_counts.csv",
+        "data/audit/gap_check.csv",
+        "data/audit/integrity_largest_gaps.csv"
+      ],
+      "method": "flagged runs not confirmed as API gaps"
+    },
+    "extra_gap_table": {
+      "value": [
+        [
+          "2026-11-02 12:03",
+          316.3,
+          "confirmed: the API has no rows here",
+          4654
+        ],
+        [
+          "2026-10-01 08:34",
+          221.4,
+          "confirmed: the API has no rows here",
+          2713
+        ],
+        [
+          "2026-10-20 06:01",
+          201.5,
+          "confirmed: the API has no rows here",
+          2048
+        ],
+        [
+          "2026-10-20 03:59",
+          99.8,
+          "UNCONFIRMED: not re-queried",
+          721
+        ],
+        [
+          "2026-10-29 23:05",
+          42.5,
+          "UNCONFIRMED: not re-queried",
+          373
+        ],
+        [
+          "2026-11-08 01:50",
+          40.2,
+          "UNCONFIRMED: not re-queried",
+          332
+        ],
+        [
+          "2026-10-30 10:50",
+          30.4,
+          "UNCONFIRMED: not re-queried",
+          387
+        ],
+        [
+          "2026-11-08 01:21",
+          29.8,
+          "UNCONFIRMED: not re-queried",
+          246
+        ],
+        [
+          "2026-10-15 08:08",
+          26.1,
+          "UNCONFIRMED: not re-queried",
+          320
+        ],
+        [
+          "2026-10-01 19:12",
+          23.4,
+          "UNCONFIRMED: not re-queried",
+          343
+        ],
+        [
+          "2026-10-15 08:34",
+          18.6,
+          "UNCONFIRMED: not re-queried",
+          228
+        ],
+        [
+          "2026-10-31 09:26",
+          13.2,
+          "UNCONFIRMED: not re-queried",
+          172
+        ],
+        [
+          "2026-10-20 09:24",
+          12.8,
+          "UNCONFIRMED: not re-queried",
+          167
+        ],
+        [
+          "2026-10-15 09:09",
+          11.7,
+          "UNCONFIRMED: not re-queried",
+          152
+        ],
+        [
+          "2026-11-05 20:48",
+          11.3,
+          "UNCONFIRMED: not re-queried",
+          148
+        ]
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/hourly_counts.csv",
+        "data/audit/gap_check.csv",
+        "data/audit/integrity_largest_gaps.csv"
+      ],
+      "method": "gaps of 10+ minutes between consecutive swaps: start (UTC), minutes, status, swaps expected at the typical rate"
+    },
+    "extra_gap_count": {
+      "value": 12,
+      "unit": "gaps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/gap_check.csv",
+        "data/audit/integrity_largest_gaps.csv"
+      ],
+      "method": "unconfirmed gaps of 10+ minutes in the largest-gaps file"
+    },
+    "extra_gap_hours": {
+      "value": 5.996667,
+      "unit": "hours",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/gap_check.csv",
+        "data/audit/integrity_largest_gaps.csv"
+      ],
+      "method": "their total length"
+    },
+    "extra_gap_expected_missing_swaps": {
+      "value": 3589,
+      "unit": "swaps",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/hourly_counts.csv",
+        "data/audit/gap_check.csv",
+        "data/audit/integrity_largest_gaps.csv"
+      ],
+      "method": "swaps expected inside those gaps at the median rate for their hour of day (an estimate, not a count)"
+    },
+    "extra_gap_expected_missing_share": {
+      "value": 0.004393,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/audit/hourly_counts.csv",
+        "data/audit/gap_check.csv",
+        "data/audit/integrity_largest_gaps.csv"
+      ],
+      "method": "that estimate / swaps in the hours tested"
+    },
+    "extra_gap_listed_floor_minutes": {
+      "value": 11.3,
+      "unit": "minutes",
+      "kind": "FACT",
+      "sources": [
+        "data/audit/integrity_largest_gaps.csv"
+      ],
+      "method": "the largest-gaps file keeps only the 15 largest gaps, so gaps shorter than this are not visible"
+    },
+    "crosschain_window": {
+      "value": "2026-10-10 to 2026-11-08 (30 days)",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "the 30-day DefiLlama window used throughout"
+    },
+    "crosschain_fetched_utc": {
+      "value": "2026-11-14T12:35:02+00:00",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/_fetched_crosschain.json"
+      ],
+      "method": "when the three series were read"
+    },
+    "crosschain_near_intents_usd_per_day": {
+      "value": 123823455.7,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "NEAR Intents mean daily volume in the window"
+    },
+    "crosschain_near_intents_share_of_three": {
+      "value": 0.521937,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "NEAR Intents / sum of the three, in the window; DefiLlama DEX-volume adapters, one per venue; each counts volume its own way, so this is a share of these three venues, not of a market"
+    },
+    "crosschain_alltime_near_intents_usd": {
+      "value": 37782828302,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/_fetched_crosschain.json"
+      ],
+      "method": "DefiLlama's all-time total for NEAR Intents at fetch time (its series starts 2024-12-10)"
+    },
+    "crosschain_thorchain_usd_per_day": {
+      "value": 84279633.433333,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "THORChain mean daily volume in the window"
+    },
+    "crosschain_thorchain_share_of_three": {
+      "value": 0.355253,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "THORChain / sum of the three, in the window; DefiLlama DEX-volume adapters, one per venue; each counts volume its own way, so this is a share of these three venues, not of a market"
+    },
+    "crosschain_alltime_thorchain_usd": {
+      "value": 130962509924,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/_fetched_crosschain.json"
+      ],
+      "method": "DefiLlama's all-time total for THORChain at fetch time (its series starts 2021-04-12)"
+    },
+    "crosschain_chainflip_usd_per_day": {
+      "value": 29135374.266667,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "Chainflip mean daily volume in the window"
+    },
+    "crosschain_chainflip_share_of_three": {
+      "value": 0.12281,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "Chainflip / sum of the three, in the window; DefiLlama DEX-volume adapters, one per venue; each counts volume its own way, so this is a share of these three venues, not of a market"
+    },
+    "crosschain_alltime_chainflip_usd": {
+      "value": 10290147634,
+      "unit": "USD",
+      "kind": "FACT",
+      "sources": [
+        "data/market/_fetched_crosschain.json"
+      ],
+      "method": "DefiLlama's all-time total for Chainflip at fetch time (its series starts 2024-06-01)"
+    },
+    "crosschain_intents_vs_thorchain": {
+      "value": 1.469198,
+      "unit": "ratio",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "NEAR Intents / THORChain volume in the window"
+    },
+    "crosschain_alltime_thorchain_vs_intents": {
+      "value": 3.466191,
+      "unit": "ratio",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/_fetched_crosschain.json"
+      ],
+      "method": "THORChain all-time volume / NEAR Intents all-time volume (THORChain's series is older)"
+    },
+    "crosschain_intents_vs_pinned": {
+      "value": 1.0,
+      "unit": "ratio",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv",
+        "data/market/defillama_intents_daily.csv"
+      ],
+      "method": "NEAR Intents volume in this table (read 14 Nov) / the same days in the table pinned on 11 Nov; 1.00 means DefiLlama did not revise them"
+    },
+    "crosschain_jan_near_intents_share_of_three": {
+      "value": 0.645956,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "NEAR Intents / sum of the three, January 2026"
+    },
+    "crosschain_ytd_window": {
+      "value": "2026-01-01 to 2026-11-08",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "year to the end of the 30-day window"
+    },
+    "crosschain_ytd_near_intents_share_of_three": {
+      "value": 0.634303,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "NEAR Intents / sum of the three, 1 Jan 2026 to the end of the window"
+    },
+    "crosschain_latest7_window": {
+      "value": "2026-11-05 to 2026-11-11",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "newest 7 days, ending 2 days before the newest full row"
+    },
+    "crosschain_latest7_near_intents_share_of_three": {
+      "value": 0.333217,
+      "unit": "share",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "NEAR Intents / sum of the three in those 7 days"
+    },
+    "crosschain_latest7_leader": {
+      "value": "THORChain",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "venue with the most volume in those 7 days"
+    },
+    "crosschain_weekly": {
+      "value": [
+        [
+          "2026-01-05",
+          87037515.14,
+          15364156.86,
+          10597939.71,
+          0.7702
+        ],
+        [
+          "2026-01-12",
+          87424679.71,
+          71937945.29,
+          15484692.0,
+          0.5
+        ],
+        [
+          "2026-01-19",
+          98383043.29,
+          26736087.29,
+          11191802.57,
+          0.7218
+        ],
+        [
+          "2026-01-26",
+          99974890.71,
+          36258950.43,
+          19327086.57,
+          0.6427
+        ],
+        [
+          "2026-02-02",
+          131183533.0,
+          38185843.86,
+          26373829.71,
+          0.6702
+        ],
+        [
+          "2026-02-09",
+          83681296.86,
+          24716987.71,
+          14648411.0,
+          0.6801
+        ],
+        [
+          "2026-02-16",
+          49592091.86,
+          30335969.71,
+          10266228.57,
+          0.5498
+        ],
+        [
+          "2026-02-23",
+          71824041.57,
+          38590872.0,
+          15325885.43,
+          0.5712
+        ],
+        [
+          "2026-03-02",
+          67057287.0,
+          42041999.86,
+          13931312.43,
+          0.545
+        ],
+        [
+          "2026-03-09",
+          57292885.57,
+          29094129.43,
+          7397308.86,
+          0.6109
+        ],
+        [
+          "2026-03-16",
+          70808931.0,
+          26060034.71,
+          8280198.71,
+          0.6734
+        ],
+        [
+          "2026-03-23",
+          69317349.43,
+          13382542.43,
+          8656741.14,
+          0.7588
+        ],
+        [
+          "2026-03-30",
+          75300262.14,
+          18774697.57,
+          10390937.71,
+          0.7208
+        ],
+        [
+          "2026-04-06",
+          74312778.71,
+          17260156.86,
+          8036480.0,
+          0.746
+        ],
+        [
+          "2026-04-13",
+          60333226.43,
+          19885183.71,
+          13892311.71,
+          0.6411
+        ],
+        [
+          "2026-04-20",
+          52970326.86,
+          162442758.29,
+          10328881.14,
+          0.2346
+        ],
+        [
+          "2026-04-27",
+          51110938.57,
+          21339034.29,
+          15147551.29,
+          0.5835
+        ],
+        [
+          "2026-05-04",
+          58935579.71,
+          30568637.29,
+          22257570.29,
+          0.5273
+        ],
+        [
+          "2026-05-11",
+          52822824.43,
+          14896647.71,
+          12582947.0,
+          0.6578
+        ],
+        [
+          "2026-05-18",
+          67057698.29,
+          0.0,
+          20486080.57,
+          0.766
+        ],
+        [
+          "2026-05-25",
+          88645487.29,
+          0.0,
+          9606912.71,
+          0.9022
+        ],
+        [
+          "2026-06-01",
+          107642452.29,
+          0.0,
+          21619241.0,
+          0.8327
+        ],
+        [
+          "2026-06-08",
+          73076603.29,
+          0.0,
+          7700843.43,
+          0.9047
+        ],
+        [
+          "2026-06-15",
+          66779190.57,
+          0.0,
+          6785300.43,
+          0.9078
+        ],
+        [
+          "2026-06-22",
+          66109196.43,
+          10494626.29,
+          9780684.86,
+          0.7653
+        ],
+        [
+          "2026-06-29",
+          75695479.29,
+          17353455.14,
+          10620185.86,
+          0.7302
+        ],
+        [
+          "2026-07-06",
+          74603439.71,
+          25888381.0,
+          10466308.29,
+          0.6724
+        ],
+        [
+          "2026-07-13",
+          73594899.14,
+          27390336.0,
+          8825752.29,
+          0.6702
+        ],
+        [
+          "2026-07-20",
+          67200707.71,
+          30418555.57,
+          10959565.43,
+          0.6189
+        ],
+        [
+          "2026-07-27",
+          59959047.43,
+          21231650.43,
+          10302994.29,
+          0.6553
+        ],
+        [
+          "2026-08-03",
+          65418756.71,
+          22025355.57,
+          8809011.43,
+          0.6797
+        ],
+        [
+          "2026-08-10",
+          65325261.29,
+          15843829.14,
+          9992981.14,
+          0.7166
+        ],
+        [
+          "2026-08-17",
+          122934923.29,
+          27824318.86,
+          21724977.71,
+          0.7127
+        ],
+        [
+          "2026-08-24",
+          112222918.57,
+          13802979.57,
+          14920574.43,
+          0.7962
+        ],
+        [
+          "2026-08-31",
+          145621540.43,
+          22710616.14,
+          18675444.29,
+          0.7787
+        ],
+        [
+          "2026-09-07",
+          129982692.0,
+          81057968.86,
+          9019811.29,
+          0.5907
+        ],
+        [
+          "2026-09-14",
+          166173776.57,
+          20970727.29,
+          10688966.14,
+          0.84
+        ],
+        [
+          "2026-09-21",
+          182797077.0,
+          152164809.14,
+          28679422.57,
+          0.5027
+        ],
+        [
+          "2026-09-28",
+          134984192.43,
+          91087453.0,
+          23243490.43,
+          0.5414
+        ],
+        [
+          "2026-10-05",
+          164406718.71,
+          44529988.14,
+          16170915.71,
+          0.7303
+        ],
+        [
+          "2026-10-12",
+          125132787.71,
+          54679550.29,
+          21420955.57,
+          0.6218
+        ],
+        [
+          "2026-10-19",
+          110524191.43,
+          44531443.0,
+          23174373.14,
+          0.6201
+        ],
+        [
+          "2026-10-26",
+          125280364.86,
+          72268570.14,
+          36826034.57,
+          0.5345
+        ],
+        [
+          "2026-11-02",
+          130311781.86,
+          171478793.57,
+          40635504.86,
+          0.3806
+        ]
+      ],
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "full Monday-Sunday weeks of 2026: week, NEAR Intents, THORChain and Chainflip volume per day, NEAR Intents share of the three"
+    },
+    "crosschain_weeks_total": {
+      "value": 44,
+      "unit": "weeks",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "full weeks in that table"
+    },
+    "crosschain_weeks_intents_largest": {
+      "value": 42,
+      "unit": "weeks",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "weeks in which NEAR Intents had the most volume of the three"
+    },
+    "crosschain_weeks_intents_largest_last12": {
+      "value": 11,
+      "unit": "weeks",
+      "kind": "FACT",
+      "sources": [
+        "data/market/crosschain_peers_daily.csv"
+      ],
+      "method": "same, among the newest 12 full weeks"
+    },
+    "confidential_switch_day": {
+      "value": "2026-10-27",
+      "unit": "",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "first day on which 1Click swaps settle confidentially, per the docs changelog"
+    },
+    "confidential_days_before": {
+      "value": 13,
+      "unit": "days",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "clean days in the 14 days before the switch"
+    },
+    "confidential_days_after": {
+      "value": 13,
+      "unit": "days",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "clean days in the 14 days from the switch (the download ends 10 Nov)"
+    },
+    "oneclick_swaps_per_day_before_switch": {
+      "value": 15468.153846,
+      "unit": "swaps/day",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "mean SUCCESS swaps per day, 14 days before the switch; clean full days only (days with source-API gaps are left out)"
+    },
+    "oneclick_swaps_per_day_after_switch": {
+      "value": 18267.153846,
+      "unit": "swaps/day",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "same, from the switch"
+    },
+    "oneclick_swaps_after_vs_before_switch": {
+      "value": 1.180952,
+      "unit": "ratio",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "after / before"
+    },
+    "oneclick_usd_per_day_before_switch": {
+      "value": 32100229.919231,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "mean SUCCESS amountInUsd per day, 14 days before the switch; clean full days only (days with source-API gaps are left out)"
+    },
+    "oneclick_usd_per_day_after_switch": {
+      "value": 36455755.494615,
+      "unit": "USD/day",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "same, from the switch"
+    },
+    "oneclick_usd_after_vs_before_switch": {
+      "value": 1.135685,
+      "unit": "ratio",
+      "kind": "FACT",
+      "sources": [
+        "data/summary/daily.csv"
+      ],
+      "method": "after / before"
+    },
     "organic_signers_per_day_jan": {
       "value": 14274.451613,
       "unit": "accounts/day",
