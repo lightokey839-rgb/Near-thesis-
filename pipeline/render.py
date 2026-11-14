@@ -12,7 +12,8 @@ PAIR_LABELS = {
     "solana_dex_to_price": "PLACEBO: Solana DEX volume -> NEAR price",
     "btc_to_price": "MARKET: BTC price -> NEAR price",
 }
-VARIANT_LABELS = {"weekly": "weekly, all weeks", "weekly_ex_incentive": "weekly, without Sep 14-Oct 19", "daily": "daily"}
+VARIANT_LABELS = {"weekly": "weekly, all weeks", "weekly_ex_incentive": "weekly, without Sep 14-Oct 19",
+                  "weekly_post_buyback": "weekly, from the 23 Feb buyback start", "daily": "daily"}
 
 
 def fmt_value(v, unit):
@@ -75,7 +76,7 @@ def sensitivity_md(met):
 def leadlag_md(met):
     table = met["leadlag_table"]["value"]
     out = ["| Pair (x -> y) | Data | Same period r [95% CI] | Strongest lead/lag: lag, r [95% CI] |", "|---|---|---|---|"]
-    for variant in ("weekly", "weekly_ex_incentive", "daily"):
+    for variant in ("weekly", "weekly_ex_incentive", "weekly_post_buyback", "daily"):
         unit = "wk" if variant.startswith("weekly") else "d"
         for pid, label in PAIR_LABELS.items():
             rows = [r for r in table if r[0] == variant and r[1] == pid]
@@ -216,6 +217,19 @@ def extra_gaps_md(met):
     return "\n".join(out)
 
 
+def release_sens_md(met):
+    grid = met["scenario_release_grid"]["value"]
+    out = ["| Scenario | " + " | ".join("Release %.0f%% / yr" % (100 * g) for g in grid) + " | NEAR bought / issued, final year |",
+           "|---|" + "---|" * (len(grid) + 1)]
+    for sid, own, cells, share in met["scenario_release_sensitivity"]["value"]:
+        out.append("| %s (defines %.0f%%) | %s | %.0f%% |" % (sid.capitalize(), 100 * own, " | ".join(
+            ("**%+.1f%%**" if abs(g - own) < 1e-9 else "%+.1f%%") % (100 * c) for g, c in zip(grid, cells)), 100 * share))
+    out += ["", "*Five-year change in custody-adjusted float (supply minus NEAR held in the revenue wallets) when only the release "
+            "rate changes. Bold = the scenario as defined in `scenarios.json`. The last column does not depend on release, because it "
+            "counts purchases. Metric: `scenario_release_sensitivity`.*"]
+    return "\n".join(out)
+
+
 def crosschain_md(met):
     v = lambda k: met[k]["value"]
     out = ["| Venue | Volume / day, %s | Share of the three | All-time volume (DefiLlama) |" % v("crosschain_window"), "|---|---|---|---|"]
@@ -234,7 +248,8 @@ def render_thesis(text, met):
                        ("<!-- FAMILIES -->", families_md), ("<!-- BRIDGE_MONTHLY -->", bridge_monthly_md),
                        ("<!-- WINDOWS -->", windows_md), ("<!-- AGENTS -->", agents_md), ("<!-- REVENUE_WALLETS -->", revenue_wallets_md), ("<!-- SCENARIOS -->", scenarios_md),
                        ("<!-- WEEKLY_TREND -->", weekly_trend_md), ("<!-- RECON -->", recon_md),
-                       ("<!-- EXTRA_GAPS -->", extra_gaps_md), ("<!-- CROSSCHAIN -->", crosschain_md)):
+                       ("<!-- EXTRA_GAPS -->", extra_gaps_md), ("<!-- CROSSCHAIN -->", crosschain_md),
+                       ("<!-- RELEASE_SENS -->", release_sens_md)):
         if marker in text:
             text = text.replace(marker, fn(met))
     return text

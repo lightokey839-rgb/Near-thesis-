@@ -6344,6 +6344,654 @@
           305,
           0.112,
           false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          -4,
+          -0.1305,
+          -0.3138,
+          0.1958,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          -3,
+          -0.3795,
+          -0.5716,
+          -0.0225,
+          34,
+          0.338,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          -2,
+          0.0238,
+          -0.2272,
+          0.2994,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          -1,
+          -0.059,
+          -0.3742,
+          0.4156,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          0,
+          0.2284,
+          0.0502,
+          0.4968,
+          37,
+          0.324,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          1,
+          0.2753,
+          -0.0247,
+          0.47,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          2,
+          0.073,
+          -0.2459,
+          0.3164,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          3,
+          0.3148,
+          -0.0307,
+          0.4748,
+          34,
+          0.338,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price",
+          "main",
+          4,
+          -0.1101,
+          -0.4308,
+          0.1195,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          -4,
+          -0.0151,
+          -0.3775,
+          0.5064,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          -3,
+          -0.1179,
+          -0.3685,
+          0.2611,
+          34,
+          0.338,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          -2,
+          -0.0939,
+          -0.3364,
+          0.1705,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          -1,
+          0.1064,
+          -0.1,
+          0.3716,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          0,
+          0.2006,
+          -0.0741,
+          0.4571,
+          37,
+          0.324,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          1,
+          0.1171,
+          -0.2228,
+          0.4727,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          2,
+          0.0264,
+          -0.3573,
+          0.1867,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          3,
+          0.116,
+          -0.1767,
+          0.3191,
+          34,
+          0.338,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_organic",
+          "main",
+          4,
+          0.3352,
+          0.0104,
+          0.6283,
+          33,
+          0.343,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          -4,
+          -0.2868,
+          -0.577,
+          0.1244,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          -3,
+          -0.0037,
+          -0.1952,
+          0.3041,
+          34,
+          0.338,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          -2,
+          -0.0515,
+          -0.3809,
+          0.4199,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          -1,
+          0.2601,
+          -0.1313,
+          0.4855,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          0,
+          0.5384,
+          0.1274,
+          0.7182,
+          37,
+          0.324,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          1,
+          0.4759,
+          0.0498,
+          0.741,
+          36,
+          0.329,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          2,
+          0.181,
+          -0.3428,
+          0.4192,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          3,
+          0.2554,
+          0.0258,
+          0.5251,
+          34,
+          0.338,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "organic_to_price",
+          "main",
+          4,
+          0.2418,
+          -0.0618,
+          0.4859,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          -4,
+          -0.2446,
+          -0.4233,
+          0.0008,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          -3,
+          -0.431,
+          -0.5931,
+          -0.1711,
+          34,
+          0.338,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          -2,
+          -0.0926,
+          -0.3454,
+          0.2431,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          -1,
+          -0.0364,
+          -0.3509,
+          0.3153,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          0,
+          0.2335,
+          -0.1025,
+          0.6094,
+          37,
+          0.324,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          1,
+          0.2462,
+          -0.0507,
+          0.4975,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          2,
+          0.0899,
+          -0.1336,
+          0.2868,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          3,
+          0.2804,
+          -0.0633,
+          0.4955,
+          34,
+          0.338,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "intents_to_price_ex_btc",
+          "main",
+          4,
+          0.0351,
+          -0.244,
+          0.3313,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          -4,
+          0.0339,
+          -0.1763,
+          0.4115,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          -3,
+          -0.0765,
+          -0.3289,
+          0.2264,
+          34,
+          0.338,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          -2,
+          -0.1986,
+          -0.4738,
+          0.0871,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          -1,
+          0.0852,
+          -0.283,
+          0.4764,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          0,
+          0.0252,
+          -0.1615,
+          0.2454,
+          37,
+          0.324,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          1,
+          -0.0052,
+          -0.4457,
+          0.3124,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          2,
+          0.227,
+          -0.0248,
+          0.4609,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          3,
+          0.1736,
+          -0.1759,
+          0.5869,
+          34,
+          0.338,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "solana_dex_to_price",
+          "placebo",
+          4,
+          0.0709,
+          -0.2228,
+          0.3308,
+          33,
+          0.343,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          -4,
+          -0.2787,
+          -0.5098,
+          -0.0056,
+          33,
+          0.343,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          -3,
+          -0.2133,
+          -0.4331,
+          0.0749,
+          34,
+          0.338,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          -2,
+          -0.2192,
+          -0.5491,
+          0.0552,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          -1,
+          -0.1509,
+          -0.5657,
+          0.1608,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          0,
+          0.4436,
+          0.1763,
+          0.7366,
+          37,
+          0.324,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          1,
+          0.0704,
+          -0.2182,
+          0.2379,
+          36,
+          0.329,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          2,
+          0.0873,
+          -0.2154,
+          0.2603,
+          35,
+          0.333,
+          false
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          3,
+          0.3626,
+          0.0356,
+          0.6117,
+          34,
+          0.338,
+          true
+        ],
+        [
+          "weekly_post_buyback",
+          "btc_to_price",
+          "market factor",
+          4,
+          0.4306,
+          0.0285,
+          0.7024,
+          33,
+          0.343,
+          true
         ]
       ],
       "unit": "r",
@@ -6478,6 +7126,126 @@
         "data/market/placebo_daily.csv"
       ],
       "method": "weekly r: organic signers this week vs NEAR price next week (weekly means; may reflect averaging plus the same-week link)"
+    },
+    "leadlag_post_buyback_changes": {
+      "value": 37,
+      "unit": "weekly changes",
+      "kind": "FACT",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "weekly changes used when weeks up to 2026-02-22 are left out (same-week Intents -> price pair)"
+    },
+    "leadlag_post_buyback_critical_r": {
+      "value": 0.324025,
+      "unit": "r",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "|r| needed for p < 0.05 in the post-buyback sample"
+    },
+    "leadlag_post_buyback_min_detectable_r": {
+      "value": 0.446401,
+      "unit": "r",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "smallest |r| detectable with 80% power in that sample"
+    },
+    "leadlag_post_buyback_intents_tests": {
+      "value": 24,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "post-buyback weekly lag != 0 tests where x = Intents volume"
+    },
+    "leadlag_post_buyback_intents_significant": {
+      "value": 3,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "of those, how many have a bootstrap CI excluding 0"
+    },
+    "leadlag_post_buyback_all_tests": {
+      "value": 48,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "post-buyback weekly lag != 0 tests, all pairs"
+    },
+    "leadlag_post_buyback_all_significant": {
+      "value": 8,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "of those, how many have a bootstrap CI excluding 0"
+    },
+    "leadlag_post_buyback_expected_false_positives": {
+      "value": 2.4,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "5% of them, by chance alone"
+    },
+    "leadlag_post_buyback_intents_to_price_lead_significant": {
+      "value": 0,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "post-buyback tests where Intents volume moves FIRST (positive lag) and NEAR's price follows, CI excluding 0"
+    },
+    "leadlag_post_buyback_btc_lag_significant": {
+      "value": 3,
+      "unit": "tests",
+      "kind": "INFERENCE",
+      "sources": [
+        "data/market/defillama_intents_daily.csv",
+        "data/market/near_price_daily.csv",
+        "data/bq/q10_daily_signers_by_segment.csv",
+        "data/market/placebo_daily.csv"
+      ],
+      "method": "post-buyback BTC -> NEAR price tests at non-zero lags with a CI excluding 0 (a liquid market should show none)"
     },
     "leadlag_best_intents_to_price": {
       "value": [
@@ -7191,6 +7959,89 @@
         "pipeline/scenario_model.py"
       ],
       "method": "scenarios in which NEAR bought back reaches NEAR issued by the final year"
+    },
+    "scenario_release_grid": {
+      "value": [
+        0.0,
+        0.25,
+        0.5,
+        1.0
+      ],
+      "unit": "share per year",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "custody release rates tried"
+    },
+    "scenario_release_sensitivity": {
+      "value": [
+        [
+          "bear",
+          0.25,
+          [
+            0.11584844065822097,
+            0.12441148611333142,
+            0.12831085798801123,
+            0.130722622219126
+          ],
+          0.06061534567677028
+        ],
+        [
+          "base",
+          0.0,
+          [
+            0.04552080695004168,
+            0.06293806600762308,
+            0.07288929326217142,
+            0.08218286855937129
+          ],
+          0.8357528769643752
+        ],
+        [
+          "bull",
+          0.0,
+          [
+            -0.07846952455360034,
+            -0.039272418428255684,
+            -0.012817488974175673,
+            0.018576095230559808
+          ],
+          4.592465452905367
+        ],
+        [
+          "stress",
+          0.5,
+          [
+            0.04274589310594523,
+            0.06141936180308161,
+            0.07217561520810345,
+            0.08225552332737696
+          ],
+          0.8314617760896711
+        ]
+      ],
+      "unit": "",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "per scenario: id, its own release rate, five-year change in custody-adjusted float at each release rate in scenario_release_grid (everything else as defined), final-year NEAR bought / issued (does not depend on release)"
+    },
+    "scenario_bull_float_falls_up_to_release": {
+      "value": 0.5,
+      "unit": "share per year",
+      "kind": "INFERENCE",
+      "sources": [
+        "scenarios.json",
+        "data/derived/metrics.json",
+        "pipeline/scenario_model.py"
+      ],
+      "method": "highest release rate in the grid at which the bull case's float still shrinks"
     },
     "reverse_final_year_issuance_near": {
       "value": 22132524.579113,

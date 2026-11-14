@@ -20,6 +20,7 @@ INFLATION_RATES = [0.025, 0.020, 0.016]          # today, a midpoint, HSP-029 en
 BUYBACK_MULTIPLES = [0.0, 0.5, 1.0, 2.0, 4.0]    # x today's buyback-wallet inflow
 EXTRA_TAKE_BPS = [10.0, 20.0]                    # hypothetical take-rates beside today's measured ones
 INCENTIVE_WEEKS = ("2026-09-14", "2026-10-19")   # Sep-Oct incentive period incl. the change out of it
+RELEASE_GRID = (0.0, 0.25, 0.5, 1.0)             # custody released back to the market per year, for the sensitivity table
 
 
 # ----------------------------------------------------------------------------- small helpers
@@ -113,6 +114,7 @@ def extra(m):
 
 # ----------------------------------------------------------------------------- value-capture bridge and windows
 BUYBACK_START = "2026-02-23"  # DefiLlama's adapter: captured revenue is used to buy back NEAR from this date
+BUYBACK_PREV_SUNDAY = "2026-02-22"  # weeks labelled up to this day are left out of the post-buyback lead-lag sample
 
 
 def windows(m):
@@ -230,6 +232,24 @@ def scenarios(m, path):
                   "%s scenario: change in tradable float over the whole period" % sid)
     m.put("scenarios_offsetting_issuance", [s["id"] for s in summary if s["buyback_share_of_issuance"] >= 1.0], "", "INFERENCE", src,
           "scenarios in which NEAR bought back reaches NEAR issued by the final year")
+    # custody-release sensitivity: each scenario re-run with only custody_release_per_year changed
+    sens = []
+    for sc in cfg["scenarios"]:
+        cells = []
+        for rel in RELEASE_GRID:
+            cum = 1.0
+            for r in sm.run(start, cfg, dict(sc, custody_release_per_year=rel)):
+                cum *= 1.0 + r["float_growth"]
+            cells.append(cum - 1.0)
+        sens.append([sc["id"], sc["custody_release_per_year"], cells, by[sc["id"]]["buyback_share_of_issuance"]])
+    m.put("scenario_release_grid", list(RELEASE_GRID), "share per year", "INFERENCE", src, "custody release rates tried")
+    m.put("scenario_release_sensitivity", sens, "", "INFERENCE", src,
+          "per scenario: id, its own release rate, five-year change in custody-adjusted float at each release rate in "
+          "scenario_release_grid (everything else as defined), final-year NEAR bought / issued (does not depend on release)")
+    bull = [r for r in sens if r[0] == "bull"]
+    if bull:
+        m.put("scenario_bull_float_falls_up_to_release", max([g for g, c in zip(RELEASE_GRID, bull[0][2]) if c < 0], default=None),
+              "share per year", "INFERENCE", src, "highest release rate in the grid at which the bull case's float still shrinks")
     rv = sm.reverse(start, cfg)
     for k, v in rv.items():
         m.put("reverse_" + k, v, "", "INFERENCE", src,
@@ -345,7 +365,9 @@ def leadlag(m):
     out, summary = [], {}
     variants = [("weekly", weekly, 4, 4, 2000, None, None),
                 ("weekly_ex_incentive", weekly, 4, 4, 2000) + INCENTIVE_WEEKS,
-                ("daily", [{"day": d, **days[d]} for d in full_days], 7, 14, 400, None, None)]
+                ("daily", [{"day": d, **days[d]} for d in full_days], 7, 14, 400, None, None),
+                # last, so the random draws of the three variants above are unchanged
+                ("weekly_post_buyback", weekly, 4, 4, 2000, "0000-00-00", BUYBACK_PREV_SUNDAY)]
     for name, rows, maxlag, block, reps, mf, mt in variants:
         ser, beta = prepare(rows, mf, mt)
         if name == "weekly":
@@ -383,6 +405,28 @@ def leadlag(m):
           "of those, how many have a bootstrap CI excluding 0")
     m.put("leadlag_organic_to_price_lag1", [r for r in nw if r[1] == "organic_to_price" and r[3] == 1][0][4], "r", "INFERENCE", src,
           "weekly r: organic signers this week vs NEAR price next week (weekly means; may reflect averaging plus the same-week link)")
+    # post-buyback sample: weeks before the 23 Feb buyback start are masked out
+    pb = [r for r in out if r[0] == "weekly_post_buyback"]
+    n_pb = [r for r in pb if r[1] == "intents_to_price" and r[3] == 0][0][7]
+    crit_pb, mde_pb = critical_r(n_pb)
+    pb_it = [r for r in pb if r[1].startswith("intents_") and r[3] != 0]
+    m.put("leadlag_post_buyback_changes", n_pb, "weekly changes", "FACT", src,
+          "weekly changes used when weeks up to %s are left out (same-week Intents -> price pair)" % BUYBACK_PREV_SUNDAY)
+    m.put("leadlag_post_buyback_critical_r", crit_pb, "r", "INFERENCE", src, "|r| needed for p < 0.05 in the post-buyback sample")
+    m.put("leadlag_post_buyback_min_detectable_r", mde_pb, "r", "INFERENCE", src, "smallest |r| detectable with 80% power in that sample")
+    m.put("leadlag_post_buyback_intents_tests", len(pb_it), "tests", "INFERENCE", src, "post-buyback weekly lag != 0 tests where x = Intents volume")
+    m.put("leadlag_post_buyback_intents_significant", sum(1 for r in pb_it if r[9]), "tests", "INFERENCE", src,
+          "of those, how many have a bootstrap CI excluding 0")
+    pb_all = [r for r in pb if r[3] != 0]
+    m.put("leadlag_post_buyback_all_tests", len(pb_all), "tests", "INFERENCE", src, "post-buyback weekly lag != 0 tests, all pairs")
+    m.put("leadlag_post_buyback_all_significant", sum(1 for r in pb_all if r[9]), "tests", "INFERENCE", src,
+          "of those, how many have a bootstrap CI excluding 0")
+    m.put("leadlag_post_buyback_expected_false_positives", 0.05 * len(pb_all), "tests", "INFERENCE", src, "5% of them, by chance alone")
+    m.put("leadlag_post_buyback_intents_to_price_lead_significant",
+          sum(1 for r in pb_all if r[1] in ("intents_to_price", "intents_to_price_ex_btc") and r[3] > 0 and r[9]), "tests",
+          "INFERENCE", src, "post-buyback tests where Intents volume moves FIRST (positive lag) and NEAR's price follows, CI excluding 0")
+    m.put("leadlag_post_buyback_btc_lag_significant", sum(1 for r in pb_all if r[1] == "btc_to_price" and r[9]), "tests",
+          "INFERENCE", src, "post-buyback BTC -> NEAR price tests at non-zero lags with a CI excluding 0 (a liquid market should show none)")
     for pid, *_ in PAIRS:
         lag, r, sig, n, crit, mde = summary["weekly:" + pid]
         m.put("leadlag_best_" + pid, [lag, round(r, 3), "CI excludes 0" if sig else "CI includes 0"], "", "INFERENCE", src,

@@ -119,6 +119,47 @@ class WordedClaimsTest(unittest.TestCase):
         self.assertGreater(self.m["oneclick_swaps_after_vs_before_switch"], 0.9)
         self.assertGreater(self.m["oneclick_usd_after_vs_before_switch"], 0.9)
 
+    def test_release_sensitivity(self):
+        sens = {r[0]: r for r in self.m["scenario_release_sensitivity"]}
+        grid = self.m["scenario_release_grid"]
+        for sid, own, cells, share in sens.values():
+            # the cell at the scenario's own release rate is the published scenario result
+            self.assertAlmostEqual(cells[grid.index(own)], self.m["scenario_%s_float_change_total" % sid], places=5)
+            # more release never shrinks the float more
+            self.assertEqual(cells, sorted(cells))
+        # section 6b: "the bull case's float still shrinks at up to X release and grows at 100%"
+        self.assertLess(sens["bull"][2][grid.index(0.5)], 0)
+        self.assertGreater(sens["bull"][2][grid.index(1.0)], 0)
+        self.assertEqual(self.m["scenario_bull_float_falls_up_to_release"], 0.5)
+
+    def test_release_sensitivity_recomputes_from_scratch(self):
+        sys.path.insert(0, os.path.join(ROOT, "pipeline"))
+        import scenario_model as sm
+        start, cfg = self.m["scenario_start"], self.m["scenario_config"]
+        for sc in cfg["scenarios"]:
+            row = [r for r in self.m["scenario_release_sensitivity"] if r[0] == sc["id"]][0]
+            for rel, cell in zip(self.m["scenario_release_grid"], row[2]):
+                cum = 1.0
+                for y in sm.run(start, cfg, dict(sc, custody_release_per_year=rel)):
+                    cum *= 1.0 + y["float_growth"]
+                self.assertAlmostEqual(cum - 1.0, cell, places=9)
+
+    def test_post_buyback_leadlag_reading(self):
+        # section 7: "none shows Intents volume moving before NEAR's price"; "BTC 'leads' too, so read as noise"
+        self.assertEqual(self.m["leadlag_post_buyback_intents_to_price_lead_significant"], 0)
+        # "the Intents-price hits are at a lag of -3 weeks"
+        hits = {r[3] for r in self.m["leadlag_table"] if r[0] == "weekly_post_buyback" and r[9] and r[3] != 0
+                and r[1] in ("intents_to_price", "intents_to_price_ex_btc")}
+        self.assertEqual(hits, {-3})
+        # "the remaining Intents hit is Intents volume against organic signers four weeks later";
+        # "BTC and NEAR's price leading each other ... in both directions"
+        rows = [r for r in self.m["leadlag_table"] if r[0] == "weekly_post_buyback" and r[9] and r[3] != 0]
+        self.assertEqual({(r[1], r[3]) for r in rows if r[1] == "intents_to_organic"}, {("intents_to_organic", 4)})
+        btc = {r[3] for r in rows if r[1] == "btc_to_price"}
+        self.assertTrue(any(l > 0 for l in btc) and any(l < 0 for l in btc))
+        self.assertGreater(self.m["leadlag_post_buyback_btc_lag_significant"], 0)
+        self.assertEqual(self.m["leadlag_intents_significant"], 0)
+
     def test_extra_gaps_are_small(self):
         # "too small to move any figure here"
         self.assertLess(self.m["extra_gap_expected_missing_share"], 0.01)

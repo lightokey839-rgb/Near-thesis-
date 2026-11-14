@@ -34,7 +34,7 @@
 
 NEAR Intents is a **real cross-chain demand source, above January's level since an August step-up**, and since spring 2026 it has created a **measurable on-chain buy-and-hold flow into NEAR**. But that flow absorbs only about **{wallet_inflow_share_of_issuance|pct0} of the new NEAR issued each year**.
 - **Organic activity on the NEAR chain itself fell {organic_change_jan_to_latest|pctabs} from January to the latest month** ({organic_change_jan_to_aug|pctabs} peak-to-trough, January to August). {organic_tg_share_of_jan_to_aug_drop|pct0} of that fall is Telegram (`.tg`) wallet accounts.
-- **The token trades at about {market_cap_to_captured_revenue|x0} its captured Intents revenue,** annualised from the latest 30 days. That window is near the best of the year; section 5 shows the others.
+- **The token trades at about {market_cap_to_captured_revenue|x0} its captured Intents revenue,** annualised from the latest 30 days. That window is near the best of the year; section 5 shows the others. This is a descriptive ratio with no reference class: we found no peer whose token-captured revenue is measured the same way, so we do not call it cheap or expensive against anything.
 
 So today NEAR is best described as an **option on Intents' volume × take-rate growing faster than issuance**. HSP-029 would cut issuance, if it clears its remaining steps (section 4). It is not yet a token backed by the cash flows it captures. Section 5 lists the measurements that would change the verdict either way.
 
@@ -250,7 +250,7 @@ This hackathon is built around AI agents, so the thesis has to ask whether agent
 
 **INFERENCE:** the gross staking-yield ceiling is **{staking_yield_ceiling|pct1}** now and **{staking_yield_ceiling_hsp029|pct1}** at 1.6%.
 - Issuance goes to stakers. So a holder who stakes roughly keeps their share of supply, while one who does not is diluted by about the inflation rate each year.
-- **OPEN - the treasury cut.** The treasury cut in the table is the on-chain parameter we read ({protocol_reward_rate|pct0}). HSP-029 coverage, and the yield figures in it, describe a 90/10 staker/treasury split. We could not reconcile the two (section 3e). It changes who receives new NEAR, not how much is issued: the dilution figures here use total supply growth from block headers. If 10% goes to the treasury, the yield ceilings above would be about a tenth lower, and the treasury would hold NEAR that this thesis does not model.
+- **OPEN - the treasury cut.** The treasury cut in the table is the on-chain parameter we read ({protocol_reward_rate|pct0}). HSP-029 coverage, and the yield figures in it, describe a 90/10 staker/treasury split. We could not reconcile the two (section 3e). A BigQuery query that would settle it is written but **not run** (no billing project was available): [`sql/q34_epoch_reward_accounts.sql`](sql/q34_epoch_reward_accounts.sql) looks for a non-validator account credited at every epoch boundary; credits near 10% of issuance (about 273K NEAR a month) would contradict the on-chain 0%. It changes who receives new NEAR, not how much is issued: the dilution figures here use total supply growth from block headers. If 10% goes to the treasury, the yield ceilings above would be about a tenth lower, and the treasury would hold NEAR that this thesis does not model.
 - Issuance in this thesis is the protocol's **maximum** (supply × inflation ceiling), which assumes full validator uptime.
 
 **FACT - what actually happened to supply** (block-header `total_supply`, weekly samples, {supply_history_window}):
@@ -279,6 +279,11 @@ The 16 Nov veto window closes on the first day of judging, so the HSP-029 rows m
 Each signal below has a numeric bullish and bearish condition in [`thesis.yaml`](thesis.yaml), set on 11 Nov 2026 after looking at this data (so they are not pre-registered; one signal was changed on 12 Nov, see below). `python build.py` looks up today's value and marks it green (bullish condition holds), red (bearish condition holds) or yellow (neither).
 
 <!-- SCORECARD -->
+
+**How to read two of the signals.**
+- **`real_usage` measures NEAR L1 signers, not NEAR Intents users.** Intents settlements are signed by `intents.near`, so Intents users are invisible to it (section 3). Its yellow says the NEAR chain's own organic activity is between August's low and January's level; it says nothing about Intents demand.
+- **The verdict, side by side:** on the latest 30 days the counts (green, yellow, red) are {scorecard_counts} ("{scorecard_verdict}"); on the whole buyback era the same rules give "bearish". The table in section 5b shows all four windows.
+- **As of:** every value above is computed from tables pinned 11-14 Nov 2026 (the newest data day is {swaps_last_utc} for swaps and {defillama_window} for DefiLlama's 30 days). Thresholds were set on 11 Nov and not changed since.
 
 **Correction to `buyback_outflows` (12 Nov 2026).**
 - **What changed:** the first version measured the largest outflow in a rolling 90-day window. That window left out the wallet's only outflow (12,000 NEAR on 10 Jul 2026, about 2.3% of its balance then), so the signal scored green. Over the full daily record the same measure is red, and the scorecard verdict would have read "bearish". A verdict that one window choice can flip is not evidence.
@@ -363,7 +368,11 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
 - **Levers.** Base changes two things from today: volume growth and HSP-029. Bull adds a higher take-rate. Bear shrinks volume, lowers the take-rate and releases a quarter of custody a year. Stress pairs fast growth with a low take-rate and releases half of custody a year.
 - **The price is an input, not a forecast.** {near_price_usd|usd2} is NEAR's price when it was fetched, held fixed in every scenario so that revenue converts to NEAR at one rate. At a higher price the same dollars buy fewer NEAR, and the buyback share of issuance is lower.
 - **Four different quantities, not one.** Total supply grows with issuance and never shrinks here. Buybacks relative to issuance counts purchases. Custody-adjusted float is supply minus NEAR held in the revenue wallets. Permanent supply reduction is zero in every scenario, because nothing is burned.
-- **Release is the swing factor for the float.** The float falls only while bought NEAR stays held. In an ad-hoc run of the same model with only the release rate changed (`docs/AUDIT_2026-11-12.md`), the bull case's float still falls at 25% and 50% release a year and stops falling at 100%. The buyback share of issuance does not change with release, because it counts purchases only. Move the release slider on the dashboard to see it.
+- **Release is the swing factor for the float.** The float falls only while bought NEAR stays held. Re-running every scenario with only the release rate changed:
+
+<!-- RELEASE_SENS -->
+
+  The bull case's float still shrinks at up to {scenario_bull_float_falls_up_to_release|pct0} release a year and grows at 100%. The buyback share of issuance does not change with release, because it counts purchases only. The bull case's {scenario_bull_final_buyback_share|pct0} is not a forecast: it assumes 60% volume growth a year, a take-rate rising to 8 bps and a constant {near_price_usd|usd2} NEAR price. Move the release slider on the dashboard to see any other rate.
 - **Not modelled:** a competitor taking share, one large app changing its fee, Confidential Intents, and the treasury's 10% under a 90/10 split (section 4).
 
 **Reverse valuation: what has to be true** (at today's price, HSP-029 active):
@@ -376,7 +385,7 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
 **Method (INFERENCE):**
 - **Series:** weekly log changes of all-Intents volume (DefiLlama), NEAR price, organic NEAR signers (BigQuery q10), and two controls: BTC price (the market factor) and Solana DEX volume (a placebo). The sample is {leadlag_weeks} complete weeks (first and last week starting: {leadlag_weekly_first_last}).
 - **Tests:** for each lag from -4 to +4 weeks we compute Pearson r with a 95% confidence interval from a moving-block bootstrap. Blocks of 4 weeks keep the autocorrelation, and a fixed seed makes reruns identical.
-- **Robustness:** the test is repeated without the September-October incentive weeks, and on daily data (lags of ±7 days).
+- **Robustness:** the test is repeated without the September-October incentive weeks, from the 23 Feb buyback start only, and on daily data (lags of ±7 days).
 
 <!-- LEADLAG -->
 
@@ -386,6 +395,10 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
   - Of the {leadlag_intents_tests} weekly lead/lag tests where Intents volume is the first series, **{leadlag_intents_significant}** had a confidence interval excluding 0.
   - Across all {leadlag_weekly_nonzero_lag_tests} weekly lead/lag tests (including the placebo and BTC), {leadlag_weekly_nonzero_lag_significant} did, against about {leadlag_weekly_expected_false_positives|d1} expected by chance. Adjacent lags are not independent, so that is a rough guide only.
   - The hits that did appear are not about Intents. Organic signers this week vs price next week gives r {leadlag_organic_to_price_lag1|r2}, which is plausibly the weekly-averaging echo of the same-week link below.
+- **Since buybacks began.** Leaving out the weeks before 23 Feb leaves {leadlag_post_buyback_changes} weekly changes. Then only |r| above about {leadlag_post_buyback_critical_r|r2} is distinguishable from noise, and effects below about {leadlag_post_buyback_min_detectable_r|r2} would usually be missed. {leadlag_post_buyback_intents_significant} of {leadlag_post_buyback_intents_tests} lead/lag tests with Intents volume as the first series had a confidence interval excluding 0, and {leadlag_post_buyback_all_significant} of {leadlag_post_buyback_all_tests} across all pairs, against about {leadlag_post_buyback_expected_false_positives|d1} expected by chance.
+  - **None shows Intents volume moving before NEAR's price** ({leadlag_post_buyback_intents_to_price_lead_significant} hits at positive lags). The Intents-price hits are at a lag of -3 weeks: NEAR's price moves first, and Intents volume moves the other way three weeks later. The remaining Intents hit is Intents volume against organic NEAR signers four weeks later, only just clearing the band.
+  - **The same short sample also "finds" BTC and NEAR's price leading each other by 3-4 weeks, in both directions** ({leadlag_post_buyback_btc_lag_significant} hits), which liquid markets do not allow. So we read this sample's extra hits as multiple-testing noise and the smoothing of weekly averages, not as findings.
+  - For Intents volume leading NEAR's price, the reading is the same as on all weeks: **not detectable at this power**, which is not the same as "no relationship".
 - **Same-week moves.**
   - NEAR price moves with BTC in the same week (r, CI: {leadlag_same_week_btc_to_price}; beta {leadlag_btc_beta|r2}).
   - It also moves with organic NEAR signers (r, CI: {leadlag_same_week_organic_to_price}). This data cannot say which drives which, or whether both follow the wider market.
@@ -428,7 +441,7 @@ This is why the thesis is an option: it pays off only if **volume x take-rate** 
   - If they are missing data, about {extra_gap_expected_missing_swaps|int} swaps are missing, {extra_gap_expected_missing_share|pct2} of the swaps tested. That is too small to move any figure here. Nothing was excluded or changed because of them.
 - "User" = refund address, a proxy: one person can control many addresses, and one address can be a service.
 - DefiLlama's Intents volume comes from a Dune table maintained by NEAR, so it is only partly independent of our source.
-- Peer multiples use base-layer gas fees, whose methodology differs by chain.
+- Peer multiples (dashboard chart "Market cap per dollar of chain fees") use base-layer gas fees, whose methodology differs by chain. They are not a reference class for the {market_cap_to_captured_revenue|x0} captured-revenue multiple, which no peer reports on the same basis; we show them as context only.
 - **Prices:**
   - Valuation and issuance in USD use the NEAR price at fetch time ({near_price_usd|usd2}).
   - The bridge in section 3c values each day's buyback inflow at that day's price.

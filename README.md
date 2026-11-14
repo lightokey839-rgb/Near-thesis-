@@ -41,7 +41,7 @@ NEAR Hackathon, track **Investment Thesis** (`thesis`). Not investment advice; n
 
 **Two different things, kept apart:**
 - **Reproducible by anyone, from this repository:** every number, THESIS.md and the dashboard, rebuilt from the pinned snapshot tables in `data/` (below). About a minute on GitHub's runners; a few minutes on a laptop (the lead-lag bootstrap is the slow part).
-- **Source-data acquisition, not reproducible from the repository alone:** re-downloading the 1.1 GB raw 1Click swap file needs a NEAR Intents Explorer token, and BigQuery needs your own Google Cloud project. The raw file is not published. Its pinned summaries are, and their SHA-256 hashes are checked on every build. See "Re-running from the original sources".
+- **Source-data acquisition, not reproducible from the repository alone:** re-downloading the 1.1 GB raw 1Click swap file needs a NEAR Intents Explorer token, and BigQuery needs your own Google Cloud project. The raw file is not published (the Explorer API is partner-gated and we found no permission to redistribute it). Its pinned summaries are, and their SHA-256 hashes are checked on every build. The raw file we analysed is `intents_swaps.jsonl`, 1,112,006,192 bytes, 818,000 lines, SHA-256 `3ac3740c87f6f675ed7a2868c0b6fcbadbecad8f441629091f841f9716efec41`; anyone who re-downloads the same window can compare. See "Re-running from the original sources".
 
 Needs Python 3.8+. No packages to install. Tested on Python 3.15 (Windows). On every push, [GitHub Actions](.github/workflows/build.yml) rebuilds on Ubuntu and Windows (Python 3.12), runs the tests, and fails if the rebuild changes any committed file.
 
@@ -52,15 +52,15 @@ python build.py --test
 ```
 
 **You should see:**
-1. `all 57 pinned tables match data/MANIFEST.json`. The input tables are exactly the ones we analysed (SHA-256).
-2. `metrics: 246 computed, 0 sections not computed`, which writes `data/derived/metrics.json`. This includes the HSP-029 sensitivity tables, the five-year scenarios and reverse valuation, the lead-lag statistics and the `thesis.yaml` scorecard.
+1. `all 59 pinned tables match data/MANIFEST.json`. The input tables are exactly the ones we analysed (SHA-256).
+2. `metrics: 353 computed, 0 sections not computed`, which writes `data/derived/metrics.json`. This includes the HSP-029 sensitivity tables, the five-year scenarios and reverse valuation, the lead-lag statistics and the `thesis.yaml` scorecard.
 3. `THESIS.md written (every number filled from metrics.json)`
-4. `dashboard: 24 charts -> dashboard/index.html`
-5. The tests (32), ending in `OK`. They include checks that sentences stating a conclusion in words still match the data, and that the browser's scenario model gives exactly the same numbers as the Python one. That check needs Node.js and is skipped without it.
+4. `dashboard: 27 charts -> dashboard/index.html`
+5. The tests (54), ending in `OK`. They include checks that sentences stating a conclusion in words still match the data, that the browser's scenario model gives exactly the same numbers as the Python one (this one needs Node.js and is skipped without it), `verify.py`, and the swap download and summary scripts run against a local fake API and a synthetic file.
 
 **Offline viewing (optional):** the page loads Chart.js 4.4.1 from cdnjs with an integrity hash. To make it fully offline, put the same file in `dashboard/vendor/chart.umd.min.js`. The build checks its SHA-512 against the published hash and inlines it.
 
-Then open `dashboard/index.html` in a browser (it loads Chart.js 4.4.1 from cdnjs). You should see 10 headline tiles, the scorecard (verdict, signals and their status) and 24 charts. Under each chart, **"Query behind this chart"** shows the exact SQL file or Python function that produced it.
+Then open `dashboard/index.html` in a browser (it loads Chart.js 4.4.1 from cdnjs). You should see the section links, 10 headline tiles, the "Explain this dashboard" panel, the scorecard (verdict, signals and their status), the scenario panel and 27 charts. Under each chart, **"Query behind this chart"** shows the exact SQL file or Python function that produced it.
 
 **Why the numbers can't be invented:**
 - **Generated, not typed:** THESIS.md is generated from `docs/THESIS.template.md`. Every number computed from data is a placeholder like `{wallet_inflow_share_of_issuance|pct0}`, filled from `metrics.json`. A placeholder naming a metric that doesn't exist stops the build. The exceptions are facts quoted from outside sources (governance dates, the exploit, docs and dashboard figures): they are typed, and each has a source and read date in THESIS.md section 12.
