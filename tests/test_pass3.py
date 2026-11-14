@@ -65,9 +65,26 @@ class ClaimsTest(unittest.TestCase):
         self.assertIn('id="ask"', page)
         csp = re.search(r'http-equiv="Content-Security-Policy" content="([^"]+)"', page).group(1)
         self.assertIn("default-src 'none'", csp)
-        self.assertEqual(re.search(r"connect-src ([^;]+)", csp).group(1).split(), ["https://api.anthropic.com", "https://cloud-api.near.ai"])
+        # the AI box may call any HTTPS API the viewer chooses, or a model on their own machine; nothing else
+        self.assertEqual(re.search(r"connect-src ([^;]+)", csp).group(1).split(), ["https:", "http://localhost:*", "http://127.0.0.1:*"])
+        self.assertIn("script-src 'unsafe-inline' https://cdnjs.cloudflare.com;", csp)
+        # model output is shown as text, never as HTML
+        self.assertIn('$("ai-out").textContent = t', page)
+        self.assertNotIn("ai-out\").innerHTML", page)
         self.assertNotIn("localStorage", page)
         self.assertNotIn("sessionStorage", page)
+
+    def test_agent_files_are_built_and_published(self):
+        for name in ("llms.txt", "brief.md"):
+            with open(os.path.join(ROOT, "dashboard", name), encoding="utf-8") as f:
+                text = f.read()
+            self.assertNotRegex(text, r"\{[a-z][a-z0-9_]*(\|[a-z0-9]+)?\}", name)
+        with open(os.path.join(ROOT, "dashboard", "llms.txt"), encoding="utf-8") as f:
+            self.assertIn("claims.json", f.read())
+        with open(os.path.join(ROOT, ".github", "workflows", "pages.yml"), encoding="utf-8") as f:
+            wf = f.read()
+        for name in ("llms.txt", "brief.md", "claims.json", "metrics.json"):
+            self.assertIn(name, wf)
 
     def test_verify_script_passes(self):
         r = subprocess.run([sys.executable, "verify.py"], cwd=ROOT, capture_output=True, text=True)

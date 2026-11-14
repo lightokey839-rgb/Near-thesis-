@@ -40,6 +40,9 @@ jobs:
           mkdir -p _site
           cp dashboard/index.html _site/index.html
           cp THESIS.md _site/THESIS.md
+          # read-only files for AI agents and tools (no keys, no secrets): see dashboard/explain.py
+          cp dashboard/llms.txt dashboard/brief.md _site/
+          cp data/derived/claims.json data/derived/metrics.json _site/
           touch _site/.nojekyll
 
       - uses: actions/configure-pages@v5

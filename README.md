@@ -26,9 +26,10 @@ An evidence-first investment thesis on NEAR: **is NEAR Intents demand real, and 
 
 - **Thesis:** [THESIS.md](THESIS.md) opens with a one-page decision memo, then tests the chain **demand → capture → accrual**: is Intents activity real, how much of it does NEAR keep, and does that outweigh issuance? Could AI agents add demand that reaches the token? Agents are measured from NEAR AI Agent Market's own public data, with evidence tiers so bots are never counted as agents. It covers evidence for and against, outside cross-checks, a risk matrix, the strongest case from both sides, a catalyst calendar and what would change my mind.
 - **Headline finding, only visible in swap-level data:** [volume is not value](THESIS.md#3b-volume-is-not-value-what-1clicks-swap-level-data-reveals-and-what-it-cannot-establish-about-all-intents-revenue). The app that sends the most 1Click volume pays almost none of NEAR's buyback, and small channels fund most of it.
-- **Dashboard:** `dashboard/index.html`, hosted at https://lightokey839-rgb.github.io/Near-thesis-/ (rebuilt and published by [`pages.yml`](.github/workflows/pages.yml) on every push to `main`). It has:
+- **Dashboard:** `dashboard/index.html`, hosted at https://lightokey839-rgb.github.io/Near-thesis-/ (rebuilt and published by [`pages.yml`](.github/workflows/pages.yml) on every push to `main`). Layout: a sidebar for the sections, four headline stat cards and the scorecard verdict at the top, and a rail with the seven scorecard signals and the open questions. It has:
   - **Explain this dashboard:** the verdict in plain English, generated from the data by the build (no AI, no key). Every sentence shows the metric ids behind it, and the same sentences are in `data/derived/claims.json`. A button copies or downloads a short brief for any AI chat.
-  - **Ask an AI (optional):** a viewer can paste their *own* Claude (Anthropic) or NEAR AI Cloud API key to ask questions answered only from that brief. The key stays in page memory and goes only to that provider; the page's Content-Security-Policy blocks every other destination. **This repository contains no API key, and the site has no server.**
+  - **For AI agents (no key):** the site also serves [`llms.txt`](https://lightokey839-rgb.github.io/Near-thesis-/llms.txt), `brief.md`, `claims.json` and `metrics.json`, so any AI agent or tool that can read a web page can answer questions about the thesis. GitHub Pages serves them as a read-only API.
+  - **Ask an AI (optional):** a viewer picks Claude, NEAR AI Cloud, OpenAI, OpenRouter, Google Gemini, Groq, Mistral, Together, any other OpenAI-compatible API, or a model on their own computer (Ollama, LM Studio), and pastes their *own* key. Answers come only from the brief, with metric ids. The key stays in page memory and goes only to the address shown; model output is shown as plain text. **This repository contains no API key, and no server of ours ever sees one.**
   - a scorecard, an interactive five-year scenario panel (sliders, presets, reset) and 27 charts, each with its query and one plain sentence.
 - **Scenarios:** [`scenarios.json`](scenarios.json) holds the bear, base, bull and stress assumptions. [`pipeline/scenario_model.py`](pipeline/scenario_model.py) runs them and the reverse valuation (THESIS.md section 6b); the dashboard runs the same model in the browser, and a test checks that the two match.
 - **Scorecard rules:** [thesis.yaml](thesis.yaml) holds the claim and its numeric tripwires. Each build marks every signal green, yellow or red.
@@ -75,7 +76,8 @@ build.py                    one command: verify -> (refresh) -> metrics -> THESI
 THESIS.md                   generated thesis (edit docs/THESIS.template.md instead)
 thesis.yaml                 the claim and its numeric tripwires (bullish/bearish thresholds per signal)
 verify.py                   recomputes the headline numbers from the pinned CSVs with separate code; PASS/FAIL
-dashboard/                  build_dashboard.py -> index.html; explain.py -> the plain-English panel and data/derived/claims.json
+dashboard/                  build_dashboard.py -> index.html; layout.py = page layout; explain.py -> plain-English panel,
+                            claims.json, AI box, and llms.txt + brief.md for AI agents
 pipeline/
   download_swaps.py         1Click swap history from the NEAR Intents Explorer API (needs a JWT)
   summarize_swaps.py        raw swaps -> data/summary/*.csv
@@ -135,7 +137,7 @@ After a refresh, `build.py` re-pins the tables (rewrites `data/MANIFEST.json`), 
 ## Hackathon disclosure
 
 - **When it was built:** all code and analysis in this repo were written during the NEAR Hackathon window (November 2026). There is no pre-hackathon baseline.
-- **AI tools:** Claude (Claude Code) helped write the code, run checks and draft text. The author ran the data downloads with their own credentials and reviewed the results. The dashboard's optional "Ask an AI" box calls Claude or NEAR AI Cloud with the viewer's own key; no AI output is part of the thesis or its numbers.
+- **AI tools:** Claude (Claude Code) helped write the code, run checks and draft text. The author ran the data downloads with their own credentials and reviewed the results. The dashboard's optional "Ask an AI" box calls the AI provider the viewer chooses, with the viewer's own key; no AI output is part of the thesis or its numbers.
 - **Other project by the same author (rule Q-015):** the author also entered **CommonCircle** (https://github.com/lightokey839-rgb/commoncircle), private lending circles on NEAR. It is a separate, independent project: the two share no code, data or contracts.
 
 ## License

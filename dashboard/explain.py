@@ -6,9 +6,11 @@ Three layers, from most to least verifiable:
      whose numbers are {metric|format} placeholders, so each one traces to a metric id with a value, a source and a label.
   2. The same sentences as a machine-readable file (data/derived/claims.json) and a downloadable brief, so a screener or
      any AI tool can check claims without reading prose.
-  3. Optional: "Ask an AI about this dashboard". The viewer brings their own API key for Claude (Anthropic) or NEAR AI
-     Cloud. The key stays in page memory, is never stored or logged, and is sent only to the provider's own API; the
-     page's Content-Security-Policy allows no other destination. The repository holds no key and the site has no server.
+  3. For AI agents: llms.txt, brief.md, claims.json and metrics.json are published next to the page, so any agent can
+     read the thesis with no key (GitHub Pages serves them as a read-only API).
+  4. Optional: "Ask an AI". The viewer picks Claude, NEAR AI Cloud, any OpenAI-compatible API, or a local model, and
+     brings their own key. The key stays in page memory, is never stored or logged, and is sent only to the address
+     shown. The repository holds no key, and no server of ours ever sees one.
 """
 
 import json
@@ -119,6 +121,43 @@ def brief_markdown(claims, claim_text, met):
     return "\n".join(lines) + "\n"
 
 
+PAGES_URL = "https://lightokey839-rgb.github.io/Near-thesis-/"
+
+# Files published next to the page (by .github/workflows/pages.yml) so that any AI agent or tool can read the thesis
+# without a key: a read-only "API" served by GitHub Pages. No secrets are involved anywhere.
+AGENT_FILES = [
+    ("llms.txt", "Start here: what this is, where everything is, how to answer questions about it"),
+    ("brief.md", "The verdict and every headline claim with its metric ids (Markdown)"),
+    ("claims.json", "The same claims as JSON: text, label, metric values, sources, methods"),
+    ("metrics.json", "Every metric the build computes (value, unit, FACT/INFERENCE, sources, method)"),
+    ("THESIS.md", "The full thesis"),
+]
+
+
+def llms_txt(met, brief):
+    lines = ["# NEAR Intents Thesis Engine", "",
+             "> An evidence-first, reproducible investment thesis on NEAR: is NEAR Intents demand real, and how much of it does "
+             "the NEAR token capture? Every number is computed from pinned, SHA-256-checked tables by one command. Not investment "
+             "advice; no price targets.", "",
+             "Verdict (scorecard, latest 30 days): %s. Data as of %s." % (met["scorecard_verdict"]["value"], met["swaps_last_utc"]["value"]), "",
+             "## How to answer questions about this project", "",
+             "- Use only the files below. Quote numbers exactly as they appear, with their metric id.",
+             "- Keep the labels: FACT (measured), INFERENCE (arithmetic or a model), OPEN (unresolved).",
+             "- If the files do not answer a question, say so. Do not add outside figures as if they were in the thesis.", "",
+             "## Files (all public, no key needed)", ""]
+    lines += ["- [%s](%s%s): %s" % (n, PAGES_URL, n, d) for n, d in AGENT_FILES]
+    lines += ["- [Repository](https://github.com/lightokey839-rgb/Near-thesis-): code, pinned data, tests, CI", "",
+              "## Verify a number", ""] + ["    " + v for v in VERIFY]
+    return "\n".join(lines) + "\n"
+
+
+def write_agent_files(dashboard_dir, brief, met):
+    """dashboard/brief.md and dashboard/llms.txt; pages.yml publishes them with claims.json and metrics.json."""
+    for name, text in (("brief.md", brief), ("llms.txt", llms_txt(met, brief))):
+        with open("%s/%s" % (dashboard_dir, name), "w", encoding="utf-8", newline="\n") as f:
+            f.write(text)
+
+
 def panel_html(claims, brief, html_escape):
     rows = []
     section = None
@@ -138,6 +177,28 @@ def panel_html(claims, brief, html_escape):
         "{{BRIEF_JSON}}", json.dumps(brief).replace("</", "<\\/"))
 
 
+def ask_html(brief):
+    eps = "".join('<li><a href="%s">%s</a><span class="q">%s</span></li>' % (n, n, d) for n, d in AGENT_FILES)
+    presets = json.dumps(PROVIDERS).replace("</", "<\\/")
+    return ASK_HTML.replace("{{ENDPOINTS}}", eps).replace("{{PAGES_URL}}", PAGES_URL).replace("{{PROVIDERS}}", presets)
+
+
+# Providers whose APIs accept calls straight from a browser page (CORS preflight from this site's origin checked
+# 14 Nov 2026). Model ids are left for the viewer to fill in where we would otherwise be guessing them.
+PROVIDERS = [
+    {"id": "anthropic", "label": "Claude (Anthropic API)", "kind": "anthropic", "base": "https://api.anthropic.com/v1", "model": "claude-opus-5-5"},
+    {"id": "nearai", "label": "NEAR AI Cloud (private inference)", "kind": "openai", "base": "https://cloud-api.near.ai/v1", "model": "zai-org/GLM-5.1-FP8"},
+    {"id": "openai", "label": "OpenAI", "kind": "openai", "base": "https://api.openai.com/v1", "model": ""},
+    {"id": "openrouter", "label": "OpenRouter (hundreds of models)", "kind": "openai", "base": "https://openrouter.ai/api/v1", "model": ""},
+    {"id": "gemini", "label": "Google Gemini (OpenAI-compatible endpoint)", "kind": "openai", "base": "https://generativelanguage.googleapis.com/v1beta/openai", "model": ""},
+    {"id": "groq", "label": "Groq", "kind": "openai", "base": "https://api.groq.com/openai/v1", "model": ""},
+    {"id": "mistral", "label": "Mistral", "kind": "openai", "base": "https://api.mistral.ai/v1", "model": ""},
+    {"id": "together", "label": "Together AI", "kind": "openai", "base": "https://api.together.xyz/v1", "model": ""},
+    {"id": "local", "label": "A model on your own computer (Ollama, LM Studio)", "kind": "openai", "base": "http://localhost:11434/v1", "model": ""},
+    {"id": "custom", "label": "Any other OpenAI-compatible API", "kind": "openai", "base": "https://", "model": ""},
+]
+
+
 EXPLAIN_HTML = r"""<h2 id="explain">Explain this dashboard</h2>
 <section class="card explain">
 <h3>The verdict in plain English (generated from the data; no AI, no key)</h3>
@@ -145,40 +206,13 @@ EXPLAIN_HTML = r"""<h2 id="explain">Explain this dashboard</h2>
 {{ROWS}}
 <h4>Still open</h4><ul class="open">{{OPEN}}</ul>
 <details><summary>Check one number yourself in about 2 minutes</summary><pre><code>{{VERIFY}}</code></pre></details>
-<div class="presets" style="margin-top:10px"><button id="ex-copy">Copy brief for any AI chat</button><button id="ex-dl">Download brief (.md)</button><span id="ex-copied" class="q"></span></div>
-</section>
-<section class="card explain" id="ask">
-<h3>Ask an AI about this dashboard (optional, your own key)</h3>
-<p class="sentence">The AI sees only the brief above, and is told to answer from it, cite metric ids and say when the brief has no answer. You need your own API key. It stays in this page's memory: it is not saved, not logged and not sent anywhere except the provider you pick, and this page's security policy blocks every other destination. Use a key with a low spend limit, and delete it from the provider's console afterwards if you like. Answers are generated text: check any number against its metric id.</p>
-<div class="ctl">
-  <label>Provider
-    <select id="ai-prov">
-      <option value="anthropic">Claude (Anthropic API), model claude-opus-5-5</option>
-      <option value="nearai">NEAR AI Cloud (private inference), OpenAI-compatible</option>
-    </select></label>
-  <label id="ai-model-wrap" hidden>NEAR AI model id <input id="ai-model" type="text" value="zai-org/GLM-5.1-FP8" spellcheck="false" autocomplete="off"></label>
-  <label>API key <input id="ai-key" type="password" autocomplete="off" spellcheck="false" placeholder="paste your own key; it is kept in memory only"></label>
-  <div class="presets">
-    <button data-q="Summarize this dashboard for a hackathon judge in 5 bullets. Give the verdict first.">Summarize for a judge</button>
-    <button data-q="What is the strongest evidence against the thesis's conclusion, and what is still open?">Strongest evidence against</button>
-    <button data-q="Which three numbers should a reviewer verify first, and with which metric ids and commands?">What to verify first</button>
-    <button data-q="Explain 'volume is not value' to someone new to NEAR, in under 120 words.">Explain 'volume is not value'</button>
-  </div>
-  <label>Your question <textarea id="ai-q" rows="3">Summarize this dashboard for a hackathon judge in 5 bullets. Give the verdict first.</textarea></label>
-  <div class="presets"><button id="ai-go">Ask</button><button id="ai-forget">Forget key</button><span id="ai-status" class="q"></span></div>
-</div>
-<div id="ai-out" class="aiout" aria-live="polite"></div>
+<div class="presets" style="margin-top:12px"><button id="ex-copy">Copy brief for any AI chat</button><button id="ex-dl">Download brief (.md)</button><span id="ex-copied" class="q"></span></div>
 </section>
 <script>
 (function () {
   var BRIEF = {{BRIEF_JSON}};
+  window.__THESIS_BRIEF = BRIEF;
   var $ = function (id) { return document.getElementById(id); };
-  var SYSTEM = "You explain a published, reproducible investment-research dashboard to a hackathon judge. " +
-    "Use only the brief below. Every number you state must appear in the brief, and you cite its metric id in backticks. " +
-    "Keep the brief's FACT / INFERENCE / OPEN labels. If the brief does not answer the question, say so plainly. " +
-    "Do not give investment advice or price targets. Be concise: under 250 words unless asked for more. Plain text, no tables.\n\n" + BRIEF;
-  function status(t) { $("ai-status").textContent = t; }
-  function show(t) { $("ai-out").textContent = t; }
   $("ex-copy").onclick = function () {
     var done = function () { $("ex-copied").textContent = "Copied. Paste it into any AI chat, then ask your question."; };
     if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(BRIEF).then(done, function () { $("ex-copied").textContent = "Copy blocked by the browser; use Download."; }); }
@@ -190,50 +224,117 @@ EXPLAIN_HTML = r"""<h2 id="explain">Explain this dashboard</h2>
     a.download = "near-intents-thesis-brief.md"; a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
   };
-  $("ai-prov").onchange = function () { $("ai-model-wrap").hidden = $("ai-prov").value !== "nearai"; };
-  document.querySelectorAll("#ask .presets button[data-q]").forEach(function (b) { b.onclick = function () { $("ai-q").value = b.dataset.q; }; });
+})();
+</script>"""
+
+
+ASK_HTML = r"""<h2 id="ask">Ask an AI about this dashboard</h2>
+<div class="two">
+<section class="card">
+<h3>For AI agents and tools (no key)</h3>
+<p class="sentence">Any AI agent that can read a web page (Claude, ChatGPT, Perplexity, Cursor, your own scripts) can use these public files. GitHub Pages serves them as a read-only API; nothing here needs a key or a login.</p>
+<ul class="endpoints">{{ENDPOINTS}}</ul>
+<p class="sentence">Tell your agent: <code>Read {{PAGES_URL}}llms.txt and summarize the thesis for a judge, citing metric ids.</code></p>
+<div class="presets"><button class="btn" id="ag-copy">Copy that instruction</button><span id="ag-copied" class="q"></span></div>
+</section>
+<section class="card" id="ask-box">
+<h3>Or ask here with your own key (optional)</h3>
+<p class="sentence">Pick Claude, NEAR AI Cloud, any OpenAI-compatible provider, or a model running on your own computer. The AI sees only the brief and is told to answer from it and cite metric ids. Your key stays in this page's memory: it is not saved or logged, and it is sent only to the address shown below. Use a key with a low spend limit. Answers are generated text: check numbers against their metric ids.</p>
+<div class="ctl">
+  <label>Provider <select id="ai-prov"></select></label>
+  <label>API address (OpenAI-compatible base URL) <input id="ai-base" type="url" spellcheck="false" autocomplete="off"></label>
+  <label>Model id <input id="ai-model" type="text" spellcheck="false" autocomplete="off" placeholder="the model id from your provider's docs"></label>
+  <label>API key <input id="ai-key" type="password" autocomplete="off" spellcheck="false" placeholder="your own key (not needed for a local model)"></label>
+  <p class="q" id="ai-hint"></p>
+  <div class="presets">
+    <button data-q="Summarize this dashboard for a hackathon judge in 5 bullets. Give the verdict first.">Summarize for a judge</button>
+    <button data-q="What is the strongest evidence against the thesis's conclusion, and what is still open?">Strongest evidence against</button>
+    <button data-q="Which three numbers should a reviewer verify first, and with which metric ids and commands?">What to verify first</button>
+    <button data-q="Explain 'volume is not value' to someone new to NEAR, in under 120 words.">Explain 'volume is not value'</button>
+  </div>
+  <label>Your question <textarea id="ai-q" rows="3">Summarize this dashboard for a hackathon judge in 5 bullets. Give the verdict first.</textarea></label>
+  <div class="presets"><button id="ai-go">Ask</button><button id="ai-forget">Forget key</button><span id="ai-status" class="q"></span></div>
+</div>
+<div id="ai-out" class="aiout" aria-live="polite"></div>
+</section>
+</div>
+<script>
+(function () {
+  var PROVIDERS = {{PROVIDERS}};
+  var BRIEF = window.__THESIS_BRIEF || "";
+  var $ = function (id) { return document.getElementById(id); };
+  var SYSTEM = "You explain a published, reproducible investment-research dashboard to a hackathon judge. " +
+    "Use only the brief below. Every number you state must appear in the brief, and you cite its metric id in backticks. " +
+    "Keep the brief's FACT / INFERENCE / OPEN labels. If the brief does not answer the question, say so plainly. " +
+    "Do not give investment advice or price targets. Be concise: under 250 words unless asked for more. Plain text, no tables.\n\n" + BRIEF;
+  var HINTS = {
+    local: "Start your local server first. Ollama: set OLLAMA_ORIGINS to this page's address so the browser may call it; LM Studio: use http://localhost:1234/v1 and enable CORS.",
+    custom: "Any API that speaks the OpenAI chat-completions format and allows browser calls (CORS).",
+    anthropic: "Uses the Messages API directly from your browser."
+  };
+  PROVIDERS.forEach(function (p) { var o = document.createElement("option"); o.value = p.id; o.textContent = p.label; $("ai-prov").appendChild(o); });
+  function pick() {
+    var p = PROVIDERS.filter(function (x) { return x.id === $("ai-prov").value; })[0];
+    $("ai-base").value = p.base; $("ai-model").value = p.model; $("ai-base").readOnly = p.kind === "anthropic";
+    $("ai-hint").textContent = HINTS[p.id] || "";
+  }
+  $("ai-prov").onchange = pick; pick();
+  function status(t) { $("ai-status").textContent = t; }
+  function show(t) { $("ai-out").textContent = t; }
+  $("ag-copy").onclick = function () {
+    var t = "Read {{PAGES_URL}}llms.txt and summarize the thesis for a judge, citing metric ids.";
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t).then(function () { $("ag-copied").textContent = "Copied."; }); }
+  };
+  document.querySelectorAll("#ask-box .presets button[data-q]").forEach(function (b) { b.onclick = function () { $("ai-q").value = b.dataset.q; }; });
   $("ai-forget").onclick = function () { $("ai-key").value = ""; status("Key cleared from this page."); };
-  async function askAnthropic(key, q) {
-    var r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {"content-type": "application/json", "x-api-key": key, "anthropic-version": "2026-10-21",
-                "anthropic-beta": "server-side-fallback-2026-07-01", "anthropic-dangerous-direct-browser-access": "true"},
-      body: JSON.stringify({model: "claude-opus-5-5", max_tokens: 16000, system: SYSTEM, output_config: {effort: "low"},
-                            fallbacks: "default", messages: [{role: "user", content: q}]})});
-    var body = await r.json().catch(function () { return null; });
-    if (!r.ok) { throw new Error("Anthropic API error " + r.status + ": " + ((body && body.error && body.error.message) || r.statusText)); }
-    if (body.stop_reason === "refusal") {
-      var cat = body.stop_details && body.stop_details.category;
+  function okBase(u) {
+    try { var x = new URL(u); } catch (e) { return false; }
+    return x.protocol === "https:" || (x.protocol === "http:" && (x.hostname === "localhost" || x.hostname === "127.0.0.1"));
+  }
+  async function askAnthropic(key, model, q) {
+    var body = {model: model, max_tokens: 16000, system: SYSTEM, output_config: {effort: "low"}, messages: [{role: "user", content: q}]};
+    var headers = {"content-type": "application/json", "x-api-key": key, "anthropic-version": "2026-10-21",
+                   "anthropic-dangerous-direct-browser-access": "true"};
+    if (model === "claude-opus-5-5") { body.fallbacks = "default"; headers["anthropic-beta"] = "server-side-fallback-2026-07-01"; }
+    var r = await fetch("https://api.anthropic.com/v1/messages", {method: "POST", headers: headers, body: JSON.stringify(body)});
+    var b = await r.json().catch(function () { return null; });
+    if (!r.ok) { throw new Error("Anthropic API error " + r.status + ": " + ((b && b.error && b.error.message) || r.statusText)); }
+    if (b.stop_reason === "refusal") {
+      var cat = b.stop_details && b.stop_details.category;
       return "The model declined this question" + (cat ? " (" + cat + ")" : "") + ". Try rephrasing it.";
     }
-    var text = (body.content || []).filter(function (b) { return b.type === "text"; }).map(function (b) { return b.text; }).join("\n").trim();
-    return (text || "(empty answer)") + "\n\n[answered by " + body.model + "; stop_reason " + body.stop_reason + "]";
+    var text = (b.content || []).filter(function (x) { return x.type === "text"; }).map(function (x) { return x.text; }).join("\n").trim();
+    return (text || "(empty answer)") + "\n\n[answered by " + b.model + "; stop_reason " + b.stop_reason + "]";
   }
-  async function askNearAI(key, q, model) {
-    var r = await fetch("https://cloud-api.near.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {"content-type": "application/json", "authorization": "Bearer " + key},
-      body: JSON.stringify({model: model, max_tokens: 2000,
-                            messages: [{role: "system", content: SYSTEM}, {role: "user", content: q}]})});
+  async function askOpenAICompatible(base, key, model, q) {
+    var headers = {"content-type": "application/json"};
+    if (key) { headers.authorization = "Bearer " + key; }
+    var r = await fetch(base.replace(/\/+$/, "") + "/chat/completions", {method: "POST", headers: headers,
+      body: JSON.stringify({model: model, max_tokens: 2000, messages: [{role: "system", content: SYSTEM}, {role: "user", content: q}]})});
     var raw = await r.text();
-    var body = null; try { body = JSON.parse(raw); } catch (e) { body = null; }
+    var b = null; try { b = JSON.parse(raw); } catch (e) { b = null; }
     if (!r.ok) {
-      var msg = body && (body.error && (body.error.message || body.error) || body.message || body.detail);
-      throw new Error("NEAR AI Cloud error " + r.status + ": " + (typeof msg === "string" ? msg : raw.slice(0, 300)));
+      var e = b && (b.error && (b.error.message || b.error) || b.message || b.detail);
+      throw new Error("API error " + r.status + ": " + (typeof e === "string" ? e : raw.slice(0, 300)));
     }
-    var c = body && body.choices && body.choices[0] && body.choices[0].message && body.choices[0].message.content;
-    return (c || "(empty answer)").trim() + "\n\n[answered by " + ((body && body.model) || model) + " on NEAR AI Cloud]";
+    var c = b && b.choices && b.choices[0] && b.choices[0].message && b.choices[0].message.content;
+    if (Array.isArray(c)) { c = c.map(function (x) { return x.text || ""; }).join(""); }
+    return (c || "(empty answer)").trim() + "\n\n[answered by " + ((b && b.model) || model) + " via " + new URL(base).host + "]";
   }
   $("ai-go").onclick = async function () {
-    var key = $("ai-key").value.trim(), q = $("ai-q").value.trim();
-    if (!key) { status("Paste your own API key first. The rest of the page works without one."); return; }
+    var p = PROVIDERS.filter(function (x) { return x.id === $("ai-prov").value; })[0];
+    var base = $("ai-base").value.trim(), model = $("ai-model").value.trim(), key = $("ai-key").value.trim(), q = $("ai-q").value.trim();
+    show("");
+    if (!okBase(base)) { status("The API address must start with https:// (or http://localhost for a local model)."); return; }
+    if (!model) { status("Enter the model id from your provider's docs."); return; }
+    if (!key && p.id !== "local") { status("Paste your own API key first. The rest of the page works without one."); return; }
     if (!q) { status("Type a question."); return; }
-    $("ai-go").disabled = true; status("Asking..."); show("");
+    $("ai-go").disabled = true; status("Asking " + new URL(base).host + "..."); show("");
     try {
-      var ans = $("ai-prov").value === "anthropic" ? await askAnthropic(key, q) : await askNearAI(key, q, $("ai-model").value.trim());
+      var ans = p.kind === "anthropic" ? await askAnthropic(key, model, q) : await askOpenAICompatible(base, key, model, q);
       show(ans); status("Done. Check numbers against their metric ids.");
     } catch (e) {
-      show(""); status(String(e.message || e).slice(0, 400));
+      show(""); status(String(e.message || e).slice(0, 400) + (String(e).indexOf("Failed to fetch") >= 0 ? " (the provider may not allow browser calls, or the address is wrong)" : ""));
     } finally { $("ai-go").disabled = false; }
   };
 })();

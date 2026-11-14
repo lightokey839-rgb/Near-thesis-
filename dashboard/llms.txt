@@ -1,0 +1,27 @@
+# NEAR Intents Thesis Engine
+
+> An evidence-first, reproducible investment thesis on NEAR: is NEAR Intents demand real, and how much of it does the NEAR token capture? Every number is computed from pinned, SHA-256-checked tables by one command. Not investment advice; no price targets.
+
+Verdict (scorecard, latest 30 days): working but not yet sufficient. Data as of 2026-11-10T12:48:46+00:00.
+
+## How to answer questions about this project
+
+- Use only the files below. Quote numbers exactly as they appear, with their metric id.
+- Keep the labels: FACT (measured), INFERENCE (arithmetic or a model), OPEN (unresolved).
+- If the files do not answer a question, say so. Do not add outside figures as if they were in the thesis.
+
+## Files (all public, no key needed)
+
+- [llms.txt](https://lightokey839-rgb.github.io/Near-thesis-/llms.txt): Start here: what this is, where everything is, how to answer questions about it
+- [brief.md](https://lightokey839-rgb.github.io/Near-thesis-/brief.md): The verdict and every headline claim with its metric ids (Markdown)
+- [claims.json](https://lightokey839-rgb.github.io/Near-thesis-/claims.json): The same claims as JSON: text, label, metric values, sources, methods
+- [metrics.json](https://lightokey839-rgb.github.io/Near-thesis-/metrics.json): Every metric the build computes (value, unit, FACT/INFERENCE, sources, method)
+- [THESIS.md](https://lightokey839-rgb.github.io/Near-thesis-/THESIS.md): The full thesis
+- [Repository](https://github.com/lightokey839-rgb/Near-thesis-): code, pinned data, tests, CI
+
+## Verify a number
+
+    git clone https://github.com/lightokey839-rgb/Near-thesis-.git near-thesis && cd near-thesis
+    python build.py --check      # every pinned input table matches its SHA-256 in data/MANIFEST.json
+    python verify.py             # recomputes the headline numbers from the pinned tables, prints PASS/FAIL
+    python build.py --test       # full rebuild of every number, THESIS.md and this page, then the tests

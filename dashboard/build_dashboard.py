@@ -24,6 +24,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(ROOT, "pipeline"))
 from render import fmt_value  # noqa: E402  (same number style as THESIS.md)
 import explain  # noqa: E402  (plain-English panel, claims.json, optional bring-your-own-key AI)
+import layout  # noqa: E402  (sidebar, stat cards, signal rail, page template)
 
 
 def yaml_claim(yaml_text):
@@ -32,7 +33,7 @@ def yaml_claim(yaml_text):
     return m.group(1) if m else ""
 GAP_DAYS = {"2026-10-01", "2026-10-20", "2026-11-02"}
 PARTIAL = {"2026-09-28", "2026-11-10"}
-COLORS = ["#2f6fde", "#e07b28", "#1a9e8f", "#8a5cd1", "#d64545", "#8a8f98"]
+COLORS = ["#4b3fa8", "#4fcfdd", "#f07a85", "#e5348a", "#f2a93b", "#8a8f98"]  # indigo, cyan, coral, pink, amber, grey
 
 
 def rd(data, *p):
@@ -476,17 +477,19 @@ def build(data, out):
     met = json.load(open(os.path.join(data, "derived", "metrics.json"), encoding="utf-8"))["metrics"]
     musd = lambda v: "$%.1fM" % (v / 1e6)
     pct = lambda v: "%.1f%%" % (100 * v)
+    stats = "".join([
+        layout.stat_card(met, "intents_volume_usd_per_day", lambda v: musd(v) + "/day", "All NEAR Intents volume (DefiLlama, 30 days)", "volume"),
+        layout.stat_card(met, "captured_revenue_take_bps", lambda v: "%.1f bps" % v, "NEAR's captured take-rate (30 days)", "take"),
+        layout.stat_card(met, "wallet_inflow_share_of_issuance", pct, "Buyback inflow as a share of new NEAR issued", "buyback"),
+        layout.stat_card(met, "market_cap_to_captured_revenue", lambda v: "%.0fx" % v, "Market cap / captured Intents revenue", "multiple"),
+    ])
     tiles = "".join([
-        tile(met, "oneclick_usd_per_day", lambda v: musd(v) + "/day", "1Click swap volume (SUCCESS, clean days)"),
-        tile(met, "intents_volume_usd_per_day", lambda v: musd(v) + "/day", "All NEAR Intents volume (DefiLlama, 30 days)"),
-        tile(met, "near_captured_revenue_usd_per_year", lambda v: musd(v) + "/yr", "NEAR's captured Intents revenue (DefiLlama, annualised)"),
-        tile(met, "wallet_inflow_share_of_issuance", pct, "Buyback inflow as a share of new NEAR issued"),
-        tile(met, "top_volume_channel_buyback_share", pct, "Share of 1Click buyback fees from the app with the most volume"),
-        tile(met, "organic_signers_per_day_latest", lambda v: "%.0f/day" % v, "Organic NEAR signers, latest month"),
-        tile(met, "organic_change_jan_to_latest", pct, "Organic signers, January to latest month"),
-        tile(met, "strict_weekly_active_latest", lambda v: "%.0f/wk" % v, "Strict weekly active accounts (L4), last 2 weeks"),
-        tile(met, "market_cap_to_captured_revenue", lambda v: "%.0fx" % v, "Market cap / captured Intents revenue"),
-        tile(met, "scorecard_verdict", str, "Scorecard verdict (thesis.yaml)"),
+        layout.mini_tile(met, "oneclick_usd_per_day", lambda v: musd(v) + "/day", "1Click swap volume (SUCCESS, clean days)"),
+        layout.mini_tile(met, "near_captured_revenue_usd_per_year", lambda v: musd(v) + "/yr", "NEAR's captured Intents revenue (DefiLlama, annualised)"),
+        layout.mini_tile(met, "top_volume_channel_buyback_share", pct, "Share of 1Click buyback fees from the app with the most volume"),
+        layout.mini_tile(met, "organic_signers_per_day_latest", lambda v: "%.0f/day" % v, "Organic NEAR signers, latest month"),
+        layout.mini_tile(met, "organic_change_jan_to_latest", pct, "Organic signers, January to latest month"),
+        layout.mini_tile(met, "strict_weekly_active_latest", lambda v: "%.0f/wk" % v, "Strict weekly active accounts (L4), last 2 weeks"),
     ])
     sc = met["scorecard"]["value"]
     srows = "".join(
@@ -532,13 +535,17 @@ def build(data, out):
         sections.setdefault(section, []).append(card)
     slug = lambda s: re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
     body = "".join('<h2 id="%s">%s</h2><div class="grid">%s</div>' % (slug(s), html.escape(s), "".join(c)) for s, c in sections.items())
-    nav = '<nav class="toc">' + " ".join('<a href="#%s">%s</a>' % (a, html.escape(t)) for a, t in (
-        [("explain", "Explain"), ("scorecard", "Scorecard"), ("scenarios", "Scenarios")] + [(slug(s), s) for s in sections])) + "</nav>"
-    page = PAGE.replace("{{CHARTJS}}", chartjs_tag()).replace("{{TILES}}", nav + tiles).replace("{{BODY}}", explain_html + scorecard + body).replace(
-        "{{DATA}}", json.dumps(data_js).replace("</", "<\\/")).replace(
-        "{{STAMP}}", html.escape("%s; NEAR price %s at %s" % (
-            met.get("swaps_last_utc", {}).get("value", "?"), met.get("near_price_usd", {}).get("value", "?"),
-            met.get("snapshot_block_time_utc", {}).get("value", "?"))))
+    stamp = html.escape("%s; NEAR price %s at %s" % (
+        met.get("swaps_last_utc", {}).get("value", "?"), met.get("near_price_usd", {}).get("value", "?"),
+        met.get("snapshot_block_time_utc", {}).get("value", "?")))
+    page = layout.PAGE
+    for k, v in (("{{CSS}}", layout.CSS), ("{{SIDE}}", layout.side_nav(sections, slug)), ("{{STATS}}", stats), ("{{TILES}}", tiles),
+                 ("{{VERDICT}}", layout.verdict_card(met)), ("{{RAIL}}", layout.signal_rail(met, fmt_value, claims)),
+                 ("{{STAMP}}", stamp), ("{{CHARTJS}}", chartjs_tag()),
+                 ("{{BODY}}", explain_html + scorecard + body + explain.ask_html(brief))):
+        page = page.replace(k, v)
+    page = page.replace("{{DATA}}", json.dumps(data_js).replace("</", "<\\/"))
+    explain.write_agent_files(os.path.dirname(out), brief, met)
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8", newline="\n") as f:
         f.write(page)
@@ -650,70 +657,6 @@ SCORECARD = """<h2 id="scorecard">Scorecard</h2><section class="card"><h3>Verdic
 <div class="tablewrap"><table><thead><tr><th>Signal</th><th>Today</th><th>Bullish if</th><th>Bearish if</th><th>Status</th></tr></thead><tbody>%s</tbody></table></div>
 <p class="meta"><span class="kind inference">INFERENCE</span> Source: <code>thesis.yaml</code>, <code>data/derived/metrics.json</code> (scorecard)</p>
 <details><summary>Rules behind this scorecard (thesis.yaml)</summary><pre><code>%s</code></pre></details></section>"""
-
-
-PAGE = r"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'unsafe-inline'; img-src data:; connect-src https://api.anthropic.com https://cloud-api.near.ai; base-uri 'none'; form-action 'none'">
-<meta name="referrer" content="no-referrer">
-<title>NEAR Intents Thesis</title>
-<style>
-:root{--bg:#f7f7f5;--card:#fff;--ink:#1b1d21;--muted:#5d636e;--line:#e3e3df;--fact:#1a7f5a;--inf:#a35b00;--code:#f1f1ee}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#141518;--card:#1d1f23;--ink:#e9eaec;--muted:#a2a7b0;--line:#30333a;--fact:#5fd1a2;--inf:#f0a64a;--code:#26292e}}
-:root[data-theme="dark"]{--bg:#141518;--card:#1d1f23;--ink:#e9eaec;--muted:#a2a7b0;--line:#30333a;--fact:#5fd1a2;--inf:#f0a64a;--code:#26292e}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-main{max-width:1180px;margin:0 auto;padding:24px 16px 64px}h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:36px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px}
-h3{font-size:16px;margin:0 0 4px}.lead{color:var(--muted);margin:0 0 18px}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.tile{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-.tile .v{font-size:22px;font-weight:650}.tile .l{color:var(--ink);font-size:13px}.tile .k{color:var(--muted);font-size:11px;margin-top:4px;word-break:break-all}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
-.sentence{margin:0 0 10px}.chart{position:relative;height:280px}.meta{color:var(--muted);font-size:12px;margin:10px 0 6px;word-break:break-word}
-.kind{font-weight:700;font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid currentColor;margin-right:6px}.kind.fact{color:var(--fact)}.kind.inference{color:var(--inf)}
-details summary{cursor:pointer;font-size:13px;color:var(--muted)}pre{background:var(--code);padding:10px;border-radius:6px;overflow:auto;max-height:340px;font-size:12px}
-code{font-family:ui-monospace,Consolas,monospace;font-size:12px}a{color:inherit}
-footer{color:var(--muted);font-size:12px;margin-top:40px}
-.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-.q{color:var(--muted);font-size:12px}.st{font-weight:700;font-size:11px;padding:2px 7px;border-radius:4px;color:#fff}
-.st.green{background:#1a7f5a}.st.yellow{background:#a87900}.st.red{background:#c23b3b}.st.not-computed{background:#6b7079}
-.ctl{display:grid;gap:10px;margin:8px 0 12px}.ctl label{display:grid;gap:4px;font-size:13px}.ctl label.chk{display:flex;gap:8px;align-items:center}
-.ctl input[type=range]{width:100%}.presets{display:flex;flex-wrap:wrap;gap:6px}
-.presets button{font:inherit;font-size:13px;padding:5px 12px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
-.presets button:hover{border-color:var(--muted)}#sc-reset{margin-left:auto}
-.toc{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 14px;font-size:13px}.toc a{color:var(--muted);text-decoration:none;border-bottom:1px dotted var(--muted)}
-.explain h4{margin:14px 0 4px;font-size:14px}.claim{margin:4px 0 8px}.claim .ids{font-size:11px;color:var(--muted)}.claim .ids code{font-size:11px;margin-right:4px;cursor:help}
-.kind.open{color:#c23b3b}ul.open{margin:4px 0 8px;padding-left:20px}
-.ctl select,.ctl textarea,.ctl input[type=text],.ctl input[type=password]{font:inherit;font-size:14px;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:100%}
-.aiout{white-space:pre-wrap;background:var(--code);border-radius:6px;padding:10px;min-height:2em;font-size:14px}
-button:disabled{opacity:.5;cursor:wait}
-</style></head><body><main>
-<h1>NEAR Intents: is the demand real, and does NEAR capture it?</h1>
-<p class="lead">Every number comes from pinned tables in this repo (<code>data/</code>) and is rebuilt by <code>python build.py</code>. Each chart shows its query. FACT = measured; INFERENCE = derived by arithmetic or modelling. Data as of {{STAMP}}.</p>
-<div class="tiles">{{TILES}}</div>
-{{BODY}}
-<footer>Built by dashboard/build_dashboard.py. Sources: NEAR Intents Explorer API (1Click swaps), Google BigQuery public dataset crypto_near_mainnet_us, NEAR JSON-RPC, DefiLlama, CoinGecko. Not investment advice.</footer>
-</main>
-{{CHARTJS}}
-<script>
-const CHARTS = {{DATA}};
-const css = getComputedStyle(document.documentElement);
-if (window.Chart) {
-  Chart.defaults.color = css.getPropertyValue('--muted').trim();
-  Chart.defaults.borderColor = css.getPropertyValue('--line').trim();
-  Chart.defaults.maintainAspectRatio = false;
-  for (const [id, cfg] of Object.entries(CHARTS)) {
-    cfg.options = Object.assign({interaction: {mode: 'index', intersect: false}, plugins: {legend: {position: 'bottom'}}}, cfg.options || {});
-    if (id === 'peers') cfg.options.scales.y.type = 'logarithmic';
-    const lg = cfg.options.plugins && cfg.options.plugins.legend;
-    if (lg && lg.labels && lg.labels.filter === 'nonempty') lg.labels.filter = (item) => item.text !== '';
-    const el = document.getElementById('cv-' + id);
-    if (el) new Chart(el, cfg);
-  }
-} else {
-  document.querySelectorAll('.chart').forEach(c => c.innerHTML = '<p class="meta">Chart library could not load (offline?). The data and query are still below.</p>');
-}
-</script></body></html>
-"""
 
 
 def main():
